@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @fmodel %>
+
+<div>
+  <%= link_to "Edit this fmodel", edit_fmodel_path(@fmodel) %> |
+  <%= link_to "Back to fmodels", fmodels_path %>
+
+  <%= button_to "Destroy this fmodel", @fmodel, method: :delete %>
+</div>

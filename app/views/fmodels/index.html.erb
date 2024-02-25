@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Fmodels</h1>
+
+<div id="fmodels">
+  <% @fmodels.each do |fmodel| %>
+    <%= render fmodel %>
+    <p>
+      <%= link_to "Show this fmodel", fmodel %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New fmodel", new_fmodel_path %>
