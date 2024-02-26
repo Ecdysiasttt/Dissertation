@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Dissertation</title>
+    <title><%= @title %> | Name</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -10,7 +10,17 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="w-75 mx-auto">
+    <header class="my-2 d-flex justify-content-between">
+      <div>
+        <h1 class=""><%= @header %></h1>
+      </div>
+      <div>
+        <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-secondary" %>
+      </div>
+    </header>
+    <main class="w-75 mx-auto">
+      <%= yield %>
+    </main>
   </body>
 </html>

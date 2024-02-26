@@ -1,8 +1,11 @@
 class FmodelsController < ApplicationController
   before_action :set_fmodel, only: %i[ show edit update destroy ]
+  # before_action :set_title
 
   # GET /fmodels or /fmodels.json
   def index
+    @title = "Home"
+    @header = "Placeholder"
     @fmodels = Fmodel.all
   end
 
