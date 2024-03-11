@@ -16,6 +16,13 @@
     <%= form.text_field :title %>
   </div>
 
+  <%= render "fmodel-graph" %>
+
+  <div>
+    <%= form.label :graph, style: "display: none" %>
+    <%= form.text_field :graph %>
+  </div>
+
   <div>
     <%= form.submit %>
   </div>

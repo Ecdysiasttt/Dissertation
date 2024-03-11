@@ -1,0 +1,60 @@
+<!-- content -->
+<%# sets the id to that in the database if given a model, else makes id blank %>
+<% id = defined?(fmodel_id) ? fmodel_id : "blank" %>
+<div id="graphHolder-<%= id %>"></div>
+
+<!-- dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/@joint/core@4.0.1/dist/joint.js"></script>
+
+<!-- code -->
+<script type="text/javascript">
+
+  var namespace = joint.shapes;
+
+  var graph = new joint.dia.Graph({}, { cellNamespace: namespace });
+
+  graph.set('graphCustomProperty', true);
+  graph.set('graphExportTime', Date.now());
+
+  var paper = new joint.dia.Paper({
+    el: document.getElementById('graphHolder-<%= id %>'),
+    model: graph,
+    width: 600,
+    height: 100,
+    gridSize: 10,
+    drawGrid: true,
+    cellViewNamespace: namespace
+  });
+
+  var rect = new joint.shapes.standard.Rectangle();
+  rect.position(100, 30);
+  rect.resize(100, 40);
+  rect.attr({
+    body: {
+      fill: 'blue'
+    },
+    label: {
+      text: 'Hello',
+      fill: 'white'
+    }
+  });
+  rect.addTo(graph);
+
+  var rect2 = rect.clone();
+  rect2.translate(300, 0);
+  rect2.attr('label/text', '<%= id %>');
+  rect2.addTo(graph);
+
+  var link = new joint.shapes.standard.Link();
+  link.source(rect);
+  link.target(rect2);
+  link.addTo(graph);
+
+  var jsonObject = graph.toJSON();
+  var jsonString = JSON.stringify(jsonObject);
+
+  console.log(jsonString);
+
+  document.getElementById("fmodel_graph").value = "hi";
+
+</script>
