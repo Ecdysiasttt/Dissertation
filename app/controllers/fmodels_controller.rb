@@ -16,6 +16,8 @@ class FmodelsController < ApplicationController
   # GET /fmodels/new
   def new
     @fmodel = Fmodel.new
+    @title = "Create New Feature Model"
+    @header = "Placeholder"
   end
 
   # GET /fmodels/1/edit
@@ -69,5 +71,6 @@ class FmodelsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def fmodel_params
       params.require(:fmodel).permit(:title)
+      params.require(:fmodel).permit(:graph)
     end
 end

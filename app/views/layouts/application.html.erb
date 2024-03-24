@@ -10,16 +10,21 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="w-75 mx-auto">
-    <header class="my-2 d-flex justify-content-between">
-      <div>
-        <h1 class=""><%= @header %></h1>
+  <body class="mx-auto">
+    <header class="mx-auto d-flex justify-content-between
+      border-bottom">
+      <div class=""></div>
+      <div class="w-75 py-2 d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class=""><%= @header %></h1>
+        </div>
+        <div>
+          <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-secondary" %>
+        </div>
       </div>
-      <div>
-        <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-secondary" %>
-      </div>
+      <div class=""></div>
     </header>
-    <main class="w-75 mx-auto">
+    <main class="w-75 px-5 py-2 mx-auto">
       <%= yield %>
     </main>
   </body>

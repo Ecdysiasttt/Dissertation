@@ -1,4 +1,4 @@
-<%= form_with(model: fmodel) do |form| %>
+<%= form_with(model: fmodel, html: {id: "form", class: "d-flex"}) do |form| %>
   <% if fmodel.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(fmodel.errors.count, "error") %> prohibited this fmodel from being saved:</h2>
@@ -11,19 +11,39 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :title, style: "display: block" %>
-    <%= form.text_field :title %>
+  <div id="left-panel" class="">
+    
+    <%# title text field %>
+    <div class="d-flex" >
+      <%= form.label :title, 'Title:', class: "me-2"%>
+      <%= form.text_field :title %>
+    </div>
+
+    <%# hidden graph json text field %>
+    <div>
+      <%= form.label :graph, style: "display: none" %>
+      <%= form.text_field :graph, style: "display: none" %>
+    </div>
+
+    <%# submit button %>
+    <div>
+      <%= form.submit%>
+    </div>
+  </div>
+  <%# , class: "btn btn-outline-success" %>
+
+  <div id="right-panel" class="w-100">
+    <div>
+      <%= render "fmodel-graph" %>
+    </div>
   </div>
 
-  <%= render "fmodel-graph" %>
-
-  <div>
-    <%= form.label :graph, style: "display: none" %>
-    <%= form.text_field :graph %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
+  <script>
+    var form = document.getElementById('form');
+    
+    form.addEventListener('submit', function(event) {
+      // event.preventDefault(); // for debugging, remove for deployment
+      document.getElementById("fmodel_graph").value = diagram.model.toJson();
+    });
+  </script>
 <% end %>

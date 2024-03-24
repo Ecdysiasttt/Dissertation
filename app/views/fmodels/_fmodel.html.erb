@@ -5,6 +5,7 @@
   </p>
 
   <% id = dom_id fmodel%>
-  <%= render "fmodel-graph", fmodel_id: id %>
+  <% puts fmodel.graph.to_s %>
+  <%= render "fmodel-graph", fmodel_id: id, fmodel_graph: fmodel.graph.to_s %>
 
 </div>
