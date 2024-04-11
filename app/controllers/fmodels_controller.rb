@@ -4,8 +4,7 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels or /fmodels.json
   def index
-    @title = "Home"
-    @header = "Placeholder"
+    @title = "Feature Model Database"
     @fmodels = Fmodel.all
   end
 
@@ -17,7 +16,11 @@ class FmodelsController < ApplicationController
   def new
     @fmodel = Fmodel.new
     @title = "Create New Feature Model"
-    @header = "Placeholder"
+    @header = "Create New Feature Model"
+    
+    # to show return button and instructions on creation form
+    @hasReturn = true
+    @instructions = true
   end
 
   # GET /fmodels/1/edit

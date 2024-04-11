@@ -1,6 +1,11 @@
 source "https://rubygems.org"
 
-ruby "3.2.2"
+ruby "3.2.3"
+
+# gem irb now depends on psych, but version 5 will not bundle currently  
+gem("psych", "~> 4")  
+
+gem 'autoprefixer-rails', '8.6.5'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.3", ">= 7.1.3.2"

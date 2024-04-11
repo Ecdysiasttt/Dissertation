@@ -11,12 +11,12 @@
     </div>
   <% end %>
 
-  <div id="left-panel" class="">
+  <div id="left-panel" class="w-25 mw-25">
     
     <%# title text field %>
-    <div class="d-flex" >
-      <%= form.label :title, 'Title:', class: "me-2"%>
-      <%= form.text_field :title %>
+    <div class="d-flex align-items-center" >
+      <%= form.label :title, 'Title:', class: "mr-2"%>
+      <%= form.text_field :title, :required => true, class: "form-control mb-2" %>
     </div>
 
     <%# hidden graph json text field %>
@@ -26,13 +26,24 @@
     </div>
 
     <%# submit button %>
-    <div>
-      <%= form.submit%>
+    <div class="d-flex align-items-end">
+      <%= form.submit 'Create', :class => 'btn btn-secondary white ml-auto' %>
     </div>
+
+    <%# show instructions to user %>
+    <% if @instructions %>
+      <hr class="">
+      <h6>Instructions:</h6>
+      <ul class="instruction-text">
+        <li>Drag features from the palette to the right onto the canvas to place them in the diagram.</li>
+        <li>Double click the feature to edit the text.</li>
+        <li>Links can be drawn by highlighting over a node or from dragging a link from the palette.</li>
+      </ul>
+    <% end %>
   </div>
   <%# , class: "btn btn-outline-success" %>
 
-  <div id="right-panel" class="w-100">
+  <div id="right-panel" class="w-75 ml-2 left-border">
     <div>
       <%= render "fmodel-graph" %>
     </div>
@@ -42,8 +53,12 @@
     var form = document.getElementById('form');
     
     form.addEventListener('submit', function(event) {
-      // event.preventDefault(); // for debugging, remove for deployment
-      document.getElementById("fmodel_graph").value = diagram.model.toJson();
+      document.getElementById("fmodel_graph").value = diagram.model.toJson(); 
+
+      if (document.getElementById("fmodel_graph").value === '{ "class": "GraphLinksModel",  "nodeDataArray": [],  "linkDataArray": []}') {
+        event.preventDefault(); // prevents form being submitted if diagram blank
+        alert("Please create a Feature Model using the diagram builder.");
+      };
     });
   </script>
 <% end %>

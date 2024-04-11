@@ -10,22 +10,36 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="mx-auto">
-    <header class="mx-auto d-flex justify-content-between
-      border-bottom">
-      <div class=""></div>
-      <div class="w-75 py-2 d-flex justify-content-between align-items-center">
-        <div>
-          <h1 class=""><%= @header %></h1>
-        </div>
-        <div>
-          <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-secondary" %>
-        </div>
+  <body class="mx-auto white">
+
+    <header class=
+      "mx-auto d-flex justify-content-between
+      align-items-center bottom-border py-2">
+      <div class="ml-5 pl-5">
+        <%= link_to "Placeholder", "/", class: "header-title" %>
       </div>
-      <div class=""></div>
+
+      <div class="mr-5 pr-5">
+        <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-secondary white" %>
+      </div>
     </header>
+
     <main class="w-75 px-5 py-2 mx-auto">
-      <%= yield %>
+      <% if !@centreDiv %>
+        <div class="centre-box p-3">
+          <div>
+            <div class="bottom-border mb-2 d-flex justify-content-between">
+              <h2 class="pb-1"><%= @header %></h2>
+              <% if @hasReturn %>
+                <%= link_to 'Back', 'javascript:history.back()', class: "btn btn-secondary white mb-3" %>
+              <% end %>
+            </div>
+            <%= yield %>
+          </div>
+        </div>
+      <% else %>
+      <% end %>
     </main>
+
   </body>
 </html>

@@ -1,3 +1,56 @@
-body {
-  background-color: #E0E0E0;
+:root {
+  --white: #F2F3F4;
+  --text: #000000;
+  --border: #000000;
+  --secondary-hover: #5CBD95;
+}
+
+.white {
+  background-color: var(--white) !important;
+}
+
+main {
+  height: calc(100vh - 76.8px);
+  align-content: center;
+}
+
+.centre-box {
+  border: solid var(--border) 1px;
+  border-radius: 10px;
+  min-height: 50vh;
+}
+
+a {
+  color: var(--text) !important;
+  text-decoration: none !important;
+  font-weight: bold;
+}
+
+a:hover, a:focus {
+  color: var(--secondary-hover) !important;
+}
+
+.header-title {
+  font-size: 250%;
+  font-weight: 500;
+}
+
+.header-title:hover, .header-title:focus {
+  color: var(--text) !important;
+} 
+
+.bottom-border {
+  border-bottom: solid var(--border) 1px;
+}
+
+.right-border {
+  border-right: solid var(--border) 1px;  
+}
+
+.left-border {
+  border-left: solid var(--border) 1px;  
+}
+
+.instruction-text {
+  font-size: small;
 }
