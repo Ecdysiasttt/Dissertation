@@ -16,6 +16,31 @@
 <!-- code -->
 <script type="text/javascript">
   var $ = go.GraphObject.make;  // for conciseness in defining templates
+  
+  function makeOptional(e, obj) {
+    console.log("Make optional clicked");
+    diagram.commit(d => {
+    // get the context menu that holds the button that was clicked
+      var contextMenu = obj.part;
+      // get the link data to which the Node is data bound
+      var linkData = contextMenu.data;
+
+      d.model.set(linkData, "arrowheadFill", "white");
+    }, "changed to optional");
+  }
+
+  function makeMandatory(e, obj) {
+    console.log("Make optional clicked");
+    diagram.commit(d => {
+    // get the context menu that holds the button that was clicked
+      var contextMenu = obj.part;
+      // get the link data to which the Node is data bound
+      var linkData = contextMenu.data;
+
+      d.model.set(linkData, "arrowheadFill", "black");
+    }, "changed to mandatory  ");
+  }
+
 
   diagram =
     new go.Diagram("graphHolder-<%= id %>",  // must name or refer to the DIV HTML element
@@ -139,22 +164,69 @@
         { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 })  // use selection object's strokeWidth
     );
 
+  
+
   diagram.linkTemplate =
     $(go.Link,  // the whole link panel
       { selectable: true, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
       { relinkableFrom: true, relinkableTo: true, reshapable: true },
       {
-        routing: go.Link.AvoidsNodes,
-        curve: go.Link.JumpOver,
-        corner: 5,
+        // routing: go.Link.AvoidsNodes,
+        // curve: go.Link.JumpOver,
+        // corner: 5,
         toShortLength: 4
       },
       new go.Binding("points").makeTwoWay(),
       $(go.Shape,  // the link path shape
         { isPanelMain: true, strokeWidth: 2 }),
-      $(go.Shape,  // the arrowhead
-        { toArrow: "Standard", stroke: null })
-    );
+      $(go.Shape, { toArrow: "Circle", fill: "black"},
+        new go.Binding("fill", "arrowheadFill")),
+      {
+        contextMenu:     // define a context menu for each node
+          $("ContextMenu",  // that has one button
+            $("ContextMenuButton",
+              {
+                "ButtonBorder.fill": "white",
+                "_buttonFillOver": "skyblue"
+              },
+              $(go.TextBlock, "Make optional"),
+              { click: makeOptional }),
+            $("ContextMenuButton",
+              {
+                "ButtonBorder.fill": "white",
+                "_buttonFillOver": "skyblue"
+              },
+              $(go.TextBlock, "Make mandatory"),
+              { click: makeMandatory })
+            // more ContextMenuButtons would go here
+          )  // end Adornment
+      }
+  );
+
+// also define a context menu for the diagram's background
+diagram.contextMenu =
+  $("ContextMenu",
+    $("ContextMenuButton",
+      $(go.TextBlock, "Undo"),
+      { click: (e, obj) => e.diagram.commandHandler.undo() },
+      new go.Binding("visible", "", o => o.diagram.commandHandler.canUndo()).ofObject()),
+    $("ContextMenuButton",
+      $(go.TextBlock, "Redo"),
+      { click: (e, obj) => e.diagram.commandHandler.redo() },
+      new go.Binding("visible", "", o => o.diagram.commandHandler.canRedo()).ofObject()),
+    // no binding, always visible button:
+    $("ContextMenuButton",
+      $(go.TextBlock, "New Node"),
+      { click: (e, obj) => {
+        e.diagram.commit(d => {
+          var data = {};
+          d.model.addNodeData(data);
+          part = d.findPartForData(data);  // must be same data reference, not a new {}
+          // set location to saved mouseDownPoint in ContextMenuTool
+          part.location = d.toolManager.contextMenuTool.mouseDownPoint;
+        }, 'new node');
+      } })
+  );
 
   // check for exisiting before creating pallette
 
@@ -190,26 +262,51 @@
                     $(go.Shape,
                       { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 }),
                     $(go.Shape,  // the arrowhead
-                      { toArrow: "Standard", stroke: null })
+                      { toArrow: "Circle", fill: "black" })
                   )
               },
               {
-                routing: go.Link.AvoidsNodes,
-                curve: go.Link.JumpOver,
-                corner: 5,
+                // routing: go.Link.AvoidsNodes,
+                // curve: go.Link.JumpOver,
+                // corner: 5,
                 toShortLength: 4
               },
               new go.Binding("points"),
               $(go.Shape,  // the link path shape
                 { isPanelMain: true, strokeWidth: 2 }),
               $(go.Shape,  // the arrowhead
-                { toArrow: "Standard", stroke: null })
+                { toArrow: "Circle", stroke: null })
+            ),
+          $(go.Link,
+              { // because the GridLayout.alignment is Location and the nodes have locationSpot == Spot.Center,
+                // to line up the Link in the same manner we have to pretend the Link has the same location spot
+                locationSpot: go.Spot.Center,
+                selectionAdornmentTemplate:
+                  $(go.Adornment, "Link",
+                    { locationSpot: go.Spot.Center },
+                    $(go.Shape,
+                      { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 }),
+                    $(go.Shape,  // the arrowhead
+                      { toArrow: "Circle", fill: "black" })
+                  )
+              },
+              {
+                // routing: go.Link.AvoidsNodes,
+                // curve: go.Link.JumpOver,
+                // corner: 5,
+                toShortLength: 4
+              },
+              new go.Binding("points"),
+              $(go.Shape,  // the link path shape
+                { isPanelMain: true, strokeWidth: 2 }),
+              $(go.Shape,  // the arrowhead
+                { toArrow: "Circle", stroke: null })
             ),
           model: new go.GraphLinksModel([  // specify the contents of the Palette
             { text: "Feature", "size":"120 45"},
           ], [
               // the Palette also has a disconnected Link, which the user can drag-and-drop
-              { points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(30, 0), new go.Point(30, 40), new go.Point(60, 40)]) }
+              { points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(60, 0)]) }
             ])
         });
   }

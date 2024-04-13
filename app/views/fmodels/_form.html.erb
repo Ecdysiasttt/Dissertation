@@ -16,7 +16,7 @@
     <%# title text field %>
     <div class="d-flex align-items-center" >
       <%= form.label :title, 'Title:', class: "mr-2"%>
-      <%= form.text_field :title, :required => true, class: "form-control mb-2" %>
+      <%= form.text_field :title, :required => true, :placeholder => "Feature model title...", class: "form-control mb-2" %>
     </div>
 
     <%# hidden graph json text field %>
@@ -38,6 +38,9 @@
         <li>Drag features from the palette to the right onto the canvas to place them in the diagram.</li>
         <li>Double click the feature to edit the text.</li>
         <li>Links can be drawn by highlighting over a node or from dragging a link from the palette.</li>
+        <li>Right-click on links to toggle between mandatory and optional.</li>
+        <li>Ctrl+Z and Ctrl+Y can be used to undo and redo.</li>
+
       </ul>
     <% end %>
   </div>
