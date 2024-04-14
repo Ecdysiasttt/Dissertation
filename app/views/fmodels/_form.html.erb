@@ -19,14 +19,40 @@
       <%= form.text_field :title, :required => true, :placeholder => "Feature model title...", class: "form-control mb-2" %>
     </div>
 
+
     <%# hidden graph json text field %>
     <div>
       <%= form.label :graph, style: "display: none" %>
       <%= form.text_field :graph, style: "display: none" %>
     </div>
 
+
+
+
+
+
+
+    <%
+=begin %>
+    <div>
+      <%= form.label :graph %>
+      <%= form.text_field :graph %>
+    </div>
+<%
+=end %>
+
     <%# submit button %>
     <div class="d-flex align-items-end">
+      <div class="d-flex">
+        <div>
+          <button onclick="importModel()" type="button" class="btn btn-secondary white mr-2">Import</button>
+        </div>
+
+        <div>
+          <button onclick="exportModel()" type="button" class="btn btn-secondary white">Export</button>
+        </div>
+      </div>
+
       <%= form.submit 'Create', :class => 'btn btn-secondary white ml-auto' %>
     </div>
 
@@ -48,11 +74,26 @@
 
   <div id="right-panel" class="w-75 ml-2 left-border">
     <div>
-      <%= render "fmodel-graph" %>
+      <%= render "fmodel-graph", fmodel: @fmodel %>
     </div>
   </div>
 
   <script>
+    function importModel() {
+      let importedJson = prompt("Please input a valid JSON format", "");
+      if (importedJson == "") {
+        prompt("No input detected, please try again.");
+      } else {
+        diagram.model = go.Model.fromJson(importedJson);
+      }
+    }
+
+    function exportModel() {
+      navigator.clipboard.writeText(diagram.model.toJson());
+
+      alert("Copied model to clipboard!");
+    }
+
     var form = document.getElementById('form');
     
     form.addEventListener('submit', function(event) {

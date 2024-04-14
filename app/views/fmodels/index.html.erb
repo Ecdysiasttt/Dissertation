@@ -2,12 +2,24 @@
 
 
 <div id="fmodels">
-  <% @fmodels.each do |fmodel| %>
-    <%= render fmodel %>
-    <p>
-      <%= link_to "Show this fmodel", fmodel %>
-    </p>
-  <% end %>
+  <table>
+    <tr>
+      <th>Title:</th>
+      <th>Created:</th>
+      <th>Updated:</th>
+      <th></th>
+      <th></th>
+    </tr>
+    <% @fmodels.each do |fmodel| %>
+      <tr>
+        <td><%=fmodel.title %></td>
+        <td><%=fmodel.created_at.strftime('%m/%d/%Y') %></td>
+        <td><%=fmodel.updated_at.strftime('%m/%d/%Y') %></td>
+        <td><%= link_to "Show", fmodel %></td>
+        <td><%= link_to "Edit", edit_fmodel_path(fmodel) %></td>
+      </tr>
+    <% end %>
+  </table>
 </div>
 
 

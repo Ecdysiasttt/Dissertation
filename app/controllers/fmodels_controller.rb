@@ -4,12 +4,18 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels or /fmodels.json
   def index
-    @title = "Feature Model Database"
     @fmodels = Fmodel.all
+
+    @title = "Feature Model Database"
+    @header = "Viewing All Feature Models"
   end
 
   # GET /fmodels/1 or /fmodels/1.json
   def show
+    @title = @fmodel.title
+    @header = "Viewing: " + @fmodel.title
+
+    @hasReturn = true
   end
 
   # GET /fmodels/new
@@ -25,11 +31,24 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels/1/edit
   def edit
+    @title = "Editing: " + @fmodel.title
+    @header = "Editing: " + @fmodel.title
+
+    @instructions = true
+    @hasReturn = true
   end
 
   # POST /fmodels or /fmodels.json
   def create
     @fmodel = Fmodel.new(fmodel_params)
+
+    puts "===================================="
+    puts @fmodel.title
+    puts @fmodel.graph
+    puts "params:"
+    puts params[:title]
+    puts params[:graph]
+    puts "===================================="
 
     respond_to do |format|
       if @fmodel.save
@@ -73,7 +92,9 @@ class FmodelsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def fmodel_params
-      params.require(:fmodel).permit(:title)
-      params.require(:fmodel).permit(:graph)
+      params.require(:fmodel).permit(
+        :title,
+        :graph
+      )
     end
 end

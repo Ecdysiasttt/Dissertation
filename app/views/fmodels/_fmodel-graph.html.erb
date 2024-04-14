@@ -1,7 +1,8 @@
 <!-- content -->
 <%# sets the id to that in the database if given a model, else makes id blank %>
-<% id = defined?(fmodel_id) ? fmodel_id : "blank" %>
-<% graphJSON = defined?(fmodel_graph) ? fmodel_graph.html_safe : "\"blank\"" %>
+<% puts fmodel&.graph %>
+<% id = fmodel&.id.nil? ? "blank" : fmodel.id %>
+<% graphJSON = fmodel&.graph.nil? ? "\"blank\"" : fmodel.graph %>
 
 <div id="" class="d-inline-flex w-100">
   <div id="myPaletteDiv-<%= id %>"style="width: 20%; height: 500px;"></div>
@@ -30,7 +31,7 @@
   }
 
   function makeMandatory(e, obj) {
-    console.log("Make optional clicked");
+    console.log("Make mandatory clicked");
     diagram.commit(d => {
     // get the context menu that holds the button that was clicked
       var contextMenu = obj.part;
@@ -125,8 +126,8 @@
             fromLinkable: true, toLinkable: true, cursor: "pointer",
             fromLinkableDuplicates: false, toLinkableDuplicates: false,
             fill: "white",  // default color
-            strokeWidth: 2,
-            toMaxLinks: 1
+            strokeWidth: 2
+            // toMaxLinks: 1
           },
           new go.Binding("figure"),
           new go.Binding("fill")),
@@ -141,8 +142,8 @@
           new go.Binding("text").makeTwoWay())
       ),
       // four small named ports, one on each side:
-      makePort("T", go.Spot.Top, false, true),
-      makePort("B", go.Spot.Bottom, true, false),
+      makePort("T", go.Spot.Top, true, true),
+      makePort("B", go.Spot.Bottom, true, true),
       { // handle mouse enter/leave events to show/hide the ports
         mouseEnter: (e, node) => showSmallPorts(node, true),
         mouseLeave: (e, node) => showSmallPorts(node, false)
@@ -229,23 +230,56 @@ diagram.contextMenu =
   );
 
   // check for exisiting before creating pallette
+  // pallette should show on new and edit pages
 
-  var graph = <%=raw graphJSON %>;
+  var showPalette = true;
 
-  if (graph != "blank") {
-    console.log("loading from db...");
-    // adjust panel widths
+  //  if model exists, we're on edit or show pages
+  <% if id != "blank" %>
+    console.log("Model exists. ID: <%= id %>");
 
-    var graphHolder = document.getElementById("graphHolder-<%= id %>");
-    var paletteHolder = document.getElementById("myPaletteDiv-<%= id %>");
-
-    graphHolder.style["width"] = "100%";
-    paletteHolder.style["width"] = "0%";
-
+    // load existing model
+    var graph = <%=raw graphJSON %>
     diagram.model = go.Model.fromJson(graph);
-    diagram.isEnabled = false;
-  } else {
-    // initialize the Palette that is on the left side of the page
+    console.log("Model loaded from DB, checking path...");
+
+
+    // if on show path, make diagram max width, hide pallette, and make
+    // read-only
+    <% if current_page?(fmodel_path(id)) %>
+      console.log("On show path");
+
+      showPalette = false;
+
+      var graphHolder = document.getElementById("graphHolder-<%= id %>");
+      var paletteHolder = document.getElementById("myPaletteDiv-<%= id %>");
+      
+      if (graph) {
+        console.log("loading <%= @fmodel.title %> from db...");
+        // adjust panel widths
+
+        graphHolder.style["width"] = "100%";
+        paletteHolder.style["width"] = "0%";
+
+        // diagram.model = go.Model.fromJson(@fmodel.graph);
+        diagram.isEnabled = false;
+      } else {
+        console.log("Error in loading graph.");
+        graphHolder.remove();
+        paletteHolder.remove();
+
+        var error = document.createElement("p");
+        paragraph.textContent = "There has been an unexpected erorr in loading the diagram. Please contact a site administrator";
+
+        var parent = document.getElementById("right-panel");
+
+        parent.appendChild(error);
+      }
+    // only other path is edit. no changes needed since graph has already been loaded.
+    <% end %>
+  <% end %>
+
+  if (showPalette) {
     myPalette =
       new go.Palette("myPaletteDiv-<%= id %>",  // must name or refer to the DIV HTML element
         {
@@ -277,37 +311,12 @@ diagram.contextMenu =
               $(go.Shape,  // the arrowhead
                 { toArrow: "Circle", stroke: null })
             ),
-          $(go.Link,
-              { // because the GridLayout.alignment is Location and the nodes have locationSpot == Spot.Center,
-                // to line up the Link in the same manner we have to pretend the Link has the same location spot
-                locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate:
-                  $(go.Adornment, "Link",
-                    { locationSpot: go.Spot.Center },
-                    $(go.Shape,
-                      { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 }),
-                    $(go.Shape,  // the arrowhead
-                      { toArrow: "Circle", fill: "black" })
-                  )
-              },
-              {
-                // routing: go.Link.AvoidsNodes,
-                // curve: go.Link.JumpOver,
-                // corner: 5,
-                toShortLength: 4
-              },
-              new go.Binding("points"),
-              $(go.Shape,  // the link path shape
-                { isPanelMain: true, strokeWidth: 2 }),
-              $(go.Shape,  // the arrowhead
-                { toArrow: "Circle", stroke: null })
-            ),
           model: new go.GraphLinksModel([  // specify the contents of the Palette
             { text: "Feature", "size":"120 45"},
           ], [
               // the Palette also has a disconnected Link, which the user can drag-and-drop
               { points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(60, 0)]) }
             ])
-        });
+    });
   }
 </script>
