@@ -4,7 +4,7 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels or /fmodels.json
   def index
-    @fmodels = Fmodel.all
+    @fmodels = Fmodel.order(:created_at).page params[:page]
 
     @title = "Feature Model Database"
     @header = "Viewing All Feature Models"
@@ -42,17 +42,17 @@ class FmodelsController < ApplicationController
   def create
     @fmodel = Fmodel.new(fmodel_params)
 
-    puts "===================================="
-    puts @fmodel.title
-    puts @fmodel.graph
-    puts "params:"
-    puts params[:title]
-    puts params[:graph]
-    puts "===================================="
+    # puts "===================================="
+    # puts @fmodel.title
+    # puts @fmodel.graph
+    # puts "params:"
+    # puts params[:title]
+    # puts params[:graph]
+    # puts "===================================="
 
     respond_to do |format|
       if @fmodel.save
-        format.html { redirect_to fmodel_url(@fmodel), notice: "Fmodel was successfully created." }
+        format.html { redirect_to '/fmodels', notice: "Fmodel was successfully created." }
         format.json { render :show, status: :created, location: @fmodel }
       else
         format.html { render :new, status: :unprocessable_entity }
