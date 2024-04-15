@@ -26,33 +26,21 @@
       <%= form.text_field :graph, style: "display: none" %>
     </div>
 
-
-
-
-
-
-
-    <%
-=begin %>
-    <div>
-      <%= form.label :graph %>
-      <%= form.text_field :graph %>
-    </div>
-<%
-=end %>
-
-    <%# submit button %>
+    <%# interaction buttons %>
     <div class="d-flex align-items-end">
       <div class="d-flex">
+        <%# import %>
         <div>
           <button onclick="importModel()" type="button" class="btn btn-secondary white mr-2">Import</button>
         </div>
 
+        <%# export %>
         <div>
           <button onclick="exportModel()" type="button" class="btn btn-secondary white">Export</button>
         </div>
       </div>
 
+      <%# submit %>
       <%= form.submit 'Create', :class => 'btn btn-secondary white ml-auto' %>
     </div>
 
@@ -82,7 +70,7 @@
     function importModel() {
       let importedJson = prompt("Please input a valid JSON format", "");
       if (importedJson == "") {
-        prompt("No input detected, please try again.");
+        alert("No input detected, please try again.");
       } else {
         diagram.model = go.Model.fromJson(importedJson);
       }

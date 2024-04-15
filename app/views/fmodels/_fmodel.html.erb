@@ -1,11 +1,1 @@
-<div id="<%= dom_id fmodel %>">
-  <%# <p>
-    <strong>Title:</strong>
-    <%= fmodel.title %>
-  </p>
-
-  <% id = dom_id fmodel%>
-  <%# <% puts fmodel.graph.to_s %>
-  <%= render "fmodel-graph", fmodel: @fmodel %>
-
-</div>
+<%= render "fmodel-graph", fmodel: @fmodel %>

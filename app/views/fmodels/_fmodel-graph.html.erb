@@ -1,6 +1,5 @@
 <!-- content -->
 <%# sets the id to that in the database if given a model, else makes id blank %>
-<% puts fmodel&.graph %>
 <% id = fmodel&.id.nil? ? "blank" : fmodel.id %>
 <% graphJSON = fmodel&.graph.nil? ? "\"blank\"" : fmodel.graph %>
 

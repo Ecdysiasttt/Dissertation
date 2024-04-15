@@ -1,10 +1,77 @@
 <p style="color: green"><%= notice %></p>
 
-<%= render @fmodel %>
+<div class="d-flex">
 
-<div>
-  <%= link_to "Edit this fmodel", edit_fmodel_path(@fmodel) %> |
-  <%= link_to "Back to fmodels", fmodels_path %>
+  <%# display analysis %>
+  <div id="left-panel" class="w-25 mw-25">
+    <button onclick="swapPanel()" id="button">Show Analysis</button>
+    <hr class="">
+    <div id="edit-info" style="display: block;">
+      <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
+      <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at %></p>
+      <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.updated_at %></p>
 
-  <%= button_to "Destroy this fmodel", @fmodel, method: :delete %>
+      <%# edit or delete %>
+      <div class="d-flex justify-content-between mt-3">
+        <%# edit %>
+        <div>
+          <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-secondary white" %>
+        </div>
+
+        <%# delete %>
+        <div>
+          <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-secondary white" %>
+        </div>
+      </div>
+    </div>
+
+    <div id="analysis" style="display: none;">
+      <h5>Analysis:</h5>
+      <ul>
+        <li>Num. of features: <%= @numFeatures %>
+          <ul>
+            <li><%= @numOptional%> optional</li>
+            <li><%= @numMandatory%> mandatory</li>
+            <li><%= @numAlternative%> alternative</li>
+            <li><%= @numOr%> or</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <%# show graph %>
+  <div id="right-panel" class="w-75 ml-2 left-border">
+    <%= render @fmodel %>
+  </div>
+
+  <script>
+
+    function swapPanel() {
+      var infoPanel = document.getElementById('edit-info');
+      var analysisPanel = document.getElementById('analysis');
+      var button = document.getElementById('button');
+      console.log(button);
+
+      if (infoPanel.style.display == "block") {
+        console.log("Info visible. Hiding...");
+        infoPanel.style.display = "none";
+        button.innerHTML = "Show Info";
+      } else {
+        console.log("Info not visible. Showing...");
+        infoPanel.style.display = "block";
+        button.innerHTML = "Show Analysis";
+      }
+
+      if (analysisPanel.style.display == "block") {
+        console.log("Analysis visible. Hiding...");
+        analysisPanel.style.display = "none";
+      } else {
+        console.log("Analysis not visible. Showing...");
+        analysisPanel.style.display = "block";
+      }
+
+    }
+
+  </script>
 </div>

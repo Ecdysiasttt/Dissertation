@@ -10,4 +10,7 @@
 #
 class Fmodel < ApplicationRecord
   paginates_per = 10  #set pagination limit
+
+  # def created
+
 end
