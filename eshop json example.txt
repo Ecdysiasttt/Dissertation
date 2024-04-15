@@ -1,0 +1,178 @@
+{ "class": "GraphLinksModel",  "nodeDataArray": [{"text":"E-Shop","size":"120 45","key":-1,"loc":"90 -70"},{"text":"Catalogue","size":"120 45","key":-2,"loc":"-210 60"},{"text":"Payment","size":"120 45","key":-3,"loc":"-50 60"},{"text":"Security","size":"120 45","key":-4,"loc":"230 60"},{"text":"Search","size":"120 45","key":-5,"loc":"390 60"},{"text":"Bank Transfer","size":"120 45","key":-6,"loc":"-120 160"},{"text":"Credit Card","size":"120 45","key":-7,"loc":"20 160"},{"text":"High","size":"120 45","key":-8,"loc":"160 160"},{"text":"Standard","size":"120 45","key":-9,"loc":"300 160"}],  "linkDataArray": [{"points":[90,-47.5,90,-37.5,-210,27.5,-210,37.5],"from":-1,"to":-2},{"points":[90,-47.5,90,-37.5,-50,27.5,-50,37.5],"from":-1,"to":-3},{"points":[90,-47.5,90,-37.5,230,27.5,230,37.5],"from":-1,"to":-4},{"points":[90,-47.5,90,-37.5,390,27.5,390,37.5],"from":-1,"to":-5,"arrowheadFill":"white"},{"points":[-120,137.5,-120,127.5,-50,92.5,-50,82.5],"from":-6,"to":-3},{"points":[20,137.5,20,127.5,-50,92.5,-50,82.5],"from":-7,"to":-3},{"points":[160,137.5,160,127.5,230,92.5,230,82.5],"from":-8,"to":-4,"arrowheadFill":"white"},{"points":[300,137.5,300,127.5,230,92.5,230,82.5],"from":-9,"to":-4,"arrowheadFill":"white"}]}
+
+{
+   "class":"GraphLinksModel",
+   "nodeDataArray":[
+      {
+         "text":"E-Shop",
+         "size":"120 45",
+         "key":-1,
+         "loc":"90 -70"
+      },
+      {
+         "text":"Catalogue",
+         "size":"120 45",
+         "key":-2,
+         "loc":"-210 60"
+      },
+      {
+         "text":"Payment",
+         "size":"120 45",
+         "key":-3,
+         "loc":"-50 60"
+      },
+      {
+         "text":"Security",
+         "size":"120 45",
+         "key":-4,
+         "loc":"230 60"
+      },
+      {
+         "text":"Search",
+         "size":"120 45",
+         "key":-5,
+         "loc":"390 60"
+      },
+      {
+         "text":"Bank Transfer",
+         "size":"120 45",
+         "key":-6,
+         "loc":"-120 160"
+      },
+      {
+         "text":"Credit Card",
+         "size":"120 45",
+         "key":-7,
+         "loc":"20 160"
+      },
+      {
+         "text":"High",
+         "size":"120 45",
+         "key":-8,
+         "loc":"160 160"
+      },
+      {
+         "text":"Standard",
+         "size":"120 45",
+         "key":-9,
+         "loc":"300 160"
+      }
+   ],
+   "linkDataArray":[
+      {
+         "points":[
+            90,
+            -47.5,
+            90,
+            -37.5,
+            -210,
+            27.5,
+            -210,
+            37.5
+         ],
+         "from":-1,
+         "to":-2
+      },
+      {
+         "points":[
+            90,
+            -47.5,
+            90,
+            -37.5,
+            -50,
+            27.5,
+            -50,
+            37.5
+         ],
+         "from":-1,
+         "to":-3
+      },
+      {
+         "points":[
+            90,
+            -47.5,
+            90,
+            -37.5,
+            230,
+            27.5,
+            230,
+            37.5
+         ],
+         "from":-1,
+         "to":-4
+      },
+      {
+         "points":[
+            90,
+            -47.5,
+            90,
+            -37.5,
+            390,
+            27.5,
+            390,
+            37.5
+         ],
+         "from":-1,
+         "to":-5,
+         "arrowheadFill":"white"
+      },
+      {
+         "points":[
+            -120,
+            137.5,
+            -120,
+            127.5,
+            -50,
+            92.5,
+            -50,
+            82.5
+         ],
+         "from":-6,
+         "to":-3
+      },
+      {
+         "points":[
+            20,
+            137.5,
+            20,
+            127.5,
+            -50,
+            92.5,
+            -50,
+            82.5
+         ],
+         "from":-7,
+         "to":-3
+      },
+      {
+         "points":[
+            160,
+            137.5,
+            160,
+            127.5,
+            230,
+            92.5,
+            230,
+            82.5
+         ],
+         "from":-8,
+         "to":-4,
+         "arrowheadFill":"white"
+      },
+      {
+         "points":[
+            300,
+            137.5,
+            300,
+            127.5,
+            230,
+            92.5,
+            230,
+            82.5
+         ],
+         "from":-9,
+         "to":-4,
+         "arrowheadFill":"white"
+      }
+   ]
+}
