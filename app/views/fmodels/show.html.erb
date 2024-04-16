@@ -36,7 +36,20 @@
             <li><%= @numOr%> or</li>
           </ul>
         </li>
+        <li>Depth: <%= @depth %></li>
       </ul>
+      <table>
+        <thead>
+          <% for i in 0..@depth-1 do %>
+            <tr>
+              <% @tableHeaders.each do |h| %>
+                <th><%= h[i].name %></th>
+              <% end %>
+            </tr>
+          <% end %>
+        </thead>
+
+      </table>
     </div>
   </div>
 

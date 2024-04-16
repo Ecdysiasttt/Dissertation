@@ -1,5 +1,6 @@
 class FmodelsController < ApplicationController
   before_action :set_fmodel, only: %i[ show edit update destroy ]
+  helper_method :getTableHeaders
   # before_action :set_title
 
   # GET /fmodels or /fmodels.json
@@ -104,19 +105,20 @@ class FmodelsController < ApplicationController
     def analysis(model)
       puts "Analysing #{model.title}..."
 
-      features = Array.new
+      @features = Array.new
       links = Array.new
 
-      parseJson(model.graph, features, links)
+      parseJson(model.graph, @features, links)
 
-      @numFeatures = features.size - 1    # remove -1?
+      @numFeatures = @features.size - 1    # remove -1?
       
       @numOptional = 0
       @numMandatory = 0
       @numAlternative = 0
       @numOr = 0
+      @rootFeature = nil
 
-      features.each do |f|
+      @features.each do |f|
         if (f.status == "Optional")
           @numOptional += 1
         elsif (f.status == "Mandatory")
@@ -125,6 +127,117 @@ class FmodelsController < ApplicationController
           @numAlternative += 1
         elsif (f.status == "Or")
           @numOr += 1
+        elsif (f.status == "Root")
+          @rootFeature = f
+        end
+      end
+
+      @depth = treeDepth(@rootFeature, @features)
+
+      # get num of leaves for generating table header
+
+      @leaves = getLeaves(@rootFeature, @features)
+      
+      # puts "Leaf nodes:"
+      # @leaves.each do |l|
+      #   parents = Array.new
+      #   getAllParents(l, features, parents)
+      #   parents.reverse_each do |p|
+      #     puts "#{p.name}"
+      #   end
+      #   puts "  #{l.name}"
+      #   puts "    Parents: "
+        
+      # end
+      
+      # tableTest(leaves)
+      
+      # puts "Num of leaves = #{leaves.size}"
+
+      getTableHeaders()
+
+      # @tableHeaders.each do |th|
+
+      
+    end
+
+    def getTableHeaders()
+      @tableHeaders = Array.new
+      
+      @leaves.each do |l|
+        # puts "getting #{l.name} parents"
+        parents = Array.new()
+
+        # parents = getNodeParents(l, parents)
+        parents = getAllParents(l, @features, parents)
+
+        parents.unshift(l)
+        parents = parents.reverse().drop(1)
+
+        # puts "#{l.name} - #{parents.size}"
+
+        while (parents.compact.size < @depth)
+          puts " #{l.name} size: #{parents.compact.size}. Target size = #{@depth}"
+          parents << parents.compact.last()
+        end
+
+        # parents.reverse_each do |p|
+        #   puts p.name
+        # end
+
+        @tableHeaders << parents
+      end
+
+      @tableHeaders.each do |header|
+        header.each do |h|
+          puts h.name
+        end
+        puts ""
+      end
+    end
+
+    # def getNodeParents(node, parents)
+    #   getAllParents(node, @features, parents)
+    #   return parents
+    # end
+
+    def getAllParents(node, tree, parents)
+      if (node.parent != nil)
+        if (node.id != @rootFeature.id)
+          parents << tree[node.parent]
+        end
+        getAllParents(tree[node.parent], tree, parents)
+      end
+      return parents
+    end
+
+    # def tableTest(leaves)
+    #   leaves.each do |l|
+    #     parent = l.parent
+    #     for 
+        
+      
+
+    def getLeaves(root, tree)
+      @leaves = Array.new
+
+      @numLeaves = 0
+      dfs(root, tree)
+
+      puts "numleaves #{@numLeaves}"
+
+      return @leaves
+    end
+
+    def dfs(node, tree)
+      # p node.name
+      children = node.children.compact
+      if (children.size == 0)
+        @leaves << node
+        @numLeaves += 1
+      else
+        children.each do |c|
+          dfs(tree[c], tree)
         end
       end
     end
@@ -253,8 +366,21 @@ class FmodelsController < ApplicationController
       end
     end
 
-    def treeDepth(features)
-      
+    def treeDepth(root, tree)
+      queue = [root]
+      depth = 0
+
+      while !queue.empty?
+        for i in 0..queue.length-1
+          node = queue.shift
+          children = node.children.compact
+          children.each do |c|
+            queue.push(tree[c])
+          end
+        end
+        depth += 1
+      end
+      return depth - 1
     end
 
     def printFeatures(features)
@@ -279,3 +405,34 @@ class FmodelsController < ApplicationController
       end
     end
 end
+
+
+# def bfs(node, tree)
+#   depth = 0
+#   queue = []
+#   queue.push(node)
+
+#   while (queue.size != 0)
+#     node = queue.shift
+#     p node.name
+
+#     children = node.children.compact
+
+#     children.each do |c|
+#       queue.push(tree[c])
+#       depth += 1
+#     end
+#   end
+
+#   puts "Depth: #{depth}"
+# end
+
+
+# def dfs(node, tree)
+#   p node.name
+
+#   children = node.children.compact
+#   children.each do |c|
+#     dfs(tree[c], tree)
+#   end
+# end

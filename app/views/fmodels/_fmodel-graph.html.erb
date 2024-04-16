@@ -242,6 +242,8 @@ diagram.contextMenu =
     diagram.model = go.Model.fromJson(graph);
     console.log("Model loaded from DB, checking path...");
 
+    diagram.zoomToFit();
+
 
     // if on show path, make diagram max width, hide pallette, and make
     // read-only
@@ -261,7 +263,7 @@ diagram.contextMenu =
         paletteHolder.style["width"] = "0%";
 
         // diagram.model = go.Model.fromJson(@fmodel.graph);
-        diagram.isEnabled = false;
+        diagram.isReadOnly = true;
       } else {
         console.log("Error in loading graph.");
         graphHolder.remove();
