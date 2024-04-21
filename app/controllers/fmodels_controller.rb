@@ -14,12 +14,11 @@ class FmodelsController < ApplicationController
   # GET /fmodels/1 or /fmodels/1.json
   def show
     @title = @fmodel.title
-    @header = "Viewing: " + @fmodel.title
+    @header = @fmodel.title
 
     @hasReturn = true
 
     analysis(@fmodel)
-
   end
 
   # GET /fmodels/new
@@ -102,22 +101,22 @@ class FmodelsController < ApplicationController
       )
     end
 
+    # perform analysis for display to the user
     def analysis(model)
-      puts "Analysing #{model.title}..."
-
       @features = Array.new
       links = Array.new
 
-      parseJson(model.graph, @features, links)
+      parseJson(model.graph, @features, links)  # create programmatic representation of fmodel
 
+      # define feature model metrics
       @numFeatures = @features.size - 1    # remove -1?
-      
       @numOptional = 0
       @numMandatory = 0
       @numAlternative = 0
       @numOr = 0
       @rootFeature = nil
 
+      # iterate through all features and increment above metrics accordingly
       @features.each do |f|
         if (f.status == "Optional")
           @numOptional += 1
@@ -127,80 +126,47 @@ class FmodelsController < ApplicationController
           @numAlternative += 1
         elsif (f.status == "Or")
           @numOr += 1
-        elsif (f.status == "Root")
+        elsif (f.status == "Root")  # obtain root feature
           @rootFeature = f
         end
       end
 
-      @depth = treeDepth(@rootFeature, @features)
-
-      # get num of leaves for generating table header
-
-      @leaves = getLeaves(@rootFeature, @features)
-      
-      # puts "Leaf nodes:"
-      # @leaves.each do |l|
-      #   parents = Array.new
-      #   getAllParents(l, features, parents)
-      #   parents.reverse_each do |p|
-      #     puts "#{p.name}"
-      #   end
-      #   puts "  #{l.name}"
-      #   puts "    Parents: "
-        
-      # end
-      
-      # tableTest(leaves)
-      
-      # puts "Num of leaves = #{leaves.size}"
+      @depth = treeDepth(@rootFeature, @features)   # bfs to find tree depth
+      @leaves = getLeaves(@rootFeature, @features)  # dfs to find leaves
 
       getTableHeaders()
-
-      # @tableHeaders.each do |th|
-
-      
+      getValidConfiguations()
     end
 
+    def getValidConfiguations()
+    
+    end
+
+    # finds all headers for a tabulated representation of the fmodel
+    # for each leaf, find parents until it no longer can (sort of like reverse dfs)
+    # and return leaf, along with parents, in an array to be displayed in the view
     def getTableHeaders()
       @tableHeaders = Array.new
       
       @leaves.each do |l|
-        # puts "getting #{l.name} parents"
         parents = Array.new()
 
-        # parents = getNodeParents(l, parents)
         parents = getAllParents(l, @features, parents)
 
-        parents.unshift(l)
-        parents = parents.reverse().drop(1)
+        parents.unshift(l)  # add leaf to start of array
+        parents = parents.reverse().drop(1) # reverse array and drop the root feature
 
-        # puts "#{l.name} - #{parents.size}"
-
+        # if the size of the array is less than the tree depth, fill it
+        # with deepest feature to ensure correct display
         while (parents.compact.size < @depth)
-          puts " #{l.name} size: #{parents.compact.size}. Target size = #{@depth}"
           parents << parents.compact.last()
         end
 
-        # parents.reverse_each do |p|
-        #   puts p.name
-        # end
-
         @tableHeaders << parents
-      end
-
-      @tableHeaders.each do |header|
-        header.each do |h|
-          puts h.name
-        end
-        puts ""
       end
     end
 
-    # def getNodeParents(node, parents)
-    #   getAllParents(node, @features, parents)
-    #   return parents
-    # end
-
+    # reverse dfs sort of thing. find parents from current node back to the root
     def getAllParents(node, tree, parents)
       if (node.parent != nil)
         if (node.id != @rootFeature.id)
@@ -211,25 +177,19 @@ class FmodelsController < ApplicationController
       return parents
     end
 
-    # def tableTest(leaves)
-    #   leaves.each do |l|
-    #     parent = l.parent
-    #     for 
-        
-      
-
+    # middle-man function that defines leaves array
     def getLeaves(root, tree)
       @leaves = Array.new
 
       @numLeaves = 0
-      dfs(root, tree)
-
-      puts "numleaves #{@numLeaves}"
+      leavesDfs(root, tree)
 
       return @leaves
     end
 
-    def dfs(node, tree)
+    # standard dfs to count number of leaves
+    # incrementing when no more children are found
+    def leavesDfs(node, tree)
       # p node.name
       children = node.children.compact
       if (children.size == 0)
@@ -237,82 +197,60 @@ class FmodelsController < ApplicationController
         @numLeaves += 1
       else
         children.each do |c|
-          dfs(tree[c], tree)
+          leavesDfs(tree[c], tree)
         end
       end
     end
 
+    # middle-man function that handles passing data to the right functions
     def parseJson(json, features, links)
-      puts "====================================="
-      puts "Parsing JSON..."
-      puts ""
-
       json = JSON.parse(json)
 
-      createFeatures(json, features)
-      createLinks(json, links)
+      createFeatures(json, features)    # create feature objects
+      createLinks(json, links)          # create link objects
 
-      # puts "Features created:"
-      # features.each do |f|
-      #   puts "#{f.id}, #{f.name}"
-      # end
-
-      # puts "\nLinks created:"
-      # links.each do |l|
-      #   puts "#{features[l.from].name} => #{features[l.to].name} - #{l.requirement}"
-      # end
-
-      parseFeatures(features, links)
-
-      printFeatures(features)
-
-      puts "======================="
+      parseFeatures(features, links)    # link objects and links together
     end
 
+    # iterates through features in the JSON to convert to objects
     def createFeatures(json, features)
-      # iterate through features and create objects
       json["nodeDataArray"].each do |feature|        
+        # create new feature, supplying the key as the id and the text as the name
         feature = Feature.new((feature['key'].to_i.abs - 1), feature['text'])
 
+        # add newly created feature to features array
         features << feature
       end
     end
 
+    # iterates through links in the JSON to convert to objects
     def createLinks(json, links)
       json["linkDataArray"].each do |link|
-        requirement = "Mandatory"
-        if (link['arrowheadFill'] == "white")
-          requirement = "Optional"
-        end
+        # set requirement status according to arrowhead fill
+        requirement = (link['arrowheadFill'] == "white") ? "Optional" : "Mandatory"
 
+        # create new link with 'to'/'from' matching IDs in features[] and requirement status
         link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
           
+        # add newly created link to links array
         links << link
       end
     end
 
+    # associate links with features in order to finalise programmatic representation
     def parseFeatures(features, links)
-      # connect links with features to finalise programatic analysis
       features.each do |f|
         links.each do |l|
+          # if the current link originates from the current feature
           if (f.id == l.from)
-            # if arrow is pointing to something WITHOUT a parent:
-            #   - set requirement status of target feature
-            #   - set target feature's parent to current feature
-            #   - add target feature as a child of current feature
-            # 
-            # if arrow is pointing to something WITH a parent:
-            #   - set requirement status of current feature
-            #   - set current feature's parent as target feature
-            #   - add current feature as a child of target feature
-            if (features[l.to].parent.nil?)
-              features[l.to].status = l.requirement
-              features[l.to].parent = f.id
-              f.children << l.to
-            else
-              f.status = l.requirement
-              f.parent = l.to              
-              features[l.to].children << f.id
+            if (features[l.to].parent.nil?)           # if link is pointing to something WITHOUT a parent:
+              features[l.to].status = l.requirement   #   - set requirement status of target feature
+              features[l.to].parent = f.id            #   - set target feature's parent to current feature
+              f.children << l.to                      #   - add target feature as a child of current feature
+            else                                      # if link is pointing to something WITH a parent:
+              f.status = l.requirement                #   - set requirement status of current feature
+              f.parent = l.to                         #   - set current feature's parent as target feature
+              features[l.to].children << f.id         #   - add current feature as a child of target feature
             end
           end
         end
@@ -338,26 +276,29 @@ class FmodelsController < ApplicationController
         end          
       end
 
+      # traverse once more to collect features and their siblings that point to their parents,
+      # i.e. in the case of an alternative/or situation.
+      # check for consistency with requirement selection.
       features.each do |f|
-        # puts "\nFeature: #{f.name}:"
-        # run through links again to collect features and their siblings that point to their parents.
-        # check for consistency with requirement selection
-        allSiblings = Array.new
+        matchingSiblings = Array.new
         links.each do |l|
+          # if a link from a feature is pointing to its parent
           if (f.id == l.from && f.parent == l.to)
-            # puts "  #{f.name} found pointing towards its parent, #{features[f.parent].name}"
+            # if status of sibling matches, add to array
             f.siblings.each do |sibling|
               if (features[sibling].status == f.status)
-                allSiblings << sibling
+                matchingSiblings << sibling
               end
             end
-
-            if (allSiblings.size == f.siblings.size)
-              # puts "#{f.name} status = #{f.status}"
-              newStatus = (f.status == "Mandatory" || f.status == "Or") ? "Or" : "Alternative"
             
+            # !! if this check fails, there's an issue in the diagram's creation
+            if (matchingSiblings.size == f.siblings.size)
+              # replace status to match the standard terminology for feature models
+              newStatus = (f.status == "Mandatory" || f.status == "Or") ? "Or" : "Alternative"
+                        
+              # apply new status to all siblings
               f.status = newStatus
-              allSiblings.each do |s|
+              matchingSiblings.each do |s|
                 features[s].status = newStatus
               end
             end
@@ -366,6 +307,7 @@ class FmodelsController < ApplicationController
       end
     end
 
+    # standard bfs where depth is incremented for each depth iteration
     def treeDepth(root, tree)
       queue = [root]
       depth = 0
@@ -380,7 +322,7 @@ class FmodelsController < ApplicationController
         end
         depth += 1
       end
-      return depth - 1
+      return depth - 1  # remove 1 to stop root feature being included
     end
 
     def printFeatures(features)

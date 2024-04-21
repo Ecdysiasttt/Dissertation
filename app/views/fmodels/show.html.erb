@@ -1,67 +1,141 @@
 <p style="color: green"><%= notice %></p>
 
-<div class="d-flex">
+<script>
+  // fixes the duplicate headers on the features table by
+  // iterating through, checking for duplicates. adjusts
+  // rowspan/colspan accordingly.
+  function fixTable() {
+    var tableHeader = document.getElementById('header');
 
-  <%# display analysis %>
-  <div id="left-panel" class="w-25 mw-25">
-    <button onclick="swapPanel()" id="button">Show Analysis</button>
-    <hr class="">
-    <div id="edit-info" style="display: block;">
-      <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
-      <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at %></p>
-      <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.updated_at %></p>
+    var uniqueHeaders = [];
+    var uniqueHeaderText = [];
+    var duplicateHeaders = [];
 
-      <%# edit or delete %>
-      <div class="d-flex justify-content-between mt-3">
-        <%# edit %>
-        <div>
-          <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-secondary white" %>
+    // iterate through all headers to find duplicates
+    for (var row of tableHeader.children) {
+      var allHeaders = row.children;
+      var referenceHeader = allHeaders[0];
+
+      for (var th of allHeaders) {
+        // if header already present in table, add to duplicates and hide
+        // else add to unique
+        if (uniqueHeaderText.includes(th.innerHTML)) {
+          duplicateHeaders.push(th);
+          th.style.display = "none";
+        } else {
+          uniqueHeaders.push(th);
+          uniqueHeaderText.push(th.innerHTML);
+        }
+      }
+    }
+
+    // iterate through unique headers and compare against dupes to determine
+    // rowspan and colspan
+    for (var h of uniqueHeaders) {
+      var [uniqueName, uniqueRowId] = [h.id.split("-")[0], h.id.split("-")[1] ];
+      var [colspan, rowspan] = [1, 1];
+
+      for (var duplicate of duplicateHeaders) {
+        var [duplicateName, duplicateRowId] = [duplicate.id.split("-")[0], duplicate.id.split("-")[1]];
+
+        // if name AND rowId match, on same row - increment colspan
+        // if name matches but rowId doesn't, on different row - increment rowspan
+        if (uniqueName == duplicateName) {
+          if (uniqueRowId == duplicateRowId) {
+            colspan ++;
+          } else {
+            rowspan ++;
+          }
+        }
+      }
+
+      h.colSpan = colspan;
+      h.rowSpan = rowspan;
+    }
+
+    // finally remove all duplicate headers
+    for (var th of duplicateHeaders) {
+      th.remove();
+    }
+  }
+
+</script>
+
+<div class="w-100">
+
+  <button onclick="swapPanel()" id="button">Show Analysis</button>
+  <div>
+    <div id="info" style="display: block;">
+      <%# display analysis %>
+      <div class="d-flex">
+        <div id="left-panel-info" class="w-25 mw-25">
+          <hr class="">
+          <div id="edit-info">
+            <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
+            <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at %></p>
+            <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.updated_at %></p>
+
+            <%# edit or delete %>
+            <div class="d-flex justify-content-between mt-3">
+              <%# edit %>
+              <div>
+                <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-secondary white" %>
+              </div>
+
+              <%# delete %>
+              <div>
+                <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-secondary white" %>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <%# delete %>
-        <div>
-          <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-secondary white" %>
+        <%# show graph %>
+        <div id="right-panel-info" class="w-75 ml-2 left-border">
+          <%= render @fmodel %>
         </div>
       </div>
     </div>
 
     <div id="analysis" style="display: none;">
-      <h5>Analysis:</h5>
-      <ul>
-        <li>Num. of features: <%= @numFeatures %>
+      <div class="d-flex">
+        <div id="left-panel-analysis" class="w-25 mw-25">
+          <hr>
+          <h5>Analysis:</h5>
           <ul>
-            <li><%= @numOptional%> optional</li>
-            <li><%= @numMandatory%> mandatory</li>
-            <li><%= @numAlternative%> alternative</li>
-            <li><%= @numOr%> or</li>
+            <li>Num. of features: <%= @numFeatures %>
+              <ul>
+                <li><%= @numOptional%> optional</li>
+                <li><%= @numMandatory%> mandatory</li>
+                <li><%= @numAlternative%> alternative</li>
+                <li><%= @numOr%> or</li>
+              </ul>
+            </li>
+            <li>Depth: <%= @depth %></li>
           </ul>
-        </li>
-        <li>Depth: <%= @depth %></li>
-      </ul>
-      <table>
-        <thead>
-          <% for i in 0..@depth-1 do %>
-            <tr>
-              <% @tableHeaders.each do |h| %>
-                <th><%= h[i].name %></th>
-              <% end %>
-            </tr>
-          <% end %>
-        </thead>
+        </div>
 
-      </table>
+        <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border">
+          <table class="table table-sm table-border border-dark">
+            <thead id="header">
+              <% for i in 0..@depth-1 do %>
+                <tr>
+                  <% @tableHeaders.each do |h| %>
+                    <th class="text-center" id="<%= h[i].name %>-<%= i %>"><%= h[i].name %></th>
+                  <% end %>
+                </tr>
+              <% end %>
+            </thead>
+            <script> fixTable() </script>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <%# show graph %>
-  <div id="right-panel" class="w-75 ml-2 left-border">
-    <%= render @fmodel %>
-  </div>
-
   <script>
-
     function swapPanel() {
-      var infoPanel = document.getElementById('edit-info');
+      var infoPanel = document.getElementById('info');
       var analysisPanel = document.getElementById('analysis');
       var button = document.getElementById('button');
       console.log(button);
@@ -79,12 +153,12 @@
       if (analysisPanel.style.display == "block") {
         console.log("Analysis visible. Hiding...");
         analysisPanel.style.display = "none";
+        button.innerHTML = "Show Analysis";
       } else {
         console.log("Analysis not visible. Showing...");
         analysisPanel.style.display = "block";
+        button.innerHTML = "Show Info";
       }
-
     }
-
   </script>
 </div>

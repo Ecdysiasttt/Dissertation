@@ -40,17 +40,38 @@ a:hover, a:focus {
 } 
 
 .bottom-border {
-  border-bottom: solid var(--border) 1px;
+  border-bottom: solid 1px var(--border);
 }
 
 .right-border {
-  border-right: solid var(--border) 1px;  
+  border-right: solid 1px var(--border);  
 }
 
 .left-border {
-  border-left: solid var(--border) 1px;  
+  border-left: solid 1px var(--border);  
 }
 
 .instruction-text {
   font-size: small;
+}
+
+.table-border  {
+  border: 1px solid !important;
+  border-collapse: collapse !important;
+}
+
+.table-border th {
+  border: 1px solid var(--border) !important;
+}
+
+.table-border td {
+  border: 1px solid var(--border) !important;
+}
+
+.table-border tr {
+  border: 1px solid var(--border) !important;
+}
+
+.border-dark {
+  border-color: var(--border) !important;
 }
