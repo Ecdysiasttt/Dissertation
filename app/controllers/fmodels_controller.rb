@@ -143,28 +143,36 @@ class FmodelsController < ApplicationController
     # need to iterate through each feature, and for each valid status (selected/not),
     # obtain all valid configurations for other features
     # probably will have to check for identical configs - scope for optimisation
+
+    # will obtain all valid configurations given a particular feature model diagram
     def getValidConfiguations()
-      # numConfigs = getNumConfigs()
-      configs = getAllConfigs()
+      configs = getAllConfigs() # all configurations
 
       validConfigs = []
 
-      # check config vailidity
+      # go through all configs to check validity
       configs.each do |c|
-        # puts "======= new config ======="
         validConfig = true
-        catch :nextConfig do
+        catch :nextConfig do  # allows us to jump ahead to next combination if an error is found
           c.each do |combination|
-            feature = combination[0]
+            # combination looks like: [Feature(as object), 1/0]
+            feature = combination[0]      # separate combination into parts for readability
             selection = combination[1]
+            # if a feature is mandatory and not selected, throw config away
+            #   will eliminate a huge chunk of invalid configs, reserving the
+            #   more in-depth checking for a smaller number of configs
             if (feature.status == "Mandatory" && selection == 0)
               validConfig = false
-              throw :nextConfig
+              throw :nextConfig   # jump to next configuration
+            # if a feature is alternate (i.e., one or the other)
+            # OR feature is or (i.e. one or both) and hasn't been selected
+            # then check for a status clash with sibling.
+            # these two checks will catch all invalid configs before CTCs are checked
             elsif (feature.status == "Alternative" || (feature.status == "Or" && selection == 0))
               validConfig = !checkSiblings(feature, selection, c)
             end
             if !validConfig
-              throw :nextConfig
+              throw :nextConfig   # jump to next configuration
             end
           end
         end
@@ -173,16 +181,21 @@ class FmodelsController < ApplicationController
       
       puts "#{validConfigs.size} valid configurations for this model"
       
-      validConfigs.each do |c|
-        c.each do |combination|
-          print "#{combination[0].name}, #{combination[1]}. "
-        end
-        puts ""
-      end
+      # keep for debugging when rendering in table
+      # validConfigs.each do |c|
+      #   c.each do |combination|
+      #     print "#{combination[0].name}, #{combination[1]}. "
+      #   end
+      #   puts ""
+      # end
     end
 
+    # checks for status conflicts with siblings, given
+    #   - feature as an object
+    #   - feature's selection in a given configuration
+    #   - the given configuration
+    # if any sibling is found to have a conflicting selection status, return true, else false
     def checkSiblings(feature, selection, config)
-      numSibs = feature.siblings.size
       feature.siblings.each do |sib|
         sibIdx = config.find_index([@features[sib], selection])
         if !sibIdx.nil?
@@ -193,22 +206,27 @@ class FmodelsController < ApplicationController
       false
     end
 
+    # obtain all possible configurations for a given feature model.
+    # this gets very very big.
     def getAllConfigs()
-      combinations = []
+      configs = []
 
+      # range from 0-2^(numFeatures - 1). Represents all possible
+      # combinations of bits.
       (0..(2**@numFeatures - 1)).each do |i|
-        combination = []
+        config = []
+        # iterate for as many features there are
         @numFeatures.times do |j|
-          feature = @features.drop(1)[j]
-          value = ( i >> j) & 1
-          combination << [feature, value]
+          feature = @features.drop(1)[j]    # drop the 1st element (root feature)
+          value = (i >> j) & 1              # assign 0/1 using bitwise operations
+          config << [feature, value]   # add feature selection to current config
         end
-        combinations << combination
+        configs << config         # finally add current config to list of total configs
       end
 
-      puts "#{combinations.size} possible configurations for this model"
+      puts "#{configs.size} possible configurations for this model"
 
-      combinations
+      configs
     end
 
     # finds all headers for a tabulated representation of the fmodel
