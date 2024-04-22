@@ -16,31 +16,99 @@
 <!-- code -->
 <script type="text/javascript">
   var $ = go.GraphObject.make;  // for conciseness in defining templates
-  
-  function makeOptional(e, obj) {
-    console.log("Make optional clicked");
+
+  function toggleRequired(e, obj) {
+    console.log("Toggle requirement status");
+    diagram.commit(d => {
+      // get the link data to which the Node is data bound
+      var linkData = obj.part.data;
+
+      if (linkData.arrowheadFill == "white") {
+        // toggle to black (mandatory)
+        d.model.set(linkData, "arrowheadFill", "black");
+      } else {
+        // toggle to white (optional)
+        d.model.set(linkData, "arrowheadFill", "white");
+      }
+    }, "changed status");
+  }
+
+  function makeCTC(e, obj) {
+    console.log("makeCTC clicked");
     diagram.commit(d => {
     // get the context menu that holds the button that was clicked
       var contextMenu = obj.part;
       // get the link data to which the Node is data bound
       var linkData = contextMenu.data;
 
-      d.model.set(linkData, "arrowheadFill", "white");
-    }, "changed to optional");
+      d.model.set(linkData, "arrowShape", "Standard");
+      d.model.set(linkData, "dashed", [5,5]);
+      d.model.set(linkData, "arrowheadFill", "black");
+    }, "changed to CTC ");
   }
 
-  function makeMandatory(e, obj) {
+  function toggleCtcRequires(e, obj) {
+    console.log("makeExcludes clicked");
+    diagram.commit(d => {
+    // get the context menu that holds the button that was clicked
+      var contextMenu = obj.part;
+      // get the link data to which the Node is data bound
+      var linkData = contextMenu.data;
+
+      if (linkData.fromArrowShape == "Backward") {
+        // remove fromArrow head (requires)
+        d.model.set(linkData, "fromArrowShape", "");
+      } else {
+        // add fromArrow head (excludes)
+        d.model.set(linkData, "fromArrowShape", "Backward");
+      }
+    }, "toggled ctc requirement ");
+  }
+
+  // function makeExcludes(e, obj) {
+  //   console.log("makeExcludes clicked");
+  //   diagram.commit(d => {
+  //   // get the context menu that holds the button that was clicked
+  //     var contextMenu = obj.part;
+  //     // get the link data to which the Node is data bound
+  //     var linkData = contextMenu.data;
+
+  //     // d.model.set(linkData, "arrowShape", "Standard");
+  //     // d.model.set(linkData, "dashed", [5,5]);
+  //     d.model.set(linkData, "fromArrowShape", "Backward");
+  //     // d.model.set(linkData, "arrowheadFill", "black");
+  //   }, "changed to excludes");
+  // }
+
+  // function makeRequires(e, obj) {
+  //   console.log("makeRequires clicked");
+  //   diagram.commit(d => {
+  //   // get the context menu that holds the button that was clicked
+  //     var contextMenu = obj.part;
+  //     // get the link data to which the Node is data bound
+  //     var linkData = contextMenu.data;
+
+  //     // d.model.set(linkData, "arrowShape", "Standard");
+  //     // d.model.set(linkData, "dashed", [5,5]);
+  //     d.model.set(linkData, "fromArrowShape", "");
+  //     // d.model.set(linkData, "arrowheadFill", "black");
+  //   }, "changed to requires ");
+  // }
+
+  function makeParental(e, obj) {
     console.log("Make mandatory clicked");
     diagram.commit(d => {
     // get the context menu that holds the button that was clicked
       var contextMenu = obj.part;
       // get the link data to which the Node is data bound
-      var linkData = contextMenu.data;
+      var linkData = obj.part.data;
 
       d.model.set(linkData, "arrowheadFill", "black");
-    }, "changed to mandatory  ");
+      d.model.set(linkData, "arrowShape", "Circle");
+      d.model.set(linkData, "fromArrowShape", "");
+      d.model.set(linkData, "dashed", [0,0]);
+    }, "changed to parental ");
   }
-
 
   diagram =
     new go.Diagram("graphHolder-<%= id %>",  // must name or refer to the DIV HTML element
@@ -53,8 +121,9 @@
         ),
         "draggingTool.dragsLink": true,
         "draggingTool.isGridSnapEnabled": true,
-        "linkingTool.isUnconnectedLinkValid": true,
-        "linkingTool.portGravity": 20,
+        "linkingTool.isEnabled": false,
+        // "linkingTool.isUnconnectedLinkValid": true,
+        // "linkingTool.portGravity": 20,
         "relinkingTool.isUnconnectedLinkValid": true,
         "relinkingTool.portGravity": 20,
         "relinkingTool.fromHandleArchetype":
@@ -141,6 +210,8 @@
           new go.Binding("text").makeTwoWay())
       ),
       // four small named ports, one on each side:
+      makePort('L', go.Spot.Left, true, true),
+      makePort('R', go.Spot.Right, true, true),
       makePort("T", go.Spot.Top, true, true),
       makePort("B", go.Spot.Bottom, true, true),
       { // handle mouse enter/leave events to show/hide the ports
@@ -178,55 +249,70 @@
       },
       new go.Binding("points").makeTwoWay(),
       $(go.Shape,  // the link path shape
-        { isPanelMain: true, strokeWidth: 2 }),
+        { isPanelMain: true, strokeWidth: 2, strokeDashArray: [0,0]},
+        new go.Binding("strokeDashArray", "dashed")),
       $(go.Shape, { toArrow: "Circle", fill: "black"},
-        new go.Binding("fill", "arrowheadFill")),
+        new go.Binding("fill", "arrowheadFill"),
+        new go.Binding("toArrow", "arrowShape")),
+      $(go.Shape, { fromArrow: "", fill: ""},
+        new go.Binding("fromArrow", "fromArrowShape")),
       {
         contextMenu:     // define a context menu for each node
           $("ContextMenu",  // that has one button
             $("ContextMenuButton",
-              {
-                "ButtonBorder.fill": "white",
-                "_buttonFillOver": "skyblue"
-              },
-              $(go.TextBlock, "Make optional"),
-              { click: makeOptional }),
+              {"ButtonBorder.fill": "white", "_buttonFillOver": "skyblue"},
+              $(go.TextBlock, "Toggle requirement status"),
+              { click: toggleRequired },
+              new go.Binding("visible", "", (data) => data.arrowShape === "Circle")),
             $("ContextMenuButton",
-              {
-                "ButtonBorder.fill": "white",
-                "_buttonFillOver": "skyblue"
-              },
-              $(go.TextBlock, "Make mandatory"),
-              { click: makeMandatory })
+              { "ButtonBorder.fill": "white", "_buttonFillOver": "skyblue" },
+              $(go.TextBlock, "Toggle required/excludes"),
+              { click: toggleCtcRequires },
+              new go.Binding("visible", "", (data) => data.arrowShape === "Standard")),
+            $("ContextMenuButton",
+              {"ButtonBorder.fill": "white", "_buttonFillOver": "skyblue"},
+              $(go.TextBlock, "Make CTC"),
+              { click: makeCTC },
+              new go.Binding("visible", "", (data) => data.arrowShape === "Circle")),
+            $("ContextMenuButton",
+              { "ButtonBorder.fill": "white", "_buttonFillOver": "skyblue" },
+              $(go.TextBlock, "Make parental relationship"),
+              { click: makeParental },
+              new go.Binding("visible", "", (data) => data.arrowShape === "Standard")),
+            // $("ContextMenuButton",
+            //   { "ButtonBorder.fill": "white", "_buttonFillOver": "skyblue" },
+            //   $(go.TextBlock, "Make requires"),
+            //   { click: makeRequires },
+            //   new go.Binding("visible", "", (data) => data.arrowShape === "Standard"))
             // more ContextMenuButtons would go here
           )  // end Adornment
       }
-  );
+  );  
 
-// also define a context menu for the diagram's background
-diagram.contextMenu =
-  $("ContextMenu",
-    $("ContextMenuButton",
-      $(go.TextBlock, "Undo"),
-      { click: (e, obj) => e.diagram.commandHandler.undo() },
-      new go.Binding("visible", "", o => o.diagram.commandHandler.canUndo()).ofObject()),
-    $("ContextMenuButton",
-      $(go.TextBlock, "Redo"),
-      { click: (e, obj) => e.diagram.commandHandler.redo() },
-      new go.Binding("visible", "", o => o.diagram.commandHandler.canRedo()).ofObject()),
-    // no binding, always visible button:
-    $("ContextMenuButton",
-      $(go.TextBlock, "New Node"),
-      { click: (e, obj) => {
-        e.diagram.commit(d => {
-          var data = {};
-          d.model.addNodeData(data);
-          part = d.findPartForData(data);  // must be same data reference, not a new {}
-          // set location to saved mouseDownPoint in ContextMenuTool
-          part.location = d.toolManager.contextMenuTool.mouseDownPoint;
-        }, 'new node');
-      } })
-  );
+  // also define a context menu for the diagram's background
+  diagram.contextMenu =
+    $("ContextMenu",
+      $("ContextMenuButton",
+        $(go.TextBlock, "Undo"),
+        { click: (e, obj) => e.diagram.commandHandler.undo() },
+        new go.Binding("visible", "", o => o.diagram.commandHandler.canUndo()).ofObject()),
+      $("ContextMenuButton",
+        $(go.TextBlock, "Redo"),
+        { click: (e, obj) => e.diagram.commandHandler.redo() },
+        new go.Binding("visible", "", o => o.diagram.commandHandler.canRedo()).ofObject()),
+      // no binding, always visible button:
+      $("ContextMenuButton",
+        $(go.TextBlock, "New Node"),
+        { click: (e, obj) => {
+          e.diagram.commit(d => {
+            var data = { text: "Feature", "size":"120 45"};
+            d.model.addNodeData(data);
+            part = d.findPartForData(data);  // must be same data reference, not a new {}
+            // set location to saved mouseDownPoint in ContextMenuTool
+            part.location = d.toolManager.contextMenuTool.mouseDownPoint;
+          }, 'new node');
+        } })
+    );
 
   // check for exisiting before creating pallette
   // pallette should show on new and edit pages
@@ -243,7 +329,6 @@ diagram.contextMenu =
     console.log("Model loaded from DB, checking path...");
 
     diagram.zoomToFit();
-
 
     // if on show path, make diagram max width, hide pallette, and make
     // read-only
@@ -287,36 +372,77 @@ diagram.contextMenu =
           maxSelectionCount: 1,
           nodeTemplateMap: diagram.nodeTemplateMap,  // share the templates used by diagram
           linkTemplate: // simplify the link template, just in this Palette
-            $(go.Link,
-              { // because the GridLayout.alignment is Location and the nodes have locationSpot == Spot.Center,
-                // to line up the Link in the same manner we have to pretend the Link has the same location spot
-                locationSpot: go.Spot.Center,
-                selectionAdornmentTemplate:
-                  $(go.Adornment, "Link",
-                    { locationSpot: go.Spot.Center },
-                    $(go.Shape,
-                      { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 }),
-                    $(go.Shape,  // the arrowhead
-                      { toArrow: "Circle", fill: "black" })
-                  )
-              },
+            $(go.Link,  // the whole link panel
+              { locationSpot: go.Spot.Center, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
+              { relinkableFrom: true, relinkableTo: true, reshapable: true },
               {
                 // routing: go.Link.AvoidsNodes,
                 // curve: go.Link.JumpOver,
                 // corner: 5,
                 toShortLength: 4
               },
-              new go.Binding("points"),
+              new go.Binding("points").makeTwoWay(),
               $(go.Shape,  // the link path shape
-                { isPanelMain: true, strokeWidth: 2 }),
-              $(go.Shape,  // the arrowhead
-                { toArrow: "Circle", stroke: null })
+                { isPanelMain: true, strokeWidth: 2, strokeDashArray: [0,0]},
+                new go.Binding("strokeDashArray", "dashed")),
+              $(go.Shape, { toArrow: "Circle", fill: "black"},
+                new go.Binding("fill", "arrowheadFill"),
+                new go.Binding("toArrow", "arrowShape")),
+              $(go.Shape, { fromArrow: "", fill: ""},
+                new go.Binding("fromArrow", "fromArrowShape"))
             ),
-          model: new go.GraphLinksModel([  // specify the contents of the Palette
-            { text: "Feature", "size":"120 45"},
-          ], [
-              // the Palette also has a disconnected Link, which the user can drag-and-drop
-              { points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(60, 0)]) }
+            // $(go.Link,
+            //   { // because the GridLayout.alignment is Location and the nodes have locationSpot == Spot.Center,
+            //     // to line up the Link in the same manner we have to pretend the Link has the same location spot
+            //     locationSpot: go.Spot.Center,
+            //     selectionAdornmentTemplate:
+            //       $(go.Adornment, "Link",
+            //         { locationSpot: go.Spot.Center },
+            //         $(go.Shape,  // the link path shape
+            //           { isPanelMain: true, strokeWidth: 2, strokeDashArray: [0,0]},
+            //           new go.Binding("strokeDashArray", "dashed")),
+            //         $(go.Shape, { toArrow: "Circle", fill: "black"},
+            //           new go.Binding("fill", "arrowheadFill"),
+            //           new go.Binding("toArrow", "arrowShape"))
+            //       )
+            //   },
+            //   {
+            //     // routing: go.Link.AvoidsNodes,
+            //     // curve: go.Link.JumpOver,
+            //     // corner: 5,
+            //     toShortLength: 4
+            //   },
+            //   new go.Binding("points"),
+            //   $(go.Shape,  // the link path shape
+            //     { isPanelMain: true, strokeWidth: 2 })
+            //   // $(go.Shape,  // the arrowhead
+            //   //   { toArrow: "Circle", stroke: null })
+            // ),
+          model: new go.GraphLinksModel(
+            // specify the contents of the Palette
+            [ { text: "Feature", "size":"120 45"} ],
+            [{ // the Palette also has a disconnected Link, which the user can drag-and-drop
+                arrowShape: "Circle",
+                arrowheadFill: "black",
+                points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
+              }, { 
+                arrowShape: "Circle",
+                arrowheadFill: "white",
+                points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
+              },
+               { 
+                arrowShape: "Standard",
+                arrowheadFill: "Black",
+                dashed: [5,5],
+                points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
+              },
+              { 
+                arrowShape: "Standard",
+                arrowheadFill: "Black",
+                dashed: [5,5],
+                fromArrowShape: "Backward",
+                points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
+              }
             ])
     });
   }
