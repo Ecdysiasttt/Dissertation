@@ -136,10 +136,79 @@ class FmodelsController < ApplicationController
 
       getTableHeaders()
       getValidConfiguations()
+
     end
 
+    # find all valid configurations for the system
+    # need to iterate through each feature, and for each valid status (selected/not),
+    # obtain all valid configurations for other features
+    # probably will have to check for identical configs - scope for optimisation
     def getValidConfiguations()
-    
+      # numConfigs = getNumConfigs()
+      configs = getAllConfigs()
+
+      validConfigs = []
+
+      # check config vailidity
+      configs.each do |c|
+        # puts "======= new config ======="
+        validConfig = true
+        catch :nextConfig do
+          c.each do |combination|
+            feature = combination[0]
+            selection = combination[1]
+            if (feature.status == "Mandatory" && selection == 0)
+              validConfig = false
+              throw :nextConfig
+            elsif (feature.status == "Alternative" || (feature.status == "Or" && selection == 0))
+              validConfig = !checkSiblings(feature, selection, c)
+            end
+            if !validConfig
+              throw :nextConfig
+            end
+          end
+        end
+        validConfigs << c if validConfig
+      end
+      
+      puts "#{validConfigs.size} valid configurations for this model"
+      
+      validConfigs.each do |c|
+        c.each do |combination|
+          print "#{combination[0].name}, #{combination[1]}. "
+        end
+        puts ""
+      end
+    end
+
+    def checkSiblings(feature, selection, config)
+      numSibs = feature.siblings.size
+      feature.siblings.each do |sib|
+        sibIdx = config.find_index([@features[sib], selection])
+        if !sibIdx.nil?
+          return true
+        end
+      end
+
+      false
+    end
+
+    def getAllConfigs()
+      combinations = []
+
+      (0..(2**@numFeatures - 1)).each do |i|
+        combination = []
+        @numFeatures.times do |j|
+          feature = @features.drop(1)[j]
+          value = ( i >> j) & 1
+          combination << [feature, value]
+        end
+        combinations << combination
+      end
+
+      puts "#{combinations.size} possible configurations for this model"
+
+      combinations
     end
 
     # finds all headers for a tabulated representation of the fmodel
