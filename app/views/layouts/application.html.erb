@@ -19,7 +19,8 @@
         <%= link_to "Placeholder", "/", class: "header-title" %>
       </div>
 
-      <div class="mr-5 pr-5">
+      <div class="mr-5 pr-5 d-flex">
+        <%= button_to "View all", fmodels_path, method: :get, class: "btn btn-secondary white mr-2" %>
         <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-secondary white" %>
       </div>
     </header>

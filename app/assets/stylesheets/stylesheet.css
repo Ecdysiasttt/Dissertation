@@ -17,7 +17,7 @@ main {
 .centre-box {
   border: solid var(--border) 1px;
   border-radius: 10px;
-  min-height: 65vh;
+  min-height: 50vh;
   max-height: 65vh;
 }
 

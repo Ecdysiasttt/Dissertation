@@ -41,7 +41,8 @@
       </div>
 
       <%# submit %>
-      <%= form.submit 'Create', :class => 'btn btn-secondary white ml-auto' %>
+      <% buttonText = controller.action_name == "edit" ? "Edit" : "Create" %>
+      <%= form.submit buttonText, :class => 'btn btn-secondary white ml-auto' %>
     </div>
 
     <%# show instructions to user %>
