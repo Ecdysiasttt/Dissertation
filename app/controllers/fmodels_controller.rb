@@ -105,8 +105,9 @@ class FmodelsController < ApplicationController
     def analysis(model)
       @features = Array.new
       links = Array.new
+      ctcs = Array.new
 
-      parseJson(model.graph, @features, links)  # create programmatic representation of fmodel
+      parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
 
       # define feature model metrics
       @numFeatures = @features.size - 1    # remove -1?
@@ -115,6 +116,7 @@ class FmodelsController < ApplicationController
       @numAlternative = 0
       @numOr = 0
       @rootFeature = nil
+      @numConstraints = ctcs.size
 
       # iterate through all features and increment above metrics accordingly
       @features.each do |f|
@@ -131,12 +133,59 @@ class FmodelsController < ApplicationController
         end
       end
 
+      
       @depth = treeDepth(@rootFeature, @features)   # bfs to find tree depth
       @leaves = getLeaves(@rootFeature, @features)  # dfs to find leaves
-
+      
       getTableHeaders()
-      getValidConfiguations()
+      @validConfigs = getValidConfiguations(ctcs)
 
+      
+      # format configurations for display in table
+      #   - trim 
+      
+      # printFeatures(@features)
+      
+      # puts "\nleaves:"
+      # @leaves.each do |l|
+      #   print "#{l.name}  "
+      # end
+      # puts "\n"
+
+      getConfigsForPrinting()
+
+      # puts "\n\ntable headers:"
+      # # puts "depth: #{@depth-1}"
+      # @tableHeaders.each do |t| 
+      #   # puts "\n"
+      #   t.each_with_index do |r, index|
+      #     if (index == @depth - 1)
+      #       print "#{r.name} "
+      #     end
+      #   end
+      # end
+      # puts "\n"
+      # ctcs.each do |c|
+      #   x = c.requires ? "requires" : "excludes"
+      #   puts "#{findFeatureFromKey(c.from).name} #{x} #{findFeatureFromKey(c.to).name}"
+      # end
+    end
+
+    def getConfigsForPrinting()
+      @configsTableFormat = Array.new
+
+      @validConfigs.each do |config|
+        configBuild = Array.new(@leaves.size)
+        config.each do |combination|
+          if (@leaves.include?(combination[0]))
+            # puts "#{combination[0].name}"
+            index = @leaves.index(combination[0])
+            configBuild[index] = combination[1]
+          end
+        end
+
+        @configsTableFormat << configBuild 
+      end
     end
 
     # find all valid configurations for the system
@@ -145,7 +194,7 @@ class FmodelsController < ApplicationController
     # probably will have to check for identical configs - scope for optimisation
 
     # will obtain all valid configurations given a particular feature model diagram
-    def getValidConfiguations()
+    def getValidConfiguations(ctcs)
       configs = getAllConfigs() # all configurations
 
       validConfigs = []
@@ -154,6 +203,7 @@ class FmodelsController < ApplicationController
       configs.each do |c|
         validConfig = true
         catch :nextConfig do  # allows us to jump ahead to next combination if an error is found
+          # puts "========= new config ========="
           c.each do |combination|
             # combination looks like: [Feature(as object), 1/0]
             feature = combination[0]      # separate combination into parts for readability
@@ -162,6 +212,7 @@ class FmodelsController < ApplicationController
             #   will eliminate a huge chunk of invalid configs, reserving the
             #   more in-depth checking for a smaller number of configs
             if (feature.status == "Mandatory" && selection == 0)
+              # puts "  Mandatory feature #{feature.name} not selected. Invalid."
               validConfig = false
               throw :nextConfig   # jump to next configuration
             # if a feature is alternate (i.e., one or the other)
@@ -169,25 +220,70 @@ class FmodelsController < ApplicationController
             # then check for a status clash with sibling.
             # these two checks will catch all invalid configs before CTCs are checked
             elsif (feature.status == "Alternative" || (feature.status == "Or" && selection == 0))
-              validConfig = !checkSiblings(feature, selection, c)
+              # if (feature.status == "Alternative")
+              # x = (selection == 1) ? " " : " not "
+              # puts "Checking #{feature.name}'s #{feature.siblings.size} siblings. #{feature.name} is#{x}selected"
+              # end
+              validConfig = checkSiblings(feature, selection, c)
             end
+
+            if ((feature.status == "Alternative" || feature.status == "Or") && selection == 1)
+              # check if parent hasn't been selected
+              parent = findFeatureFromKey(feature.parent)
+              # puts "Checking if #{feature.name}'s parent: #{parent.name} (status : #{parent.status}) is also selected"
+              # puts "  Checking if #{feature.name}'s (selected: #{selection}) parent: #{parent.name} (status : #{parent.status}) is also selected "
+              isParentSelected = c.find_index([parent, 0]).nil? # will return true if parent is not unselected
+              if (!isParentSelected)
+                # puts "    #{feature.name}'s parent: #{parent.name} isn't selected"
+                validConfig = false
+              end
+              # elsif (parentSelected.)
+            end
+
+            # TODO make it so features with optional parents are allowed to be not selected
+
+            ctcs.each do |constraint|
+              if (constraint.from == feature.id) # constraint present for this feature
+                # puts "  Constraint found between #{feature.name} and #{@features[constraint.to].name}"
+                # if feature is selected, and ctc excludes another feature:
+                #   if targeted feature is also selected, invalid
+                #   if targeted feature not selected, valid
+                # if feature is selected, and ctc required another feature:
+                #   if targeted feature is also selected, valid
+                #   if targeted feature is not selected, invalid
+                isConstraintTargetSelected = c.find_index([findFeatureFromKey(constraint.to), selection])
+                if ((constraint.requires && selection == 1) && !isConstraintTargetSelected)
+                  validConfig = false
+                elsif ((!constraint.requires && selection == 1) && isConstraintTargetSelected)
+                  validConfig = false
+                end
+              end
+            end
+
             if !validConfig
+              # puts " Invalid config"
               throw :nextConfig   # jump to next configuration
+            elsif validConfig
+              # puts "Valid config found!"
             end
           end
+        end
+        if validConfig
+          # puts "Valid config found!"
         end
         validConfigs << c if validConfig
       end
       
       puts "#{validConfigs.size} valid configurations for this model"
       
-      # keep for debugging when rendering in table
+      # # keep for debugging when rendering in table
       # validConfigs.each do |c|
       #   c.each do |combination|
-      #     print "#{combination[0].name}, #{combination[1]}. "
+      #     print "#{combination[0].name} #{combination[1]}. "
       #   end
       #   puts ""
       # end
+      validConfigs
     end
 
     # checks for status conflicts with siblings, given
@@ -195,16 +291,93 @@ class FmodelsController < ApplicationController
     #   - feature's selection in a given configuration
     #   - the given configuration
     # if any sibling is found to have a conflicting selection status, return true, else false
+    # if the feature's status is or (i.e. at least one, but can be all), check for if sibling statuses == 0
+    #   if the feature's status is alternate (i.e. exactly one), then:
+    #     IF the feature's selection == 1, if any sibling has selection of 1, invalid
+    #     IF the feature's selection == 0, if more than one sibling has selection of 1, invalid
+    # if the feature's status is or (i.e. at least one), then:
+    #    IF the feature's selection == 0, if no sibling has selection of 1, invalid
+    #    IF the feature's selection == 1, valid
     def checkSiblings(feature, selection, config)
-      feature.siblings.each do |sib|
-        sibIdx = config.find_index([@features[sib], selection])
-        if !sibIdx.nil?
-          return true
+      siblingsWithSameSelection = 0
+      siblingsWithDifferentSelection = 0
+      oppositeSelection = ((selection == 1) ? 0 : 1)
+
+      feature.siblings.each do |siblingKey|
+        siblingObject = findFeatureFromKey(siblingKey)
+
+        doesSiblingHaveSameSelection = config.find_index([siblingObject, oppositeSelection]).nil? #true if not found
+
+        if doesSiblingHaveSameSelection
+          siblingsWithSameSelection += 1
+        else
+          siblingsWithDifferentSelection += 1
         end
       end
 
-      false
+      # puts "  For feature #{feature.name} (selection: #{selection}), #{siblingsWithSameSelection} siblings have the same selection, #{siblingsWithDifferentSelection} siblings have a different selection."
+      # print "      This feature is #{feature.status} "
+      # if (feature.status == "Alternative")
+      #   if (selection == 0)
+      #     print "and not selected. So if >1 siblings have a different selection, this is invalid"
+      #   else
+      #     print "and selected. So if any siblings have the same selection, this is invalid"
+      #   end
+      # elsif (feature.status == "Or")
+      #   if (selection == 0)
+      #     print "and not selected. So if no siblings have a different selection, this is invalid"
+      #   else
+      #     print "and selected. This configuration is valid."
+      #   end
+      # end
+      # print "\n"
+
+      if (feature.status == "Alternative")
+        if (selection == 1)
+          if (siblingsWithSameSelection > 0 )
+            # puts "    Invalid!!\n\n"
+            return false
+          end
+        else
+          if (siblingsWithDifferentSelection != 1)
+            # puts "    Invalid!!\n\n"
+            return false
+          end
+        end
+      else
+        if (selection == 0)
+          if (siblingsWithDifferentSelection == 0)
+            # check for if parent is also not selected.
+            # in this case, the selection is not invalid.
+            parent = findFeatureFromKey(feature.parent)
+            isParentSelected = config.find_index([parent, 0]).nil? # true if parent is selected
+
+            if (isParentSelected)
+              return false
+            end
+          end
+        end
+      end
+      
+      true
     end
+
+    # # checks for status conflicts with siblings, given
+    # #   - feature as an object
+    # #   - feature's selection in a given configuration
+    # #   - the given configuration
+    # # if any sibling is found to have a conflicting selection status, return true, else false
+    # def checkSiblings(feature, selection, config)
+    #   feature.siblings.each do |sib|
+    #     sibIdx = config.find_index([@features[sib], selection])
+    #     if !sibIdx.nil?
+    #       puts "  conflict found between #{feature.name} (#{feature.status} #{selection}) and #{@features[sib].name} (#{selection})"
+    #       return true
+    #     end
+    #   end
+
+    #   false
+    # end
 
     # obtain all possible configurations for a given feature model.
     # this gets very very big.
@@ -257,9 +430,10 @@ class FmodelsController < ApplicationController
     def getAllParents(node, tree, parents)
       if (node.parent != nil)
         if (node.id != @rootFeature.id)
-          parents << tree[node.parent]
+          parents << findFeatureFromKey(node.parent)
         end
-        getAllParents(tree[node.parent], tree, parents)
+        getAllParents(findFeatureFromKey(node.parent), tree, parents)
+        # getAllParents(tree[node.parent], tree, parents)
       end
       return parents
     end
@@ -284,17 +458,17 @@ class FmodelsController < ApplicationController
         @numLeaves += 1
       else
         children.each do |c|
-          leavesDfs(tree[c], tree)
+          leavesDfs(findFeatureFromKey(c), tree)
         end
       end
     end
 
     # middle-man function that handles passing data to the right functions
-    def parseJson(json, features, links)
+    def parseJson(json, features, links, ctcs)
       json = JSON.parse(json)
 
       createFeatures(json, features)    # create feature objects
-      createLinks(json, links)          # create link objects
+      createLinks(json, links, ctcs)          # create link objects
 
       parseFeatures(features, links)    # link objects and links together
     end
@@ -305,23 +479,37 @@ class FmodelsController < ApplicationController
         # create new feature, supplying the key as the id and the text as the name
         feature = Feature.new((feature['key'].to_i.abs - 1), feature['text'])
 
+        # puts "created #{feature.name} with id #{feature.id}"
+
         # add newly created feature to features array
         features << feature
       end
     end
 
     # iterates through links in the JSON to convert to objects
-    def createLinks(json, links)
+    def createLinks(json, links, ctcs)
       json["linkDataArray"].each do |link|
-        # set requirement status according to arrowhead fill
-        requirement = (link['arrowheadFill'] == "white") ? "Optional" : "Mandatory"
+        if (link['arrowShape'] == "Standard") #ctc
+          requires = !(link['fromArrowShape'] == "Backward")
 
-        # create new link with 'to'/'from' matching IDs in features[] and requirement status
-        link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
-          
-        # add newly created link to links array
-        links << link
+          ctc = Ctc.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requires)
+
+          ctcs << ctc
+        else
+          # set requirement status according to arrowhead fill
+          requirement = (link['arrowheadFill'] == "white") ? "Optional" : "Mandatory"
+
+          # create new link with 'to'/'from' matching IDs in features[] and requirement status
+          link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
+            
+          # add newly created link to links array
+          links << link
+        end
       end
+    end
+
+    def findFeatureFromKey(key)
+      return (@features.select { |feat| feat.id == key}).first
     end
 
     # associate links with features in order to finalise programmatic representation
@@ -329,15 +517,25 @@ class FmodelsController < ApplicationController
       features.each do |f|
         links.each do |l|
           # if the current link originates from the current feature
+          # TODO fix this because when a feature gets deleted, the keys aren't updated.
+          # this means features.size is less than the value of the highest key, making this index
+          # method fail.
+          # TODO another todo is figure out why mobile is returning 0 valid configurations
+          # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{features.first()}"
+          # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{l.to}"
+          # puts "#{(features.select { |feat| feat.id == l.to}).first.name}"
           if (f.id == l.from)
-            if (features[l.to].parent.nil?)           # if link is pointing to something WITHOUT a parent:
-              features[l.to].status = l.requirement   #   - set requirement status of target feature
-              features[l.to].parent = f.id            #   - set target feature's parent to current feature
+            targetFeature = findFeatureFromKey(l.to)
+            # puts "#{findFeatureFromKey(features, l.to).name}"
+            # puts "Link from #{f.name} to #{targetFeature.name}"
+            if (targetFeature.parent.nil?)           # if link is pointing to something WITHOUT a parent:
+              targetFeature.status = l.requirement   #   - set requirement status of target feature
+              targetFeature.parent = f.id            #   - set target feature's parent to current feature
               f.children << l.to                      #   - add target feature as a child of current feature
             else                                      # if link is pointing to something WITH a parent:
               f.status = l.requirement                #   - set requirement status of current feature
               f.parent = l.to                         #   - set current feature's parent as target feature
-              features[l.to].children << f.id         #   - add current feature as a child of target feature
+              targetFeature.children << f.id         #   - add current feature as a child of target feature
             end
           end
         end
@@ -349,8 +547,9 @@ class FmodelsController < ApplicationController
       #   - verify consistency of siblings wrt alternative/or selections
       features.each do |f|          
         # if feature has a parent and parent has more than one child
-        if (!f.parent.nil? && features[f.parent].children.size > 1)
-          features[f.parent].children.each do |sibling|
+        parent = findFeatureFromKey(f.parent)
+        if (!f.parent.nil? && parent.children.size > 1)
+          parent.children.each do |sibling|
             if (sibling != f.id && !f.siblings.include?(sibling))
               f.siblings << sibling
             end
@@ -372,9 +571,10 @@ class FmodelsController < ApplicationController
           # if a link from a feature is pointing to its parent
           if (f.id == l.from && f.parent == l.to)
             # if status of sibling matches, add to array
-            f.siblings.each do |sibling|
-              if (features[sibling].status == f.status)
-                matchingSiblings << sibling
+            f.siblings.each do |s|
+              sibling = findFeatureFromKey(s)
+              if (sibling.status == f.status)
+                matchingSiblings << s
               end
             end
             
@@ -386,7 +586,8 @@ class FmodelsController < ApplicationController
               # apply new status to all siblings
               f.status = newStatus
               matchingSiblings.each do |s|
-                features[s].status = newStatus
+                sibling = findFeatureFromKey(s)
+                sibling.status = newStatus
               end
             end
           end 
@@ -401,10 +602,11 @@ class FmodelsController < ApplicationController
 
       while !queue.empty?
         for i in 0..queue.length-1
+
           node = queue.shift
           children = node.children.compact
           children.each do |c|
-            queue.push(tree[c])
+            queue.push(findFeatureFromKey(c))
           end
         end
         depth += 1
@@ -421,15 +623,15 @@ class FmodelsController < ApplicationController
         if (f.parent.nil?)
           puts "  Parent: None"
         else
-          puts "  Parent: #{features[f.parent].name}"
+          puts "  Parent: #{findFeatureFromKey(f.parent).name}"
         end
         puts "  Children:"
         f.children.each do |c|
-          puts "    #{features[c].name}"
+          puts "    #{findFeatureFromKey(c).name}"
         end
         puts "  Siblings:"
         f.siblings.each do |s|
-          puts "    #{features[s].name}"
+          puts "    #{findFeatureFromKey(s).name}"
         end
       end
     end

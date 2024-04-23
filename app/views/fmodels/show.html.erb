@@ -109,15 +109,17 @@
                 <li><%= @numMandatory%> mandatory</li>
                 <li><%= @numAlternative%> alternative</li>
                 <li><%= @numOr%> or</li>
+                <li><%= @numConstraints %> constraints</li>
               </ul>
             </li>
             <li>Depth: <%= @depth %></li>
+            <li><%= @validConfigs.size %> valid configurations</li>
           </ul>
         </div>
 
-        <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border">
-          <table class="table table-sm table-border border-dark">
-            <thead id="header">
+        <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border restrict-height overflow-auto">
+          <table class="table table-sm table-border border-dark overflow-auto">
+            <thead id="header" class="sticky-top">
               <% for i in 0..@depth-1 do %>
                 <tr>
                   <% @tableHeaders.each do |h| %>
@@ -126,6 +128,15 @@
                 </tr>
               <% end %>
             </thead>
+            <tbody>
+              <% @configsTableFormat.each do |c| %>
+                <tr>
+                  <% c.each do |selected|%>
+                    <td class="text-center"><%= (selected == 1) ? "\&#10004".html_safe : "" %></td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
             <script> fixTable() </script>
           </table>
         </div>

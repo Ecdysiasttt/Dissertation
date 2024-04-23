@@ -17,7 +17,8 @@ main {
 .centre-box {
   border: solid var(--border) 1px;
   border-radius: 10px;
-  min-height: 50vh;
+  min-height: 65vh;
+  max-height: 65vh;
 }
 
 a {
@@ -55,9 +56,30 @@ a:hover, a:focus {
   font-size: small;
 }
 
+.sticky-top th {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 999; /* Ensure the headers stay above other content */
+  background-color: var(--white); /* Optional: Set a background color */
+}
+
+.restrict-height {
+  height: 50vh;
+}
+
+.overflow-auto {
+
+  overflow-y: auto;
+}
+
+.table {
+  max-height: 65vh;
+}
+
 .table-border  {
   border: 1px solid !important;
-  border-collapse: collapse !important;
+  /* border-collapse: collapse !important; */
 }
 
 .table-border th {
