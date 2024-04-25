@@ -1,0 +1,77 @@
+<div class="d-flex">
+  <div class="w-50 pl-2">
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div class="w-75">
+      <h4 class="mb-4 mt-2">Login:</h4>
+      
+      <div class="ml-3">
+        <%= form_for(resource, as: resource_name, html: {id: "login-form"}, url: session_path(resource_name)) do |f| %>
+          <div class="field form-floating">
+            <%= f.email_field :email, autocomplete: "email", class: "form-control", placeholder: "example@email.com" %>
+            <%= f.label :email %><br />
+          </div>
+
+          <div class="field form-floating">
+            <%= f.password_field :password, autocomplete: "current-password", class: "form-control", placeholder: "password" %>
+            <%= f.label :password %><br />
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <%= f.submit "Log in", class: "btn btn-primary" %>
+            <%= link_to "Forgot your password?", new_password_path(resource_name) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="w-50 pl-3 left-border">
+    <div class="w-75">
+      <h4 class="mb-4 mt-2">Sign up:</h4>
+      
+      <div class="ml-3">
+        <%= form_for(resource, as: resource_name, html: {id: "signup-form"}, url: registration_path(resource_name)) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
+
+          <div class="field form-floating">
+            <%= f.email_field :email, autocomplete: "email", class: "form-control", placeholder: "email@example.com" %>
+            <%= f.label :email %><br />
+          </div>
+
+          <div class="field form-floating">
+            <%= f.password_field :password, autocomplete: "new-password", class: "form-control", placeholder: "password" %>
+            <%= f.label :password %>
+            <% if @minimum_password_length %>
+            <em>(<%= @minimum_password_length %> characters minimum)</em>
+            <% end %><br />
+          </div>
+
+          <div class="field form-floating">
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control", placeholder: "password" %>
+            <%= f.label :password_confirmation %><br />
+          </div>
+
+          <div class="actions">
+            <%= f.submit "Sign up", class: "btn btn-primary"  %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", (event) => {
+    var loginEmail = document.getElementById('user_email');
+    loginEmail.id = "login-email";
+    
+    console.log(loginEmail);
+
+    var loginPassword = document.getElementById('user_password');
+    loginPassword.id = "login-password";
+    
+    console.log(loginPassword);
+  });
+
+</script>

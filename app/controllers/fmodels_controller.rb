@@ -55,7 +55,7 @@ class FmodelsController < ApplicationController
 
     respond_to do |format|
       if @fmodel.save
-        format.html { redirect_to '/fmodels', notice: "Fmodel was successfully created." }
+        format.html { redirect_to '/fmodels', notice: "#{@fmodel.title} saved!" }
         format.json { render :show, status: :created, location: @fmodel }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -68,7 +68,7 @@ class FmodelsController < ApplicationController
   def update
     respond_to do |format|
       if @fmodel.update(fmodel_params)
-        format.html { redirect_to fmodel_url(@fmodel), notice: "Fmodel was successfully updated." }
+        format.html { redirect_to fmodel_url(@fmodel), notice: "#{@fmodel.title} updated!" }
         format.json { render :show, status: :ok, location: @fmodel }
       else
         format.html { render :edit, status: :unprocessable_entity }
