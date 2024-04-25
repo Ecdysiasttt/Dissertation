@@ -351,6 +351,8 @@ class FmodelsController < ApplicationController
       true
     end
 
+    # TODO fix this - see 'void test' in db
+
     def getCoreAndVoid()
       @features.each do |f|
         isCore = true
