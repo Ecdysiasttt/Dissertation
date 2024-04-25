@@ -8,6 +8,7 @@
       <th>Updated:</th>
       <th></th>
       <th></th>
+      <th></th>
     </thead>
     <% @fmodels.each do |fmodel| %>
       <tr class="pb-2">
@@ -20,6 +21,7 @@
           ) %></td>
         <td><%= link_to "Show", fmodel %></td>
         <td><%= link_to "Edit", edit_fmodel_path(fmodel) %></td>
+        <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" } %></td>
       </tr>
     <% end %>
   </table>

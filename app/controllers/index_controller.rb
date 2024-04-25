@@ -3,7 +3,7 @@ class IndexController < ApplicationController
   # GET /
   def index
     @title = "Home"
-    @header = "Welcome to Placeholder!"
+    @header = "Welcome to Software Products Online!"
   end
 
 end
