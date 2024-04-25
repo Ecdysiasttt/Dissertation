@@ -13,7 +13,6 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    puts "444444444444444444444"
     puts params
     super
   end
@@ -25,8 +24,14 @@ class Users::SessionsController < Devise::SessionsController
 
   # protected
 
-  # If you have extra params to permit, append them to the sanitizer.
+  # # If you have extra params to permit, append them to the sanitizer.
   # def configure_sign_in_params
-  #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
+  #   devise_parameter_sanitizer.permit(:sign_in, keys: [:username])
   # end
 end
+
+# def configure_permitted_parameters
+#   devise_parameter_sanitizer.for(:sign_up) { |u| u.permit(:username, :email, :password, :password_confirmation, :remember_me) }
+#   devise_parameter_sanitizer.for(:sign_in) { |u| u.permit(:login, :username, :email, :password, :remember_me) }
+#   devise_parameter_sanitizer.for(:account_update) { |u| u.permit(:username, :email, :password, :password_confirmation, :current_password) }
+# end

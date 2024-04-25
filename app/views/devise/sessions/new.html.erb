@@ -35,8 +35,13 @@
           <%= render "devise/shared/error_messages", resource: resource %>
 
           <div class="field form-floating">
-            <%= f.email_field :email, autocomplete: "email", class: "form-control", placeholder: "email@example.com" %>
+            <%= f.text_field :email, autocomplete: "email", class: "form-control", placeholder: "email@example.com" %>
             <%= f.label :email %><br />
+          </div>
+
+          <div class="field form-floating">
+            <%= f.text_field :username, class: "form-control", placeholder: "username" %>
+            <%= f.label :username %><br />
           </div>
 
           <div class="field form-floating">

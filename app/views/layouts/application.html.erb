@@ -28,7 +28,7 @@
         <%= button_to "View all", fmodels_path, method: :get, class: "btn btn-primary mr-2" %>
         <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-primary mr-2" %>
         <% if user_signed_in? %>
-          <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "btn btn-primary mr-2" %>
+          <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "btn btn-danger mr-2" %>
         <% else %>
           <%= button_to "Login", new_user_session_path, method: :get, class: "btn btn-primary" %>
         <% end %>
@@ -99,7 +99,7 @@
         </div>
 
         <div class="toast toast-notif" role="notice" aria-live="assertive" aria-atomic="true">
-          <div class="toast-header justify-content-between bg-warning">
+          <div class="toast-header justify-content-between bg-success">
             <strong>Notice:</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>

@@ -6,8 +6,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # GET /resource/sign_up
   def new
-    flash[:notice] = "This is a notice"
-    flash[:error] = "this is an error"
     redirect_to new_user_session_path
   end
 
@@ -25,31 +23,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
         redirect_back fallback_location: root_path and return
       end
     end
-    # build_resource
-
-    # puts "333333333333333333333333333333333"
-    # user_params = params.require(:user).permit(:email, :password, :password_confirmation)
-    # puts user_params[:password]
-
-    # if resource.save
-    #   if resource.active_for_authentication?     
-    #     set_flash_message :notice, :signed_up if is_navigational_format?
-    #     sign_in(resource_name, resource)
-    #     respond_with resource, :location => redirect_location(resource_name, resource)
-    #   else
-    #     set_flash_message :notice, :inactive_signed_up, :reason => resource.inactive_message.to_s if is_navigational_format?
-    #     expire_session_data_after_sign_in!
-    #     respond_with resource, :location => after_inactive_sign_up_path_for(resource)
-    #   end
-    # else
-    #   puts "could not save"
-    #   clean_up_passwords(resource)
-    #   # Solution for displaying Devise errors on the homepage found on:
-    #   # https://stackoverflow.com/questions/4101641/rails-devise-handling-devise-error-messages
-    #   flash[:notice] = flash[:notice].to_a.concat resource.errors.full_messages
-
-    #   redirect_to new_user_session_path # HERE IS THE PATH YOU WANT TO CHANGE
-    # end
   end
 
   # def build_resource(hash=nil)
@@ -85,9 +58,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # # If you have extra params to permit, append them to the sanitizer.
   # def configure_sign_up_params
-  #   # devise_parameter_sanitizer.permit(:sign_up, keys: [])
-  #   user_params = params.require(:user).permit(:email, :password, :password_confirmation)
+  #   devise_parameter_sanitizer.permit(:sign_up, keys: [:username])
+  #   # devise_parameter_sanitizer.for(:sign_up) { |u| u.permit(:username, :email, :password, :password_confirmation, :remember_me) }
   # end
+
+  
 
   # If you have extra params to permit, append them to the sanitizer.
   # def configure_account_update_params
