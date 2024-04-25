@@ -139,6 +139,9 @@ class FmodelsController < ApplicationController
       
       getTableHeaders()
       @validConfigs = getValidConfiguations(ctcs)
+      
+      @coreFeatures = Array.new
+      @voidFeatures = Array.new
 
       
       # format configurations for display in table
@@ -153,6 +156,9 @@ class FmodelsController < ApplicationController
       # puts "\n"
 
       getConfigsForPrinting()
+
+      getCoreAndVoid()
+      # getVoidFeatures()
 
       # puts "\n\ntable headers:"
       # # puts "depth: #{@depth-1}"
@@ -315,23 +321,6 @@ class FmodelsController < ApplicationController
         end
       end
 
-      # puts "  For feature #{feature.name} (selection: #{selection}), #{siblingsWithSameSelection} siblings have the same selection, #{siblingsWithDifferentSelection} siblings have a different selection."
-      # print "      This feature is #{feature.status} "
-      # if (feature.status == "Alternative")
-      #   if (selection == 0)
-      #     print "and not selected. So if >1 siblings have a different selection, this is invalid"
-      #   else
-      #     print "and selected. So if any siblings have the same selection, this is invalid"
-      #   end
-      # elsif (feature.status == "Or")
-      #   if (selection == 0)
-      #     print "and not selected. So if no siblings have a different selection, this is invalid"
-      #   else
-      #     print "and selected. This configuration is valid."
-      #   end
-      # end
-      # print "\n"
-
       if (feature.status == "Alternative")
         if (selection == 1)
           if (siblingsWithSameSelection > 0 )
@@ -358,26 +347,30 @@ class FmodelsController < ApplicationController
           end
         end
       end
-      
+
       true
     end
 
-    # # checks for status conflicts with siblings, given
-    # #   - feature as an object
-    # #   - feature's selection in a given configuration
-    # #   - the given configuration
-    # # if any sibling is found to have a conflicting selection status, return true, else false
-    # def checkSiblings(feature, selection, config)
-    #   feature.siblings.each do |sib|
-    #     sibIdx = config.find_index([@features[sib], selection])
-    #     if !sibIdx.nil?
-    #       puts "  conflict found between #{feature.name} (#{feature.status} #{selection}) and #{@features[sib].name} (#{selection})"
-    #       return true
-    #     end
-    #   end
+    def getCoreAndVoid()
+      @features.each do |f|
+        isCore = true
+        isVoid = true
+        @validConfigs.each do |config|
+          # if feature is selected in a config, not void
+          # if feature is not selected in a config, not core
+          isFeatureSelected = config.find_index([f, 0]).nil? # true if feature is selected
+          if (!isFeatureSelected || f.status == "Root")
+            isCore = false
+          end
 
-    #   false
-    # end
+          if (isFeatureSelected || f.status == "Root")
+            isVoid = false
+          end
+        end
+        @coreFeatures << f if isCore
+        @voidFeatures << f if isVoid
+      end
+    end
 
     # obtain all possible configurations for a given feature model.
     # this gets very very big.

@@ -103,7 +103,7 @@
           <hr>
           <h5>Analysis:</h5>
           <ul>
-            <li>Num. of features: <%= @numFeatures %>
+            <li><%= @numFeatures %> features:
               <ul>
                 <li><%= @numOptional%> optional</li>
                 <li><%= @numMandatory%> mandatory</li>
@@ -114,6 +114,22 @@
             </li>
             <li>Depth: <%= @depth %></li>
             <li><%= @validConfigs.size %> valid configurations</li>
+            <li><%= @coreFeatures.size %> core features<% if @coreFeatures.size != 0 %>:
+              <ul>
+                <% @coreFeatures.each do |c| %>
+                <li><%= c.name %></li>
+                <% end %>
+              </ul>
+              <% end %>
+            </li>
+            <li><%= @voidFeatures.size %> void features<% if @voidFeatures.size != 0 %>:
+              <ul>
+                <% @voidFeatures.each do |c| %>
+                <li><%= c.name %></li>
+                <% end %>
+              </ul>
+              <% end %>
+            </li>
           </ul>
         </div>
 
