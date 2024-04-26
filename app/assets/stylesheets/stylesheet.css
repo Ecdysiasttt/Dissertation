@@ -76,6 +76,7 @@ a {
 
 .table {
   max-height: 65vh;
+  /* min-height: 80%; */
 }
 
 .table-border  {
@@ -97,4 +98,12 @@ a {
 
 .border-dark {
   border-color: var(--border) !important;
+}
+
+.user-page {
+  min-height: fit-content !important;
+}
+
+.borderless-cell {
+  border: 1px solid Transparent !important; 
 }

@@ -1,8 +1,8 @@
-<div class="w-100">
-  <div id="userInfo">
+<div class="w-100 user-page h-100">
+  <div id="userInfo" class="h-100">
     <%# display user info & allow them to update their details %>
-    <div class="d-flex">
-      <div class="d-flex flex-column w-25">
+    <div class="d-flex h-100">
+      <div class="d-flex h-100 flex-column w-25">
         <div class="d-flex justify-content-between">
           <h5 class="mt-1">Account details:</h5>
           <button class="btn btn-primary btn-sm" id="edit-button" onclick="toggleEdit()">Edit details</button>
@@ -58,36 +58,40 @@
 
       <div class="d-flex flex-column pl-2 ml-2 w-50 border-start border-black">
         <h5 class="mt-1">My models:</h5>
-        <div>
-          <table class="w-100 table table-sm table-hover">
-            <thead class="table-light">
-              <th scope="col">Title:</th>
-              <th scope="col">Created:</th>
-              <th scope="col">Updated:</th>
-              <th scope="col">Visibility:</th>
-              <th scope="col" colspan="3" class="align-center">Actions:</th>
-              <%# <th scope="col"></th>
-              <th scope="col"></th> %>
-            </thead>
-            <% @fmodels.each do |fmodel| %>
-              <tr class="pb-2">
-                <td scope="row"><%= fmodel.title %></td>
-                <td><%= fmodel.formatTime(fmodel.created_at) %></td>
-                <td><%= fmodel.formatTime(fmodel.updated_at) %></td>
-                <td><%= fmodel.visibility %></td>
-                <td><%= link_to "View", fmodel, class: "btn btn-success btn-sm" %></td>
-                <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
-                <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
-              </tr>
+        <table class="table table-sm table-hover">
+          <thead class="table-light">
+            <th scope="col">Title:</th>
+            <th scope="col">Created:</th>
+            <th scope="col">Updated:</th>
+            <th scope="col">Visibility:</th>
+            <th scope="col" colspan="3" class="align-center">Actions:</th>
+            <%# <th scope="col"></th>
+            <th scope="col"></th> %>
+          </thead>
+          <% @fmodels.each do |fmodel| %>
+            <tr class="pb-2">
+              <td scope="row"><%= fmodel.title %></td>
+              <td><%= fmodel.formatTime(fmodel.created_at) %></td>
+              <td><%= fmodel.formatTime(fmodel.updated_at) %></td>
+              <td><%= fmodel.visibility %></td>
+              <td><%= link_to "View", fmodel, class: "btn btn-success btn-sm" %></td>
+              <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
+              <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
+            </tr>
+          <% end %>
+          <% if @fmodels.size < 10 %>
+            <% (10-@fmodels.size).times do %>
+              <tr class="borderless-cell" style="visibility: hidden;"><td class="borderless-cell" style="visibility: hidden;">blank</td></tr>
             <% end %>
-          </table>
-          <div class="d-flex justify-content-center">
-            <%= paginate @fmodels, param_name: :models_page,
-                          theme: 'bootstrap-5',
-                          pagination_class: "pagination-sm flex-wrap justify-content-center",
-                          nav_class: "d-inline-block"
-            %>
-          </div>
+          <% end %>
+        </table>
+        <div class="flex-grow-1"></div>
+        <div class="d-flex justify-content-center">
+          <%= paginate @fmodels, param_name: :models_page,
+                        theme: 'bootstrap-5',
+                        pagination_class: "pagination-sm flex-wrap justify-content-center",
+                        nav_class: "d-inline-block"
+          %>
         </div>
       </div>
 
@@ -102,12 +106,15 @@
             <% @following.each do |f| %>
               <tr>
                 <td><%= f.getUsername %></td>
-                <td><%= button_to "Profile", user_path(f.follows), method: :get, class: "btn btn-primary btn-sm" %></td>
-                <td>Unfollow</td>
+                <td class="text-end d-flex justify-content-end">
+                  <%= button_to "Profile", user_path(f.follows), method: :get, class: "btn btn-primary btn-sm mr-2" %>
+                  <%= button_to "Unfollow", follow_path(f.follows), method: :delete, class: "btn btn-danger btn-sm" %>
+                </td>
               </tr>
             <% end %>
           <% end %>
         </table>
+        <div class="flex-grow-1"></div>
         <div class="d-flex justify-content-center">
           <%= paginate @following, param_name: :following_page,
                         theme: 'bootstrap-5',
@@ -115,7 +122,21 @@
                         nav_class: "d-inline-block"
           %>
         </div>
-        
+        <div class="">
+          <div class="d-flex align-items-baseline">
+            <div class="mr-2">
+              <h6 class="px-2">Follow user:</h6>
+            </div>
+            <div>
+              <%= form_with(url: follows_path(Follow.new), method: :post) do |f| %>
+                <div class="field form-floating mb-3">
+                  <%= f.text_field :username, class: "form-control", placeholder: "username" %>
+                  <%= f.label :username %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>

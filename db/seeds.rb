@@ -27,7 +27,7 @@ User.create!(
 
 # Create 20 users
 30.times do |i|
-  username = "user#{i + 1}"
+  username = "User #{i + 1}"
   email = "user#{i + 1}@example.com"
   password = 'password'
   
