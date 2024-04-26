@@ -56,6 +56,42 @@
         <% end %>
       </div>
 
+      <div class="d-flex flex-column pl-2 ml-2 w-75 border-start border-black">
+        <h5 class="mt-1">My models:</h5>
+        <div>
+          <table class="w-100 table table-sm table-hover">
+            <thead class="table-light">
+              <th scope="col">Title:</th>
+              <th scope="col">Created:</th>
+              <th scope="col">Updated:</th>
+              <th scope="col" colspan="3" class="align-center">Actions:</th>
+              <%# <th scope="col"></th>
+              <th scope="col"></th> %>
+            </thead>
+            <% @fmodels.each do |fmodel| %>
+              <tr class="pb-2">
+                <td scope="row"><%= fmodel.title %></td>
+                <td><%= fmodel.created_at.strftime(
+                  "#{fmodel.created_at.day.ordinalize} %B, %Y - %H:%M"
+                  ) %></td>
+                <td><%= fmodel.updated_at.strftime(
+                  "#{fmodel.updated_at.day.ordinalize} %B, %Y - %H:%M"
+                  ) %></td>
+                <td><%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %></td>
+                <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
+                <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
+              </tr>
+            <% end %>
+          </table>
+          <div class="d-flex justify-content-center">
+            <%= paginate @fmodels,  theme: 'bootstrap-5',
+                          pagination_class: "pagination-sm flex-wrap justify-content-center",
+                          nav_class: "d-inline-block"
+            %>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
