@@ -82,7 +82,8 @@
             <% end %>
           </table>
           <div class="d-flex justify-content-center">
-            <%= paginate @fmodels,  theme: 'bootstrap-5',
+            <%= paginate @fmodels, param_name: :models_page,
+                          theme: 'bootstrap-5',
                           pagination_class: "pagination-sm flex-wrap justify-content-center",
                           nav_class: "d-inline-block"
             %>
@@ -91,7 +92,30 @@
       </div>
 
       <div class="d-flex flex-column pl-2 ml-2 w-25 border-start border-black">
-
+        <h5 class="mt-1">Following:</h5>
+        <table class="mb-3">
+          <% if @following.size == 0 %>
+            <tr>
+              <td>You aren't following anyone!</td>
+            </tr>
+          <% else %>
+            <% @following.each do |f| %>
+              <tr>
+                <td><%= f.getUsername %></td>
+                <td><%= button_to "Profile", user_path(f.follows), method: :get, class: "btn btn-primary btn-sm" %></td>
+                <td>Unfollow</td>
+              </tr>
+            <% end %>
+          <% end %>
+        </table>
+        <div class="d-flex justify-content-center">
+          <%= paginate @following, param_name: :following_page,
+                        theme: 'bootstrap-5',
+                        pagination_class: "pagination-sm flex-wrap justify-content-center",
+                        nav_class: "d-inline-block"
+          %>
+        </div>
+        
       </div>
 
     </div>

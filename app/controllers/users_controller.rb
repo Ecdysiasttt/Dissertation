@@ -1,7 +1,9 @@
 class UsersController < ApplicationController
   def show
     @user = User.find_by_id(params[:id])
-    @fmodels = Fmodel.where(created_by: @user.id).order(:created_at).page params[:page]
+    @fmodels = Fmodel.where(created_by: @user.id).order(:created_at).page params[:models_page]
+
+    @following = Follow.where(user: @user.id).page params[:following_page]
 
     @hasReturn = true
 

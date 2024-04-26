@@ -11,17 +11,19 @@
       <%# <th scope="col"></th>
       <th scope="col"></th> %>
     </thead>
-    <% @fmodels.each do |fmodel| %>
-      <tr class="pb-2">
-        <td scope="row"><%= fmodel.title %></td>
-        <td><%= fmodel.getCreator %></td>
-        <td><%= fmodel.formatTime(fmodel.created_at) %></td>
-        <td><%= fmodel.formatTime(fmodel.updated_at) %></td>
-        <td><%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %></td>
-        <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
-        <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
-      </tr>
-    <% end %>
+    <tbody>
+      <% @fmodels.each do |fmodel| %>
+        <tr class="pb-2">
+          <td scope="row"><%= fmodel.title %></td>
+          <td><%= fmodel.getCreator %></td>
+          <td><%= fmodel.formatTime(fmodel.created_at) %></td>
+          <td><%= fmodel.formatTime(fmodel.updated_at) %></td>
+          <td><%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %></td>
+          <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
+          <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
+        </tr>
+      <% end %>
+    </tbody>
   </table>
   <div class="d-flex justify-content-center">
     <%= paginate @fmodels,  theme: 'bootstrap-5',
