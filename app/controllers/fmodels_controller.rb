@@ -5,7 +5,8 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels or /fmodels.json
   def index
-    @fmodels = Fmodel.order(:created_at).page params[:page]
+    # @fmodels = Fmodel.where(public: 1).order(:created_at).page params[:page] # all public
+    @fmodels = Fmodel.order(:created_at).page params[:page] # all
 
     @title = "Feature Model Database"
     @header = "Viewing All Feature Models"
@@ -104,7 +105,8 @@ class FmodelsController < ApplicationController
       params.require(:fmodel).permit(
         :title,
         :graph,
-        :created_by
+        :created_by,
+        :public
       )
     end
 

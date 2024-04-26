@@ -19,6 +19,11 @@
       <%= form.label :title %>
     </div>
 
+    <div class="field form-check" >
+      <%= form.check_box :public, class: "form-check-input mb-2" %>
+      <%= form.label :public %>
+    </div>
+
     <%# hidden graph json text field %>
     <div>
       <%= form.label :graph, style: "display: none" %>

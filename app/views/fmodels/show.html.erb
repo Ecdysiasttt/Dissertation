@@ -70,6 +70,7 @@
           <hr class="">
           <div id="edit-info">
             <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
+            <p class="mb-1"><strong>Public:</strong> <%= @fmodel.public %></p>
             <p class="mb-1"><strong>Created by:</strong> <%= @creator %></p>
             <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at.strftime(
           "#{@fmodel.updated_at.day.ordinalize} %B, %Y - %H:%M") %></p>
