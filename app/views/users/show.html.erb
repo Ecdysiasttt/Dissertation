@@ -56,7 +56,7 @@
         <% end %>
       </div>
 
-      <div class="d-flex flex-column pl-2 ml-2 w-75 border-start border-black">
+      <div class="d-flex flex-column pl-2 ml-2 w-50 border-start border-black">
         <h5 class="mt-1">My models:</h5>
         <div>
           <table class="w-100 table table-sm table-hover">
@@ -72,14 +72,10 @@
             <% @fmodels.each do |fmodel| %>
               <tr class="pb-2">
                 <td scope="row"><%= fmodel.title %></td>
-                <td><%= fmodel.created_at.strftime(
-                  "#{fmodel.created_at.day.ordinalize} %B, %Y - %H:%M"
-                  ) %></td>
-                <td><%= fmodel.updated_at.strftime(
-                  "#{fmodel.updated_at.day.ordinalize} %B, %Y - %H:%M"
-                  ) %></td>
-                <td><%= fmodel.public ? "Public" : "Private" %></td>
-                <td><%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %></td>
+                <td><%= fmodel.formatTime(fmodel.created_at) %></td>
+                <td><%= fmodel.formatTime(fmodel.updated_at) %></td>
+                <td><%= fmodel.visibility %></td>
+                <td><%= link_to "View", fmodel, class: "btn btn-success btn-sm" %></td>
                 <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
                 <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
               </tr>
@@ -92,6 +88,10 @@
             %>
           </div>
         </div>
+      </div>
+
+      <div class="d-flex flex-column pl-2 ml-2 w-25 border-start border-black">
+
       </div>
 
     </div>
