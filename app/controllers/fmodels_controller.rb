@@ -5,8 +5,11 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels or /fmodels.json
   def index
-    # @fmodels = Fmodel.where(public: 1).order(:created_at).page params[:page] # all public
-    @fmodels = Fmodel.order(:created_at).page params[:page] # all
+    if helpers.admin
+      @fmodels = Fmodel.order(:created_at).page params[:page] # all
+    else
+      @fmodels = Fmodel.where(public: 1).order(:created_at).page params[:page] # all public
+    end
 
     @title = "Feature Model Database"
     @header = "Viewing All Feature Models"
@@ -50,7 +53,7 @@ class FmodelsController < ApplicationController
 
     puts "Current user: #{current_user}"
 
-    @fmodel.created_by = current_user.id
+    @fmodel.created_by = current_user.present? ? current_user.id : ""
 
     # puts "===================================="
     # puts @fmodel.title

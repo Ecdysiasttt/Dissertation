@@ -1,0 +1,38 @@
+# TODO make it so private info isn't shown to non-admins
+# TODO also make visibility an enum: public, private, followers
+#       - when viewing another user's profile, only see public
+#       - also see followers if you're a follower
+#       - only show public on homepage
+#       - also need to prevent guests from accessing all this stuff
+
+Things to do:
+  - admin pages (view all users)
+    - for view all users:
+      - id, username, email, numModels, view (shows profile)
+      - handle user deletion correctly (i.e. follows & names on fmodels)
+  - verify feature models before saving, and return more detailed
+    errors to user using toast popups
+  - when viewing another user's profile:
+      - only see public models
+      - don't see 'followers' or 'edit'
+          - perhaps give user stats (e.g. number of public models?) (if have time)
+      - add a follow button (except for guests)
+      - if user is admin
+        - allow to see all info
+        - EXCEPT password field
+        - admins can update emails and usernames
+          - hopefully can bypass current_password check if admin?
+  - add a followers tab? probably trivial
+    - can definitely count from db easily to show total (for both)
+  - fix issue with Void Test (links back to mor rigid fm verification)
+  - make fmodel visibility an enum? (public, private, followers)
+  - maybe add blocking/remove follower functionality (latter seems better tbh)
+  - add more analysis? if possible
+  - expand homepage info (not hugely important)
+  - user verification (prevent guests and non-admins seeing pages)
+  - explore changing design if have time (probably won't)
+  - on view all fmodels:
+    - remove all buttons except show
+    - except for admins
+    - only show edit/delete for authors and admins
+  - fix seeds (duplicate followers, make names realistic (chatGPT) for demo, e.g.)

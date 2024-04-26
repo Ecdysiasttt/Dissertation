@@ -19,9 +19,10 @@
       <%= form.label :title %>
     </div>
 
-    <div class="field form-check" >
-      <%= form.check_box :public, class: "form-check-input mb-2" %>
-      <%= form.label :public %>
+    <%# make model visible checkbox - !! invisible and set to public for guests !! %>
+    <div class="field form-check <%= "d-none" if !current_user.present? %>">
+      <%= form.check_box :public, class: "form-check-input mb-2", disabled: !current_user.present?, checked: !current_user.present? %>
+      <%= form.label :public, "Make model public"%>
     </div>
 
     <%# hidden graph json text field %>

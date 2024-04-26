@@ -48,16 +48,6 @@ class Fmodel < ApplicationRecord
     else
       return givenTime.strftime("%d %b %Y") # e.g. 01 Apr 2024
     end
-
-    # if givenTime == Date.today
-    #   return "Today"
-    # # elsif time == Date.tomorrow
-    #   # return "Tomorrow"
-    # elsif givenTime < Date.today && (Date.today - givenTime.to_date).to_i <= 3
-    #   return time_ago_in_words(givenTime).capitalize + " ago"
-    # else
-    #   return givenTime.strftime("%d %b %Y") # eg. 01 Jan 2020
-    # end
   end
 
   def visibility
