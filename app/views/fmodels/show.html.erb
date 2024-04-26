@@ -71,8 +71,10 @@
           <div id="edit-info">
             <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
             <p class="mb-1"><strong>Created by:</strong> <%= @creator %></p>
-            <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at %></p>
-            <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.updated_at %></p>
+            <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at.strftime(
+          "#{@fmodel.updated_at.day.ordinalize} %B, %Y - %H:%M") %></p>
+            <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.updated_at.strftime(
+          "#{@fmodel.updated_at.day.ordinalize} %B, %Y - %H:%M") %></p>
 
             <%# edit or delete %>
             <div class="d-flex justify-content-between mt-3">

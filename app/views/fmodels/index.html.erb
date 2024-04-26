@@ -2,18 +2,18 @@
 
 <div id="fmodels">
   <table class="w-100 table table-sm table-hover">
-    <thead>
-      <th>Title:</th>
-      <th>Created by:</th>
-      <th>Created:</th>
-      <th>Updated:</th>
-      <th></th>
-      <th></th>
-      <th></th>
+    <thead class="table-light">
+      <th scope="col">Title:</th>
+      <th scope="col">Created by:</th>
+      <th scope="col">Created:</th>
+      <th scope="col">Updated:</th>
+      <th scope="col" colspan="3" class="align-center">Actions:</th>
+      <%# <th scope="col"></th>
+      <th scope="col"></th> %>
     </thead>
     <% @fmodels.each do |fmodel| %>
       <tr class="pb-2">
-        <td><%= fmodel.title %></td>
+        <td scope="row"><%= fmodel.title %></td>
         <td><%= fmodel.getCreator %></td>
         <td><%= fmodel.created_at.strftime(
           "#{fmodel.created_at.day.ordinalize} %B, %Y - %H:%M"
