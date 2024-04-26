@@ -3,6 +3,7 @@
 # Table name: fmodels
 #
 #  id         :integer          not null, primary key
+#  created_by :integer
 #  graph      :string
 #  title      :string
 #  created_at :datetime         not null

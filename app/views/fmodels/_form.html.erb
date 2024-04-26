@@ -19,11 +19,16 @@
       <%= form.label :title %>
     </div>
 
-
     <%# hidden graph json text field %>
     <div>
       <%= form.label :graph, style: "display: none" %>
       <%= form.text_field :graph, style: "display: none" %>
+    </div>
+
+    <%# hidden userID text field %>
+    <div>
+      <%= form.label :created_by, style: "display: none" %>
+      <%= form.text_field :created_by, style: "display: none" %>
     </div>
 
     <%# interaction buttons %>

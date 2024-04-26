@@ -4,6 +4,7 @@
   <table class="w-100 table table-sm table-hover">
     <thead>
       <th>Title:</th>
+      <th>Created by:</th>
       <th>Created:</th>
       <th>Updated:</th>
       <th></th>
@@ -12,16 +13,17 @@
     </thead>
     <% @fmodels.each do |fmodel| %>
       <tr class="pb-2">
-        <td><%=fmodel.title %></td>
-        <td><%=fmodel.created_at.strftime(
+        <td><%= fmodel.title %></td>
+        <td><%= fmodel.getCreator %></td>
+        <td><%= fmodel.created_at.strftime(
           "#{fmodel.created_at.day.ordinalize} %B, %Y - %H:%M"
           ) %></td>
-        <td><%=fmodel.updated_at.strftime(
+        <td><%= fmodel.updated_at.strftime(
           "#{fmodel.updated_at.day.ordinalize} %B, %Y - %H:%M"
           ) %></td>
-        <td><%= link_to "Show", fmodel %></td>
-        <td><%= link_to "Edit", edit_fmodel_path(fmodel) %></td>
-        <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" } %></td>
+        <td><%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %></td>
+        <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
+        <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
       </tr>
     <% end %>
   </table>

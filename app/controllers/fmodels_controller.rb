@@ -16,6 +16,8 @@ class FmodelsController < ApplicationController
     @title = @fmodel.title
     @header = @fmodel.title
 
+    @creator = @fmodel.getCreator
+
     @hasReturn = true
 
     analysis(@fmodel)
@@ -44,6 +46,10 @@ class FmodelsController < ApplicationController
   # POST /fmodels or /fmodels.json
   def create
     @fmodel = Fmodel.new(fmodel_params)
+
+    puts "Current user: #{current_user}"
+
+    @fmodel.created_by = current_user.id
 
     # puts "===================================="
     # puts @fmodel.title
@@ -97,7 +103,8 @@ class FmodelsController < ApplicationController
     def fmodel_params
       params.require(:fmodel).permit(
         :title,
-        :graph
+        :graph,
+        :created_by
       )
     end
 

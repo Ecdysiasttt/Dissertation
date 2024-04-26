@@ -22,18 +22,19 @@ main {
 }
 
 a {
-  color: var(--text) !important;
+  /* color: var(--text) !important; */
   text-decoration: none !important;
   font-weight: bold;
 }
 
-a:hover, a:focus {
+/* a:hover, a:focus {
   color: var(--secondary-hover) !important;
-}
+} */
 
 .header-title {
   font-size: 250%;
   font-weight: 500;
+  color: var(--text) !important;
 }
 
 .header-title:hover, .header-title:focus {

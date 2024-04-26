@@ -70,6 +70,7 @@
           <hr class="">
           <div id="edit-info">
             <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
+            <p class="mb-1"><strong>Created by:</strong> <%= @creator %></p>
             <p class="mb-1"><strong>Created on:</strong> <%= @fmodel.created_at %></p>
             <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.updated_at %></p>
 
@@ -77,12 +78,12 @@
             <div class="d-flex justify-content-between mt-3">
               <%# edit %>
               <div>
-                <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-secondary white" %>
+                <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-warning" %>
               </div>
 
               <%# delete %>
               <div>
-                <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-secondary white" %>
+                <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-danger" %>
               </div>
             </div>
           </div>
