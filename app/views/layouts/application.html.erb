@@ -28,6 +28,7 @@
         <%= button_to "View all", fmodels_path, method: :get, class: "btn btn-primary mr-2" %>
         <%= button_to "New", new_fmodel_path, method: :get, class: "btn btn-primary mr-2" %>
         <% if user_signed_in? %>
+          <%= button_to "Profile", user_path(current_user), method: :get, class: "btn btn-primary mr-2" %>
           <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "btn btn-danger mr-2" %>
         <% else %>
           <%= button_to "Login", new_user_session_path, method: :get, class: "btn btn-primary" %>

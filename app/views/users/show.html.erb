@@ -1,0 +1,166 @@
+<div class="w-100">
+  <div id="userInfo">
+    <%# display user info & allow them to update their details %>
+    <div class="d-flex">
+      <div class="d-flex flex-column w-25">
+        <div class="d-flex justify-content-between">
+          <h5 class="mt-1">Account details:</h5>
+          <button class="btn btn-primary btn-sm" id="edit-button" onclick="toggleEdit()">Edit details</button>
+        </div>
+        
+        <hr class="my-2">
+      
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+          <div class="field form-floating mb-3">
+            <%= f.email_field :email, class: "form-control", autocomplete: "email", placeholder: "example@email.com", disabled: true %>
+            <%= f.label :email, id: "user_email_label" %>
+          </div>
+
+          <div class="field form-floating mb-3">
+            <%= f.text_field :username, class: "form-control", placeholder: "username", disabled: true %>
+            <%= f.label :username, id: "user_username_label" %>
+          </div>
+
+          <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+            <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+          <% end %>
+
+          <hr class="my-2" style="display: none;"  id="separator1">
+
+          <div class="field form-floating mb-3">
+            <%= f.password_field :password, class: "form-control", autocomplete: "new-password", placeholder: "Password", disabled: true, hidden: true %>
+            <%= f.label :password, hidden: true, id: "user_password_label" %>
+            <% if @minimum_password_length %>
+              <br />
+              <em><%= @minimum_password_length %> characters minimum</em>
+            <% end %>
+          </div>
+
+          <div class="field form-floating mb-3">
+            <%= f.password_field :password_confirmation, class: "form-control", autocomplete: "new-password", disabled: true, hidden: true %>
+            <%= f.label :password_confirmation, hidden: true, id: "user_password_confirmation_label" %>
+            <div id="passwordHelp" class="form-text" style="display: none;">Leave blank if you don't want to change it.</div>
+          </div>
+
+          <hr class="my-2" style="display: none;" id="separator2">
+
+          <div class="field form-floating mb-3">
+            <%= f.password_field :current_password, class: "form-control", autocomplete: "current-password", aria_described_by: "confirm", disabled: true, hidden: true %>
+            <%= f.label :current_password, hidden: true, id: "user_current_password_label" %>
+            <div id="confirm" class="form-text" style="display: none;">Insert password to confirm changes.</div>
+          </div>
+
+          <div class="actions">
+            <%= f.submit "Update", class: "btn btn-success", id: "submit", disabled: true, hidden: true%>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleEdit() {
+    console.log("Toggling editable details");
+
+    button = document.getElementById("edit-button");
+
+    
+    let emailUname = [
+      document.getElementById("user_email"),                        // email
+      document.getElementById("user_username")                      // uname
+    ];
+
+    let emailUnameDefaultVals = [
+      "<%= @user.email %>",
+      "<%= @user.username %>"
+    ];
+
+    let emailUnameLabels = [
+      document.getElementById("user_email_label"),                  // emailLabel
+      document.getElementById("user_username_label")                // unameLabel
+    ];
+    
+    // fields to hide
+    let fields = [
+      document.getElementById("user_password"),                     // pass 
+      document.getElementById("user_password_confirmation"),        // passConf      
+      document.getElementById("user_current_password")              // currentPass
+    ];
+
+    // labels
+    let labels = [
+      document.getElementById("user_password_label"),               // passLabel
+      document.getElementById("user_password_confirmation_label"),  // passConfLabel
+      document.getElementById("user_current_password_label")        // currentPassLabel
+    ];
+
+    let decorators = [
+      document.getElementById("submit"),            // submit button
+      document.getElementById("separator1"),        // upper <hr>
+      document.getElementById("separator2"),        // lower <hr>
+      document.getElementById("passwordHelp"),      // password change message
+      document.getElementById("confirm")            // need pass to confirm message
+    ]
+
+    // are they currently editable?
+    if (button.textContent == "Edit details") {
+      console.log("Currently hidden. Showing...");
+      
+      for (var i in fields) {
+        labels[i].hidden = false;
+        fields[i].hidden = false;
+        fields[i].disabled = false;
+      }
+
+      emailUname.forEach(field => {
+        field.disabled = false;
+      });
+
+      for (var i in decorators) {
+        decorators[i].hidden = false;
+        decorators[i].style.display = "block";
+        decorators[i].disabled = false;
+      }
+
+      // submitButton.hidden = false;
+      // separatorTop.style.display = "block";
+      // separatorBottom.style.display = "block";
+
+      button.textContent = "Cancel"
+      button.classList.remove("btn-primary");
+      button.classList.add("btn-warning");
+
+    } else {
+      console.log("Currently shown. Hiding...");
+      
+      for (var i in fields) {
+        labels[i].hidden = true;
+        fields[i].hidden = true;
+        fields[i].disabled = true;
+        fields[i].value = '';
+      }
+      
+      for (var i in emailUname){
+        emailUname[i].disabled = true;
+        emailUname[i].value = emailUnameDefaultVals[i];
+      }
+
+      for (var i in decorators) {
+        decorators[i].hidden = true;
+        decorators[i].style.display = "none";
+        decorators[i].disabled = true;
+      }
+
+      // submitButton.hidden = true;
+      // separatorTop.style.display = "none";
+      // separatorBottom.style.display = "none";
+
+      button.textContent = "Edit details"
+      button.classList.remove("btn-warning");
+      button.classList.add("btn-primary");
+    }
+  }
+</script>

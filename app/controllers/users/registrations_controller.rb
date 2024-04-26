@@ -37,7 +37,21 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # PUT /resource
   def update
-    super
+    super do |resource|
+      if !resource.errors.empty?
+        puts "failed to save user \n\n\n"
+        flash[:notice] = flash[:notice].to_a.concat resource.errors.full_messages
+        redirect_back fallback_location: root_path and return        
+      # else
+      #   flash[:notice] = flash[:notice].to_a.concat resource.errors.full_messages
+      #   redirect_back fallback_location: root_path and return  
+      end
+      # if !resource.persisted?
+      #   puts "failed to save user \n\n\n"
+      #   flash[:notice] = flash[:notice].to_a.concat resource.errors.full_messages
+      #   redirect_back fallback_location: root_path and return
+      # end
+    end
   end
 
   # DELETE /resource
