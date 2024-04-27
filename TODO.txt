@@ -6,9 +6,9 @@
 #       - also need to prevent guests from accessing all this stuff
 
 Things to do:
-  - admin pages (view all users)
+  - DONE admin pages (view all users)
     - for view all users:
-      - id, username, email, numModels, view (shows profile)
+      - DONE id, username, email, numModels, view (shows profile)
       - handle user deletion correctly (i.e. follows & names on fmodels)
   - verify feature models before saving, and return more detailed
     errors to user using toast popups

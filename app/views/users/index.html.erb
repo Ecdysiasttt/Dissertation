@@ -1,0 +1,60 @@
+<div id="users">
+
+  <table class="w-100 table table-sm table-hover">
+    <% if @users.size == 0 %>
+      <tr>
+        <td>No users found, how did that even happen?</td>
+      </tr>
+    <% else %>
+      <thead class="table-light">
+        <tr>
+          <th scope="col" rowspan="2">ID:</th>
+          <th scope="col" rowspan="2">Username:</th>
+          <th scope="col" rowspan="2">Email:</th>
+          <th scope="col" colspan="2">Models:</th>
+          <th scope="col" colspan="2">Social:</th>
+          <th scope="col" rowspan="2">Joined:</th>
+          <th scope="col" rowspan="2">Updated:</th>
+          <th scope="col" rowspan="2"></th>
+        </tr>
+        <tr>
+          <th scope="col"># Public</th>
+          <th scope="col"># Private</th>
+          <th scope="col"># Following:</th>
+          <th scope="col"># Followers:</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr class="pb-2">
+            <td scope="row"><%= user.id %></td>
+            <td><%= user.username %></td>
+            <td><%= user.email %></td>
+            <td><%= getPublicModelsForUser(user).count %></td>
+            <td><%= getPrivateModelsForUser(user).count %></td>
+            <td><%= getFollowingForUser(user).count %></td>
+            <td><%= getFollowersForUser(user).count %></td>
+            <td><%= formatTime(user.created_at) %></td>
+            <td><%= formatTime(user.updated_at) %></td>
+            <td class="text-end">
+              <%= link_to "Show", user, class: "btn btn-success btn-sm" %></td>
+          </tr>
+        <% end %>
+        <% if @users.size < 10 %>
+            <% (10-@users.size).times do %>
+              <tr class="borderless-cell" style="visibility: hidden;"><td class="borderless-cell" style="visibility: hidden;">blank</td></tr>
+            <% end %>
+        <% end %>
+      </tbody> 
+    <% end %>
+  </table>
+  <div class="flex-grow-1"></div>
+  <div class="d-flex justify-content-center">
+    <%= paginate @users,
+          param_name: :page,
+          theme: 'bootstrap-5',
+          pagination_class: "pagination-sm flex-wrap justify-content-center",
+          nav_class: "d-inline-block"
+    %>
+  </div>   
+</div>

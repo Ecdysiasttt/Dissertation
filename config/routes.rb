@@ -5,7 +5,7 @@ Rails.application.routes.draw do
                                 :registrations => "users/registrations"
                                   }
   resources :fmodels
-  resources :users, :only => [:show]
+  resources :users, :only => [:show, :index]
   # resources :follows, only: [:destroy, :create] # allows following/unfollowing
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -1,16 +1,21 @@
 class UsersController < ApplicationController
+  helper_method :getPublicModelsForUser,
+                :getPrivateModelsForUser,
+                :getFollowingForUser,
+                :getFollowersForUser
+
+  def index
+    # only admins can see this
+    @users = User.all.order(:created_at).page params[:page]
+    @title = "All users"
+    @header = "Users"
+  end
+
   def show
     # is user viewing themselves or another user?
     @user = User.find_by_id(params[:id])
     
     @viewingSelf = (current_user.present? && (current_user.id.to_i == params[:id].to_i))
-
-    # puts "======================================"
-    # puts "is viewing self?: #{viewingSelf}"
-    # puts "current_user.present? #{current_user.present?}"
-    # puts "Current user id: #{current_user.id}"
-    # puts "params id: #{params[:id]}"
-    # puts "id's match? #{(current_user.id.to_i == params[:id].to_i)}"
     
     if @viewingSelf
       @editable = true
@@ -40,5 +45,23 @@ class UsersController < ApplicationController
 
     @title = "My Profile"
     @header = @user.username
+  end
+
+  protected
+
+  def getPublicModelsForUser(user)
+    @models = Fmodel.where(created_by: user.id, public: 1)
+  end
+
+  def getPrivateModelsForUser(user)
+    @models = Fmodel.where(created_by: user.id, public: 0)
+  end
+
+  def getFollowingForUser(user)
+    @following = Follow.where(user: user.id)
+  end
+
+  def getFollowersForUser(user)
+    @followers = Follow.where(follows: user.id)
   end
 end
