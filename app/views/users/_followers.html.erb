@@ -28,6 +28,7 @@
 <div class="flex-grow-1"></div>
 <div class="d-flex justify-content-center">
   <%= paginate users, param_name: (tab == "following") ? :following_page : :followers_page,
+                :params => { :tab => tab },
                 theme: 'bootstrap-5',
                 pagination_class: "pagination-sm flex-wrap justify-content-center",
                 nav_class: "d-inline-block"

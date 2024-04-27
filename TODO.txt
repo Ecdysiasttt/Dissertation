@@ -6,29 +6,13 @@
 #       - also need to prevent guests from accessing all this stuff
 
 Things to do:
-  - DONE admin pages (view all users)
-    - for view all users:
-      - DONE id, username, email, numModels, view (shows profile)
-      - handle user deletion correctly (i.e. follows & names on fmodels)
+
+  - handle user deletion correctly (i.e. follows & names on fmodels)
   - verify feature models before saving, and return more detailed
     errors to user using toast popups
-  - DONE when viewing another user's profile:
-      - DONE only see public models
-      - DONE don't see 'followers' or 'edit'
-          - DONE perhaps give user stats (e.g. number of public models?) (if have time)
-      - DONE add a follow button (except for guests)
-      - DONE if user is admin
-        - DONE allow to see all info
-        - GETTING RID password field
-        - DONE admins can update emails and usernames
-          - GETTING RID hopefully can bypass current_password check if admin?
-  - DONE add a followers tab? probably trivial
-    - DONE can definitely count from db easily to show total (for both)
   - fix issue with Void Test (links back to mor rigid fm verification)
   - make fmodel visibility an enum? (public, private, followers)
-  - DONE maybe add blocking/remove follower functionality (latter seems better tbh)
   - add more analysis? if possible
-  - DONE expand homepage info (not hugely important)
   - user verification (prevent guests and non-admins seeing pages)
   - explore changing design if have time (probably won't)
   - on view all fmodels:
@@ -37,3 +21,22 @@ Things to do:
   - time doesn't account for time zones :/
   - make toast messages nice
   - add notes field to fmodel
+
+Things completed:
+  - DONE admin pages (view all users)
+    - for view all users:
+      - DONE id, username, email, numModels, view (shows profile)
+  - DONE when viewing another user's profile:
+    - DONE only see public models
+    - DONE don't see 'followers' or 'edit'
+        - DONE perhaps give user stats (e.g. number of public models?) (if have time)
+    - DONE add a follow button (except for guests)
+    - DONE if user is admin
+      - DONE allow to see all info
+      - GETTING RID password field
+      - DONE admins can update emails and usernames
+        - GETTING RID hopefully can bypass current_password check if admin?
+  - DONE add a followers tab? probably trivial
+    - DONE can definitely count from db easily to show total (for both)
+  - DONE expand homepage info (not hugely important)
+  - DONE maybe add blocking/remove follower functionality (latter seems better tbh)

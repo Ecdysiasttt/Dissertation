@@ -38,6 +38,8 @@ class UsersController < ApplicationController
     @following = Follow.where(user: @user.id).page params[:following_page]
     @followers = Follow.where(follows: @user.id).page params[:followers_page]
 
+    @activeTab = params[:tab].present? ? params[:tab] : "following"
+
     @followingTotal = Follow.where(user: @user.id).count
     @followersTotal = Follow.where(follows: @user.id).count
 

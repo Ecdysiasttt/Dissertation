@@ -35,13 +35,13 @@
         <div class="d-flex justify-content-between w-100 mb-2">
           <ul class="nav nav-pills nav-fill flex-sm-row w-100" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-              <a class="nav-link active" id="following-tab" data-bs-toggle="tab"
+              <a class="nav-link <%= "active" if @activeTab == "following" %>" id="following-tab" data-bs-toggle="tab"
                 data-bs-target="#following" type="button" role="tab" aria-controls="following"
                 aria-selected="true">
                 <%= "#{@followingTotal} " %>Following:</a>
             </li>
             <li class="nav-item" role="presentation">
-              <a class="nav-link" id="followers-tab" data-bs-toggle="tab"
+              <a class="nav-link <%= "active" if @activeTab == "followers" %>" id="followers-tab" data-bs-toggle="tab"
                 data-bs-target="#followers" type="button" role="tab" aria-controls="followers"
                 aria-selected="false">
                 <%= "#{@followersTotal} "%>Followers:</a>
@@ -49,11 +49,11 @@
           </ul>
         </div>
         <div class="tab-content" id="myTabContent">
-          <div class="tab-pane fade show active" id="following" role="tabpanel" aria-labelledby="following-tab">
+          <div class="tab-pane fade <%= "show active" if @activeTab == "following" %>" id="following" role="tabpanel" aria-labelledby="following-tab">
             <%= render "followers", tab: "following", users: @following %>
           </div>
 
-          <div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+          <div class="tab-pane fade <%= "show active" if @activeTab == "followers" %>" id="followers" role="tabpanel" aria-labelledby="followers-tab">
             <%= render "followers", tab: "followers", users: @followers %> 
           </div>
         </div>
