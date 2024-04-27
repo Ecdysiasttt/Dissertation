@@ -3,11 +3,12 @@ class UsersController < ApplicationController
                 :getPrivateModelsForUser,
                 :getFollowingModelsForUser,
                 :getFollowingForUser,
-                :getFollowersForUser
+                :getFollowersForUser,
+                :getModelsVisibleForUser
 
   def index
-    # only admins can see this
     @users = User.all.order(:created_at).page params[:page]
+
     @title = "All users"
     @header = "Users"
   end
@@ -51,6 +52,21 @@ class UsersController < ApplicationController
   end
 
   protected
+
+  def getModelsVisibleForUser(user)
+    # if user follows self.user, return all models that are global or followers
+    # if user does not follow self.user, return all models that are global
+    # if user is self.user, return all models
+    if !current_user.present?
+      @models = Fmodel.where(created_by: user.id, visibility: :global)
+    elsif (current_user.id == user.id || helpers.admin)
+      @models = Fmodel.where(created_by: user.id)
+    elsif Follow.find_by(user: current_user.id, follows: user.id)
+      @models = Fmodel.where(created_by: user.id).where("visibility = 0 OR visibility = 2")
+    else
+      @models = Fmodel.where(created_by: user.id, visibility: :global)
+    end
+  end
 
   def getPublicModelsForUser(user)
     @models = Fmodel.where(created_by: user.id, visibility: :global)

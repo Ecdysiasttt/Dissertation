@@ -10,17 +10,24 @@
         <tr>
           <th scope="col" rowspan="2">ID:</th>
           <th scope="col" rowspan="2">Username:</th>
-          <th scope="col" rowspan="2">Email:</th>
-          <th scope="col" colspan="3" class="text-center">Models:</th>
+          <% if admin %>
+            <th scope="col" rowspan="2">Email:</th>
+          <% end %>
+          <th scope="col" colspan="<%= admin ? 3 : 1 %>"
+            rowspan="<%= admin ? 1 : 2 %>" class="text-center">Models:</th>
           <th scope="col" colspan="2" class="text-center">Social:</th>
           <th scope="col" rowspan="2">Joined:</th>
-          <th scope="col" rowspan="2">Updated:</th>
+          <% if admin %>
+            <th scope="col" rowspan="2">Updated:</th>
+          <% end %>
           <th scope="col" rowspan="2"></th>
         </tr>
         <tr>
-          <th scope="col"># Public</th>
-          <th scope="col"># Private</th>
-          <th scope="col"># Followers</th>
+          <% if admin %>
+            <th scope="col"># Public</th>
+            <th scope="col"># Private</th>
+            <th scope="col"># Followers</th>
+          <% end %>
           <th scope="col"># Following:</th>
           <th scope="col"># Followers:</th>
         </tr>
@@ -30,14 +37,22 @@
           <tr class="pb-2">
             <td scope="row"><%= user.id %></td>
             <td><%= user.username %></td>
-            <td><%= user.email %></td>
-            <td><%= getPublicModelsForUser(user).count %></td>
-            <td><%= getPrivateModelsForUser(user).count %></td>
-            <td><%= getFollowingModelsForUser(user).count %></td>
+            <% if admin %>
+              <td><%= user.email %></td>
+            <% end %>
+            <% if admin %>
+              <td><%= getPublicModelsForUser(user).count %></td>
+              <td><%= getPrivateModelsForUser(user).count %></td>
+              <td><%= getFollowingModelsForUser(user).count %></td>
+            <% else %>
+              <td><%= getModelsVisibleForUser(user).count %></td>
+            <% end %>
             <td><%= getFollowingForUser(user).count %></td>
             <td><%= getFollowersForUser(user).count %></td>
             <td><%= formatTime(user.created_at) %></td>
-            <td><%= formatTime(user.updated_at) %></td>
+            <% if admin %>
+              <td><%= formatTime(user.updated_at) %></td>
+            <% end %>
             <td class="text-end">
               <%= link_to "Show", user, class: "btn btn-success btn-sm" %></td>
           </tr>
