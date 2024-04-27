@@ -70,23 +70,27 @@
           <hr class="">
           <div id="edit-info">
             <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
-            <p class="mb-1"><strong>Public:</strong> <%= @fmodel.visibility %></p>
+            <% if @fmodel.canModify %>
+              <p class="mb-1"><strong>Visibility:</strong> <%= @fmodel.visibility %></p>
+            <% end %>
             <p class="mb-1"><strong>Author:</strong> <%= @fmodel.getCreator %></p>
-            <p class="mb-1"><strong>Created:</strong> <%= @fmodel.formatTime(@fmodel.created_at) %></p>
-            <p class="mb-1"><strong>Last updated:</strong> <%= @fmodel.formatTime(@fmodel.updated_at) %></p>
+            <p class="mb-1"><strong>Created:</strong> <%= formatTime(@fmodel.created_at) %></p>
+            <p class="mb-1"><strong>Last updated:</strong> <%= formatTime(@fmodel.updated_at) %></p>
 
-            <%# edit or delete %>
-            <div class="d-flex justify-content-between mt-3">
-              <%# edit %>
-              <div>
-                <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-warning" %>
-              </div>
+            <% if @fmodel.canModify %>
+              <%# edit or delete %>
+              <div class="d-flex justify-content-between mt-3">
+                <%# edit %>
+                <div>
+                  <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-warning" %>
+                </div>
 
-              <%# delete %>
-              <div>
-                <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-danger" %>
+                <%# delete %>
+                <div>
+                  <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-danger" %>
+                </div>
               </div>
-            </div>
+            <% end %>
           </div>
         </div>
 

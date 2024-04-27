@@ -13,11 +13,11 @@ Things to do:
   - verify feature models before saving, and return more detailed
     errors to user using toast popups
   - when viewing another user's profile:
-      - only see public models
-      - don't see 'followers' or 'edit'
-          - perhaps give user stats (e.g. number of public models?) (if have time)
-      - add a follow button (except for guests)
-      - if user is admin
+      - DONE only see public models
+      - DONE don't see 'followers' or 'edit'
+          - DONE perhaps give user stats (e.g. number of public models?) (if have time)
+      - NEXT add a follow button (except for guests)
+      - NEXT if user is admin
         - allow to see all info
         - EXCEPT password field
         - admins can update emails and usernames
@@ -32,7 +32,8 @@ Things to do:
   - user verification (prevent guests and non-admins seeing pages)
   - explore changing design if have time (probably won't)
   - on view all fmodels:
-    - remove all buttons except show
-    - except for admins
-    - only show edit/delete for authors and admins
+    - make table headers sortable?
   - fix seeds (duplicate followers, make names realistic (chatGPT) for demo, e.g.)
+  - time doesn't account for time zones :/
+  - make toast messages nice
+  - add notes field to fmodel

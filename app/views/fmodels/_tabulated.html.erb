@@ -1,0 +1,67 @@
+<table class="w-100 table table-sm table-hover">
+  <% if @fmodels.size == 0 %>
+    <tr>
+    <% if origin == "index" %>
+      <td>No feature models found. Make one and add to the database!</td>
+    <% else %>
+        <td>
+          <%= @user.id == @current_user.id ? "You haven't " : "#{@user.username} hasn't "%>
+          made any feature models yet.  
+        </td>
+    <% end %>
+    </tr>
+  <% else %>
+    <thead class="table-light">
+      <th scope="col">Title:</th>
+      <% if origin != "user" %>
+        <th scope="col">Created by:</th>
+      <% end %>
+      <th scope="col">Created:</th>
+      <th scope="col">Updated:</th>
+      <% if editable %>
+        <th scope="col">Visibility:</th>
+      <% end %>
+      <th scope="col" colspan="1"
+        class="d-flex justify-content-end pr-3">Actions:</th>
+      <%# <th scope="col"></th>
+      <th scope="col"></th> %>
+    </thead>
+    <tbody>
+      <% @fmodels.each do |fmodel| %>
+        <tr class="pb-2">
+          <td scope="row"><%= fmodel.title %></td>
+          <% if origin != "user" %>            
+            <td><%= fmodel.getCreator %></td>
+          <% end %>  
+          <td><%= formatTime(fmodel.created_at) %></td>
+          <td><%= formatTime(fmodel.updated_at) %></td>
+          <% if editable %>
+            <td><%= fmodel.visibility %></td>
+          <% end %>
+          <td class="d-flex justify-content-end pr-3">
+            <%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %>
+            <% if editable %>
+              <%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm ml-2" %>
+              <%= button_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm ml-2" %>
+            </td>
+            <%# <td class="d-flex justify-content-end pr-3"></td> %>
+            <% end %>
+        </tr>
+      <% end %>
+      <% if @fmodels.size < 10 %>
+          <% (10-@fmodels.size).times do %>
+            <tr class="borderless-cell" style="visibility: hidden;"><td class="borderless-cell" style="visibility: hidden;">blank</td></tr>
+          <% end %>
+      <% end %>
+    </tbody> 
+  <% end %>
+</table>
+<div class="flex-grow-1"></div>
+<div class="d-flex justify-content-center">
+  <%= paginate @fmodels,
+        param_name: (origin == "user" ? :models_page : :page),
+        theme: 'bootstrap-5',
+        pagination_class: "pagination-sm flex-wrap justify-content-center",
+        nav_class: "d-inline-block"
+  %>
+</div>   

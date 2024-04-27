@@ -26,4 +26,17 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  def self.current
+    Thread.current[:user]
+  end
+
+  def self.current=(user)
+    Thread.current[:user] = user
+  end
+
+  
+  def canModify
+    User.current.present? && (User.current.id == self.id || User.current.isAdmin)
+  end
+
 end

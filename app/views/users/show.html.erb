@@ -5,94 +5,25 @@
       <div class="d-flex h-100 flex-column w-25">
         <div class="d-flex justify-content-between">
           <h5 class="mt-1">Account details:</h5>
-          <button class="btn btn-primary btn-sm" id="edit-button" onclick="toggleEdit()">Edit details</button>
+          <% if @user.canModify %>
+            <button class="btn btn-primary btn-sm" id="edit-button" onclick="toggleEdit()">Edit details</button>
+          <% end %>
         </div>
         
         <hr class="my-2">
-      
-        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-          <div class="field form-floating mb-3">
-            <%= f.email_field :email, class: "form-control", autocomplete: "email", placeholder: "example@email.com", disabled: true %>
-            <%= f.label :email, id: "user_email_label" %>
-          </div>
 
-          <div class="field form-floating mb-3">
-            <%= f.text_field :username, class: "form-control", placeholder: "username", disabled: true %>
-            <%= f.label :username, id: "user_username_label" %>
-          </div>
-
-          <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-            <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-          <% end %>
-
-          <hr class="my-2" style="display: none;"  id="separator1">
-
-          <div class="field form-floating mb-3">
-            <%= f.password_field :password, class: "form-control", autocomplete: "new-password", placeholder: "Password", disabled: true, hidden: true %>
-            <%= f.label :password, hidden: true, id: "user_password_label" %>
-            <% if @minimum_password_length %>
-              <br />
-              <em><%= @minimum_password_length %> characters minimum</em>
-            <% end %>
-          </div>
-
-          <div class="field form-floating mb-3">
-            <%= f.password_field :password_confirmation, class: "form-control", autocomplete: "new-password", disabled: true, hidden: true %>
-            <%= f.label :password_confirmation, hidden: true, id: "user_password_confirmation_label" %>
-            <div id="passwordHelp" class="form-text" style="display: none;">Leave blank if you don't want to change it.</div>
-          </div>
-
-          <hr class="my-2" style="display: none;" id="separator2">
-
-          <div class="field form-floating mb-3">
-            <%= f.password_field :current_password, class: "form-control", autocomplete: "current-password", aria_described_by: "confirm", disabled: true, hidden: true %>
-            <%= f.label :current_password, hidden: true, id: "user_current_password_label" %>
-            <div id="confirm" class="form-text" style="display: none;">Insert password to confirm changes.</div>
-          </div>
-
-          <div class="actions">
-            <%= f.submit "Update", class: "btn btn-success", id: "submit", disabled: true, hidden: true%>
-          </div>
+        <% if @user.canModify %>
+          <%= render "edit" %>
+        <% else %>
+          <%= render "stats" %>
         <% end %>
       </div>
 
       <div class="d-flex flex-column pl-2 ml-2 w-50 border-start border-black">
-        <h5 class="mt-1">My models:</h5>
-        <table class="table table-sm table-hover">
-          <thead class="table-light">
-            <th scope="col">Title:</th>
-            <th scope="col">Created:</th>
-            <th scope="col">Updated:</th>
-            <th scope="col">Visibility:</th>
-            <th scope="col" colspan="3" class="align-center">Actions:</th>
-            <%# <th scope="col"></th>
-            <th scope="col"></th> %>
-          </thead>
-          <% @fmodels.each do |fmodel| %>
-            <tr class="pb-2">
-              <td scope="row"><%= fmodel.title %></td>
-              <td><%= fmodel.formatTime(fmodel.created_at) %></td>
-              <td><%= fmodel.formatTime(fmodel.updated_at) %></td>
-              <td><%= fmodel.visibility %></td>
-              <td><%= link_to "View", fmodel, class: "btn btn-success btn-sm" %></td>
-              <td><%= link_to "Edit", edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" %></td>
-              <td><%= link_to "Delete", fmodel_path(fmodel), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %></td>
-            </tr>
-          <% end %>
-          <% if @fmodels.size < 10 %>
-            <% (10-@fmodels.size).times do %>
-              <tr class="borderless-cell" style="visibility: hidden;"><td class="borderless-cell" style="visibility: hidden;">blank</td></tr>
-            <% end %>
-          <% end %>
-        </table>
-        <div class="flex-grow-1"></div>
-        <div class="d-flex justify-content-center">
-          <%= paginate @fmodels, param_name: :models_page,
-                        theme: 'bootstrap-5',
-                        pagination_class: "pagination-sm flex-wrap justify-content-center",
-                        nav_class: "d-inline-block"
-          %>
-        </div>
+        <h5 class="mt-1"><%= @viewingSelf ? "My" : "#{@user.username}'s"%> models:</h5>
+
+        <%= render "fmodels/tabulated", origin: "user", user: @user, editable: @editable %>
+
       </div>
 
       <div class="d-flex flex-column pl-2 ml-2 w-25 border-start border-black">
@@ -108,7 +39,9 @@
                 <td><%= f.getUsername %></td>
                 <td class="text-end d-flex justify-content-end">
                   <%= button_to "Profile", user_path(f.follows), method: :get, class: "btn btn-primary btn-sm mr-2" %>
-                  <%= button_to "Unfollow", follow_path(f.follows), method: :delete, class: "btn btn-danger btn-sm" %>
+                  <% if @user.canModify %>
+                    <%= button_to "Unfollow", follow_path(f.follows), method: :delete, class: "btn btn-danger btn-sm" %>
+                  <% end %>
                 </td>
               </tr>
             <% end %>

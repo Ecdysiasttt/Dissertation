@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
-  # before_action :authenticate_user!
+  before_action :getCurrentUserModels
 
   protected
   
@@ -13,4 +13,9 @@ class ApplicationController < ActionController::Base
   # def authenticate_user!
   #   redirect_back fallback_location: root_path, alert: "Please login to access this page" and return
   # end
+
+  # allows models to access current user
+  def getCurrentUserModels
+    User.current = current_user
+  end
 end

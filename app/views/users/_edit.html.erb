@@ -1,0 +1,44 @@
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+  <div class="field form-floating mb-3">
+    <%= f.email_field :email, class: "form-control", autocomplete: "email", placeholder: "example@email.com", disabled: true %>
+    <%= f.label :email, id: "user_email_label" %>
+  </div>
+
+  <div class="field form-floating mb-3">
+    <%= f.text_field :username, class: "form-control", placeholder: "username", disabled: true %>
+    <%= f.label :username, id: "user_username_label" %>
+  </div>
+
+  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+  <% end %>
+
+  <hr class="my-2" style="display: none;"  id="separator1">
+
+  <div class="field form-floating mb-3">
+    <%= f.password_field :password, class: "form-control", autocomplete: "new-password", placeholder: "Password", disabled: true, hidden: true %>
+    <%= f.label :password, hidden: true, id: "user_password_label" %>
+    <% if @minimum_password_length %>
+      <br />
+      <em><%= @minimum_password_length %> characters minimum</em>
+    <% end %>
+  </div>
+
+  <div class="field form-floating mb-3">
+    <%= f.password_field :password_confirmation, class: "form-control", autocomplete: "new-password", disabled: true, hidden: true %>
+    <%= f.label :password_confirmation, hidden: true, id: "user_password_confirmation_label" %>
+    <div id="passwordHelp" class="form-text" style="display: none;">Leave blank if you don't want to change it.</div>
+  </div>
+
+  <hr class="my-2" style="display: none;" id="separator2">
+
+  <div class="field form-floating mb-3">
+    <%= f.password_field :current_password, class: "form-control", autocomplete: "current-password", aria_described_by: "confirm", disabled: true, hidden: true %>
+    <%= f.label :current_password, hidden: true, id: "user_current_password_label" %>
+    <div id="confirm" class="form-text" style="display: none;">Insert password to confirm changes.</div>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Update", class: "btn btn-success", id: "submit", disabled: true, hidden: true%>
+  </div>
+<% end %>
