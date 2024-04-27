@@ -79,22 +79,6 @@ a {
   /* min-height: 80%; */
 }
 
-.table-border  {
-  border: 1px solid !important;
-  /* border-collapse: collapse !important; */
-}
-
-.table-border th {
-  border: 1px solid var(--border) !important;
-}
-
-.table-border td {
-  border: 1px solid var(--border) !important;
-}
-
-.table-border tr {
-  border: 1px solid var(--border) !important;
-}
 
 .border-dark {
   border-color: var(--border) !important;

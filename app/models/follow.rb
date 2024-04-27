@@ -13,9 +13,13 @@ class Follow < ApplicationRecord
 
   # @following = Follow.where(user: @user.id)
 
-  def getUsername
+  def getUsernameTarget
     # puts "========================================"
     # puts "#{User.find_by_id(self.follows).email}"
     User.find_by_id(self.follows).username
+  end
+
+  def getUsernameOrigin
+    User.find_by_id(self.user).username
   end
 end

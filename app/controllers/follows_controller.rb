@@ -25,7 +25,7 @@ class FollowsController < ApplicationController
   
   def destroy
     @follow = Follow.find_by(user: current_user.id, follows: params[:id])
-    @userUnfollowed = @follow.getUsername
+    @userUnfollowed = @follow.getUsernameTarget
     if @follow
       @follow.destroy
       redirect_back fallback_location: root_path, notice: "#{@userUnfollowed} successfully unfollowed." and return
@@ -37,6 +37,6 @@ class FollowsController < ApplicationController
   private
 
   def follow_params
-    params.require(:follow).permit(:username)
+    params.require(:follow).permit(:username, :id)
   end
 end

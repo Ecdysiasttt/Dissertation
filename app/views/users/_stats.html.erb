@@ -19,6 +19,9 @@
       </p>
     <% else %>
       <p>You aren't following <%= @user.username %>.</p>
+        <%# <% if !@viewingSelf && !@isUserFollowingTarget && current_user.present? %>
+      <%= button_to "Follow", follows_path, method: :post, params: { id: @user.id }, class: "btn btn-primary btn-sm" %>
+          <%# <% end %>
     <% end %>
 
     <% if @isTargetFollowingUser %>

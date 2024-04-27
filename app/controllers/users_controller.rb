@@ -24,13 +24,17 @@ class UsersController < ApplicationController
       @isTargetFollowingUser = Follow.find_by(user: @user.id, follows: current_user.id)
     end
 
-    if helpers.admin
+    if helpers.admin || @viewingSelf
       @fmodels = Fmodel.where(created_by: @user.id).order(:created_at).page params[:models_page]
     else
       @fmodels = Fmodel.where(created_by: @user.id, public: 1).order(:created_at).page params[:models_page]
     end
 
     @following = Follow.where(user: @user.id).page params[:following_page]
+    @followers = Follow.where(follows: @user.id).page params[:followers_page]
+
+    @followingTotal = Follow.where(user: @user.id).count
+    @followersTotal = Follow.where(follows: @user.id).count
 
     @hasReturn = true
 

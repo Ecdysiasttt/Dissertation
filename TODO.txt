@@ -12,21 +12,21 @@ Things to do:
       - handle user deletion correctly (i.e. follows & names on fmodels)
   - verify feature models before saving, and return more detailed
     errors to user using toast popups
-  - when viewing another user's profile:
+  - DONE when viewing another user's profile:
       - DONE only see public models
       - DONE don't see 'followers' or 'edit'
           - DONE perhaps give user stats (e.g. number of public models?) (if have time)
       - DONE add a follow button (except for guests)
-      - NEXT if user is admin
-        - allow to see all info
-        - EXCEPT password field
-        - admins can update emails and usernames
-          - hopefully can bypass current_password check if admin?
-  - add a followers tab? probably trivial
-    - can definitely count from db easily to show total (for both)
+      - DONE if user is admin
+        - DONE allow to see all info
+        - GETTING RID password field
+        - DONE admins can update emails and usernames
+          - GETTING RID hopefully can bypass current_password check if admin?
+  - DONE add a followers tab? probably trivial
+    - DONE can definitely count from db easily to show total (for both)
   - fix issue with Void Test (links back to mor rigid fm verification)
   - make fmodel visibility an enum? (public, private, followers)
-  - maybe add blocking/remove follower functionality (latter seems better tbh)
+  - DONE maybe add blocking/remove follower functionality (latter seems better tbh)
   - add more analysis? if possible
   - expand homepage info (not hugely important)
   - user verification (prevent guests and non-admins seeing pages)
