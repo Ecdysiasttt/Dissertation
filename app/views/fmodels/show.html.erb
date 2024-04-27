@@ -76,7 +76,10 @@
             <p class="mb-1"><strong>Author:</strong> <%= @fmodel.getCreator %></p>
             <p class="mb-1"><strong>Created:</strong> <%= formatTime(@fmodel.created_at) %></p>
             <p class="mb-1"><strong>Last updated:</strong> <%= formatTime(@fmodel.updated_at) %></p>
-
+            <% if @fmodel.notes.present? %>
+              <p class="mb-1"><strong>Notes:</strong></p>
+              <p class="mb-1"><%= @fmodel.notes %></p>
+            <% end %>
             <% if @fmodel.canModify %>
               <%# edit or delete %>
               <div class="d-flex justify-content-between mt-3">

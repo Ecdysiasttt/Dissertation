@@ -19,6 +19,12 @@
       <%= form.label :title %>
     </div>
 
+    <%# notes text field %>
+    <div class="field form-floating">
+      <%= form.text_area :notes, :placeholder => "Feature model notes...", class: "form-control mb-2", style: "resize: none; height: 100%;"  %>
+      <%= form.label :notes %>
+    </div>
+
     <%# make model visible checkbox - !! invisible and set to public for guests !! %>
     <div class="field form-check <%= "d-none" if !current_user.present? %>">
       <%= form.check_box :public, class: "form-check-input mb-2", disabled: !current_user.present?, checked: !current_user.present? %>

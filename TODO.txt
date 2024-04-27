@@ -20,7 +20,6 @@ Things to do:
   - fix seeds (duplicate followers, make names realistic (chatGPT) for demo, e.g.)
   - time doesn't account for time zones :/
   - make toast messages nice
-  - add notes field to fmodel
 
 Things completed:
   - DONE admin pages (view all users)
@@ -40,3 +39,4 @@ Things completed:
     - DONE can definitely count from db easily to show total (for both)
   - DONE expand homepage info (not hugely important)
   - DONE maybe add blocking/remove follower functionality (latter seems better tbh)
+  - DONE add notes field to fmodel

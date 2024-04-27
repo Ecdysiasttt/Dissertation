@@ -5,6 +5,7 @@
 #  id         :integer          not null, primary key
 #  created_by :integer
 #  graph      :string
+#  notes      :string
 #  public     :boolean
 #  title      :string
 #  created_at :datetime         not null

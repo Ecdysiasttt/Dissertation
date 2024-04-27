@@ -109,7 +109,8 @@ class FmodelsController < ApplicationController
         :title,
         :graph,
         :created_by,
-        :public
+        :public,
+        :notes
       )
     end
 
