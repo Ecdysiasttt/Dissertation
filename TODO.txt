@@ -16,7 +16,7 @@ Things to do:
       - DONE only see public models
       - DONE don't see 'followers' or 'edit'
           - DONE perhaps give user stats (e.g. number of public models?) (if have time)
-      - NEXT add a follow button (except for guests)
+      - DONE add a follow button (except for guests)
       - NEXT if user is admin
         - allow to see all info
         - EXCEPT password field

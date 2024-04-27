@@ -14,8 +14,12 @@ class UsersController < ApplicationController
     
     if @viewingSelf
       @editable = true
+    elsif !current_user.present?
+      puts "User not logged in"
+      @editable = false
     else
       @editable = helpers.admin
+
       @isUserFollowingTarget = Follow.find_by(user: current_user.id, follows: @user.id)
       @isTargetFollowingUser = Follow.find_by(user: @user.id, follows: current_user.id)
     end

@@ -6,7 +6,7 @@ Rails.application.routes.draw do
                                   }
   resources :fmodels
   resources :users, :only => [:show]
-  resources :follows, only: [:destroy, :create] # allows following/unfollowing
+  # resources :follows, only: [:destroy, :create] # allows following/unfollowing
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -17,5 +17,8 @@ Rails.application.routes.draw do
   root "index#index"
 
   match '/users/:id', to: 'users#show', via: 'get'
+  match '/follows', to: 'follows#create', via: 'post'
+  match '/follows/:id', to: 'follows#create', via: 'post'
+  match '/follows/:id', to: 'follows#destroy', via: 'delete'
 
 end

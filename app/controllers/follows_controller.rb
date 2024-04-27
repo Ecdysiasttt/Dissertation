@@ -1,10 +1,16 @@
 class FollowsController < ApplicationController
   
   def create
-    targetUser = User.find_by(username: params[:username])
+    puts params.inspect
+    if params.has_key?(:username)
+      targetUser = User.find_by(username: params[:username])
+    else
+      targetUser = User.find_by(id: params[:id])
+    end
+
     if targetUser.nil?
       # couldn't find user, returning
-      redirect_back fallback_location: root_path, alert: "Could not find user #{params[:username]}." and return 
+      redirect_back fallback_location: root_path, alert: "Could not find user." and return 
     elsif Follow.exists?(user: current_user.id, follows: targetUser.id)
       redirect_back fallback_location: root_path, alert: "Already following #{params[:username]}!" and return 
     else
