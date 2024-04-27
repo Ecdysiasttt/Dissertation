@@ -17,6 +17,8 @@ Rails.application.routes.draw do
   root "index#index"
 
   match '/users/:id', to: 'users#show', via: 'get'
+  # destroy user
+  match '/users/:id', to: 'users#destroy', via: 'delete'
   match '/follows', to: 'follows#create', via: 'post'
   match '/follows/:id', to: 'follows#create', via: 'post'
   match '/follows/:id', to: 'follows#destroy', via: 'delete'

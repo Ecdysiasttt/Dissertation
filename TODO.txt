@@ -6,7 +6,6 @@
 #       - also need to prevent guests from accessing all this stuff
 
 Things to do:
-  - handle user deletion correctly (i.e. follows & names on fmodels)
   - verify feature models before saving, and return more detailed
     errors to user using toast popups
   - fix issue with Void Test (links back to mor rigid fm verification)
@@ -15,9 +14,9 @@ Things to do:
   - explore changing design if have time (probably won't)
   - on view all fmodels:
     - make table headers sortable?
-  - fix seeds (duplicate followers, make names realistic (chatGPT) for demo, e.g.)
   - time doesn't account for time zones :/
   - make toast messages nice
+  - searching would be nice (for users and models)
 
 Things completed:
   - DONE admin pages (view all users)
@@ -39,3 +38,5 @@ Things completed:
   - DONE maybe add blocking/remove follower functionality (latter seems better tbh)
   - DONE add notes field to fmodel
   - DONE make fmodel visibility an enum? (public, private, followers)
+  - DONE fix seeds (duplicate followers, make names realistic (chatGPT) for demo, e.g.)
+  - DONE handle user deletion correctly (i.e. follows & names on fmodels)

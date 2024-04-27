@@ -51,6 +51,36 @@ class UsersController < ApplicationController
     @header = @user.username
   end
 
+  def destroy
+    puts "Destroying user"
+    @user = User.find_by_id(params[:id])
+    puts "Destorying '#{@user.username}'"
+
+    if @user.present?
+      # remove all follows/following for user
+      Follow.where(user: @user.id).destroy_all
+      Follow.where(follows: @user.id).destroy_all
+
+      # delete all private and followers models
+      Fmodel.where(created_by: @user.id, visibility: :unlisted).destroy_all
+      Fmodel.where(created_by: @user.id, visibility: :followers).destroy_all
+
+      # for public models, remove user
+      Fmodel.where(created_by: @user.id, visibility: :global).each do |model|
+        model.created_by = nil
+        model.save
+      end
+
+      # finally delete user
+
+      # remove user
+      @user.destroy
+    end
+    # wipe session
+    session[:user_id] = nil
+    redirect_to root_path :notice => "Your account was deleted."
+  end
+
   protected
 
   def getModelsVisibleForUser(user)
