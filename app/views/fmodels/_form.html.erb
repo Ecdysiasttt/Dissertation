@@ -25,10 +25,10 @@
       <%= form.label :notes %>
     </div>
 
-    <%# make model visible checkbox - !! invisible and set to public for guests !! %>
-    <div class="field form-check <%= "d-none" if !current_user.present? %>">
-      <%= form.check_box :public, class: "form-check-input mb-2", disabled: !current_user.present?, checked: !current_user.present? %>
-      <%= form.label :public, "Make model public"%>
+    <%# make model visibility dropdown - !! invisible and set to public for guests !! %>
+    <div class="field <%= "d-none" if !current_user.present? %>">
+      <%= form.label :visibility, "Model Visibility" %>
+      <%= form.select :visibility, { "Public" => "global", "Private" => "unlisted", "Followers" => "followers" }, { include_blank: false }, { class: "form-select mb-2", disabled: !current_user.present?, selected: !current_user.present? ? "global" : nil } %>
     </div>
 
     <%# hidden graph json text field %>

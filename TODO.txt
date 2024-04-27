@@ -6,12 +6,10 @@
 #       - also need to prevent guests from accessing all this stuff
 
 Things to do:
-
   - handle user deletion correctly (i.e. follows & names on fmodels)
   - verify feature models before saving, and return more detailed
     errors to user using toast popups
   - fix issue with Void Test (links back to mor rigid fm verification)
-  - make fmodel visibility an enum? (public, private, followers)
   - add more analysis? if possible
   - user verification (prevent guests and non-admins seeing pages)
   - explore changing design if have time (probably won't)
@@ -40,3 +38,4 @@ Things completed:
   - DONE expand homepage info (not hugely important)
   - DONE maybe add blocking/remove follower functionality (latter seems better tbh)
   - DONE add notes field to fmodel
+  - DONE make fmodel visibility an enum? (public, private, followers)
