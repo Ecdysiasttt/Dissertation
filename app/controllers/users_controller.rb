@@ -7,10 +7,54 @@ class UsersController < ApplicationController
                 :getModelsVisibleForUser
 
   def index
-    @users = User.all.order(:created_at).page params[:page]
+    if params[:search].present? && params[:search] != ""
+      @users = User.where("LOWER(username) LIKE ?", "%#{params[:search]}%")
+    else
+      @users = User.all
+    end
+
+    if params[:sort].present?
+      case params[:sort]
+      when "num_models_asc"
+      @users = @users.sort_by { |user| getModelsVisibleForUser(user).count }
+      when "num_models_desc"
+      @users = @users.sort_by { |user| getModelsVisibleForUser(user).count }.reverse
+      when "date_joined_asc"
+      @users = @users.order(:created_at)
+      when "date_joined_desc"
+      @users = @users.order(:created_at).reverse
+      when "num_followers_asc"
+      @users = @users.sort_by { |user| Follow.where(follows: user.id).count }
+      when "num_followers_desc"
+      @users = @users.sort_by { |user| Follow.where(follows: user.id).count }.reverse
+      else
+      @users = @users.order(:created_at)
+      end
+    else
+      @users = @users.order(:created_at)
+    end
+
+    @users = Kaminari.paginate_array(@users).page(params[:page])
 
     @title = "All users"
     @header = "Users"
+
+    @hasReturn = true
+
+    @hasSearch = true
+    @searchObject = "Users"
+    @placeholder = "Input username..."
+
+    @hasDropdown = true
+    @dropdownOptions = {
+      "# Models (Ascending)" => "num_models_asc",
+      "# Models (Descending)" => "num_models_desc",
+      "Date joined (Ascending)" => "date_joined_asc",
+      "Date joined (Descending)" => "date_joined_desc",
+      "# Followers (Ascending)" => "num_followers_asc",
+      "# Followers (Descending)" => "num_followers_desc"
+    }
+    @path = users_path
   end
 
   def show

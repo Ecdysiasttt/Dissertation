@@ -6,13 +6,52 @@ class FmodelsController < ApplicationController
   # GET /fmodels or /fmodels.json
   def index
     if helpers.admin
-      @fmodels = Fmodel.order(:created_at).page params[:page] # all
+      @fmodels = Fmodel.all # all
     else
-      @fmodels = Fmodel.where(visibility: "global").order(:created_at).page params[:page] # all public
+      @fmodels = Fmodel.where(visibility: "global").order(:created_at) # all public
     end
+
+    if params[:search].present? && params[:search] != ""
+      @fmodels = @fmodels.where("LOWER(title) LIKE :search", search: "%#{params[:search].downcase}%")
+    end
+
+    if params[:sort].present?
+      case params[:sort]
+      when "date_created_asc"
+        @fmodels = @fmodels.order(:created_at)
+      when "date_created_desc"
+        @fmodels = @fmodels.order(created_at: :desc)
+      when "last_updated_asc"
+        @fmodels = @fmodels.order(:updated_at)
+      when "last_updated_desc"
+        @fmodels = @fmodels.order(updated_at: :desc)
+      when "title_asc"
+        @fmodels = @fmodels.order("LOWER(title)")
+      when "title_desc"
+        @fmodels = @fmodels.order("LOWER(title) DESC")
+      end
+    end
+
+    @fmodels = Kaminari.paginate_array(@fmodels).page(params[:page])
 
     @title = "Feature Model Database"
     @header = "Viewing All Feature Models"
+
+    @hasSearch = true
+    @searchObject = "Feature Models"
+    @placeholder = "Input title..."
+
+    @hasDropdown = true
+    @dropdownOptions = {
+      "Date created (Ascending)" => "date_created_asc",
+      "Date created (Descending)" => "date_created_desc",
+      "Last updated (Ascending)" => "last_updated_asc",
+      "Last updated (Descending)" => "last_updated_desc",
+      "Title (A-Z)" => "title_asc",
+      "Title (Z-A)" => "title_desc"
+    }
+
+    @path = fmodels_path
   end
 
   # GET /fmodels/1 or /fmodels/1.json

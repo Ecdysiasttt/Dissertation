@@ -66,9 +66,6 @@
 
             if (noticeList[i].innerHTML.trim() != "") {
               toastList[i].show();
-            } else {
-              // toast is empty, don't show
-              // console.log("toast is empty. not showing");
             }
           }
         })
@@ -79,9 +76,38 @@
           <div>
             <div class="bottom-border mb-2 d-flex justify-content-between">
               <h2 class="pb-1"><%= @header %></h2>
-              <% if @hasReturn %>
-                <%= link_to 'Back', 'javascript:history.back()', class: "btn btn-dark mb-3" %>
-              <% end %>
+              <div class="d-flex mr-3">
+                <% if @hasSearch %>
+                  <div class="mr-4">
+                    <%= form_tag @path, method: :get, class: "row g-3 align-items-center" do %>
+                      <div class="col-auto">
+                        <%= label_tag :search, "Search:", class: "col-form-label" %>
+                      </div>
+                      <div class="col-auto">
+                        <%= text_field_tag :search, params[:search], class: "form-control mr-2", placeholder: @placeholder %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+                <% if @hasDropdown %>
+                  <div class="pl-2">
+                    <%= form_tag @path, method: :get, class: "row g-2 align-items-center" do %>
+                      <%= hidden_field_tag :search, params[:search], id: "search-hidden" %>
+                      <div class="col-auto">
+                        <%= label_tag :sort, "Sort by:", class: "col-form-label" %>
+                      </div>
+                      <div class="col-auto">
+                        <%= select_tag :sort, options_for_select(@dropdownOptions, params[:sort]), class: "form-select mr-2" %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+                <% if @hasReturn %>
+                  <div>
+                    <%= link_to 'Back', 'javascript:history.back()', class: "btn btn-dark mb-3 ml-4" %>
+                  </div>
+                <% end %>
+              </div>
             </div>
             <%= yield %>
           </div>
@@ -123,8 +149,23 @@
           </div>
         </div>
       </div>
-    
     </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const sortSelect = document.querySelector('#sort');
+        const search = document.querySelector('#search');
+        const searchHidden = document.querySelector('#search-hidden');
+        sortSelect.addEventListener('change', function() {
+          const form = this.form;
+          console.log("changed");
+          // make the value of hidden_field_tag :search, params[:search] the value of search
+          searchHidden.value = search.value;
+          // submit the form
+          form.submit();
+        });
+      });
+    </script>
 
   </body>
 </html>

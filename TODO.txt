@@ -10,13 +10,11 @@ Things to do:
     errors to user using toast popups
   - fix issue with Void Test (links back to mor rigid fm verification)
   - add more analysis? if possible
-  - user verification (prevent guests and non-admins seeing pages)
+  - NEXT user verification (prevent guests and non-admins seeing pages)
   - explore changing design if have time (probably won't)
-  - on view all fmodels:
-    - make table headers sortable?
   - time doesn't account for time zones :/
   - make toast messages nice
-  - searching would be nice (for users and models)
+  - NEXT searching would be nice (for users and models)
 
 Things completed:
   - DONE admin pages (view all users)
@@ -40,3 +38,5 @@ Things completed:
   - DONE make fmodel visibility an enum? (public, private, followers)
   - DONE fix seeds (duplicate followers, make names realistic (chatGPT) for demo, e.g.)
   - DONE handle user deletion correctly (i.e. follows & names on fmodels)
+  - DONE on view all fmodels:
+    - DONE make table headers sortable?
