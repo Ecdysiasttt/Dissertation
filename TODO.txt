@@ -28,7 +28,7 @@ Things to do:
   - make fmodel visibility an enum? (public, private, followers)
   - DONE maybe add blocking/remove follower functionality (latter seems better tbh)
   - add more analysis? if possible
-  - expand homepage info (not hugely important)
+  - DONE expand homepage info (not hugely important)
   - user verification (prevent guests and non-admins seeing pages)
   - explore changing design if have time (probably won't)
   - on view all fmodels:
