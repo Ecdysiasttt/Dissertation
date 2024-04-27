@@ -6,8 +6,8 @@
 #  created_by :integer
 #  graph      :string
 #  notes      :string
-#  public     :boolean
 #  title      :string
+#  visibility :integer          default("global")
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

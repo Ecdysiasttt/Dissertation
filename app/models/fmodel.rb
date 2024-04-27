@@ -6,8 +6,8 @@
 #  created_by :integer
 #  graph      :string
 #  notes      :string
-#  public     :boolean
 #  title      :string
+#  visibility :integer          default("global")
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -16,6 +16,8 @@ require 'action_view/helpers'
 include ActionView::Helpers::DateHelper
 
 class Fmodel < ApplicationRecord
+  enum visibility: { global: 0, unlisted: 1, followers: 2 }
+
   paginates_per = 10  #set pagination limit
 
   def getCreator
@@ -35,11 +37,13 @@ class Fmodel < ApplicationRecord
     User.current.present? && (User.current.id == self.created_by || User.current.isAdmin)
   end
 
-  def visibility
-    if self.public
+  def getVisibility
+    if self.visibility == "global"
       return "Public"
-    else
+    elsif self.visibility == "unlisted"
       return "Private"
+    else
+      return "Followers"
     end
   end
 

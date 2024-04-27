@@ -8,7 +8,7 @@ class FmodelsController < ApplicationController
     if helpers.admin
       @fmodels = Fmodel.order(:created_at).page params[:page] # all
     else
-      @fmodels = Fmodel.where(public: 1).order(:created_at).page params[:page] # all public
+      @fmodels = Fmodel.where(visibility: "global").order(:created_at).page params[:page] # all public
     end
 
     @title = "Feature Model Database"
@@ -109,7 +109,7 @@ class FmodelsController < ApplicationController
         :title,
         :graph,
         :created_by,
-        :public,
+        :visibility,
         :notes
       )
     end

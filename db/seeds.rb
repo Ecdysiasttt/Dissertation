@@ -18,6 +18,45 @@ graphsAndTitles = [
   ['Void Test', '{"class":"GraphLinksModel","nodeDataArray":[{"text":"E-Shop","size":"120 45","key":-1,"loc":"-60 -170"},{"text":"Feature 1","size":"120 45","key":-2,"loc":"-200 -30"},{"text":"Feature 2","size":"120 45","key":-3,"loc":"-10 -30"},{"text":"Feature 3","size":"120 45","key":-4,"loc":"170 -30"}],"linkDataArray":[{"arrowShape":"Circle","arrowheadFill":"black","points":[-60,-147.5,-60,-137.5,-200,-62.5,-200,-52.5],"from":-1,"to":-2},{"arrowShape":"Circle","arrowheadFill":"black","points":[-60,-147.5,-60,-137.5,-10,-62.5,-10,-52.5],"from":-1,"to":-3},{"arrowShape":"Circle","arrowheadFill":"black","points":[-60,-147.5,-60,-137.5,170,-62.5,170,-52.5],"from":-1,"to":-4},{"arrowShape":"Standard","arrowheadFill":"Black","dashed":[5,5],"fromArrowShape":"Backward","points":[50,-30,60,-30,100,-30,110,-30],"from":-3,"to":-4}]}']
 ]
 
+forenames = [
+  "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph", "Charles", "Thomas",
+  "Christopher", "Daniel", "Matthew", "Anthony", "Mark", "Paul", "Steven", "Andrew", "Kenneth", "Joshua",
+  "George", "Kevin", "Brian", "Edward", "Ronald", "Timothy", "Jason", "Jeffrey", "Ryan", "Gary",
+  "Jacob", "Nicholas", "Eric", "Stephen", "Jonathan", "Larry", "Justin", "Scott", "Brandon", "Benjamin",
+  "Samuel", "Gregory", "Frank", "Alexander", "Raymond", "Patrick", "Jack", "Dennis", "Jerry", "Tyler",
+  "Mary", "Patricia", "Linda", "Barbara", "Elizabeth", "Jennifer", "Maria", "Susan", "Margaret", "Dorothy",
+  "Lisa", "Nancy", "Karen", "Betty", "Helen", "Sandra", "Donna", "Carol", "Ruth", "Sharon",
+  "Michelle", "Laura", "Sarah", "Kimberly", "Deborah", "Jessica", "Shirley", "Cynthia", "Angela", "Melissa",
+  "Brenda", "Amy", "Anna", "Rebecca", "Virginia", "Kathleen", "Pamela", "Martha", "Debra", "Amanda",
+  "Stephanie", "Carolyn", "Christine", "Marie", "Janet", "Catherine", "Frances", "Ann", "Joyce", "Diane"
+]
+
+surnames = [
+  "Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Garcia", "Rodriguez", "Martinez",
+  "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+  "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
+  "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores", "Green",
+  "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts", "Gomez",
+  "Evans", "Turner", "Diaz", "Parker", "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris",
+  "Morales", "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey",
+  "Reed", "Kelly", "Howard", "Ramos", "Kim", "Cox", "Ward", "Richardson", "Watson", "Brooks", 
+  "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz", "Hughes", "Price", "Alvarez",
+  "Castillo", "Sanders", "Patel", "Myers", "Long", "Ross", "Foster", "Jimenez", "Powell", "Jenkins"
+]
+
+email_providers = [
+"gmail.com",
+"yahoo.com",
+"hotmail.com",
+"outlook.com",
+"aol.com",
+"icloud.com",
+"live.com",
+"msn.com",
+"me.com",
+"protonmail.com"
+]
+
 User.create!(
   email: 'harryscutt08@gmail.com',
   password: 'password',
@@ -25,12 +64,22 @@ User.create!(
   isAdmin: true
 )
 
-# Create 20 users
-30.times do |i|
-  username = "User #{i + 1}"
-  email = "user#{i + 1}@example.com"
+User.create!(
+  email: 'cherbert2003dat@gmail.com',
+  password: 'password',
+  username: 'Claire Herbert',
+  isAdmin: true
+)
+
+
+# Create 50 users
+50.times do
+  forename = forenames.sample
+  surname = surnames.sample
+  username = "#{forename} #{surname}"
+  email = "#{forename.downcase}#{surname.downcase}@#{email_providers.sample}"
   password = 'password'
-  
+
   User.create!(
     email: email,
     password: password,
@@ -38,22 +87,28 @@ User.create!(
   )
 end
 
-# Make each user follow 10 random users
+# Make each user follow 0-15 random users
 User.all.each do |user|
-  15.times do
-    followed_user = User.where.not(id: user.id).sample
+  rand(0..15).times do
+
+    followed_user = nil
+    while followed_user.nil? || Follow.find_by(user: user.id, follows: followed_user.id)
+      followed_user = User.where.not(id: user.id).sample
+    end
+
     Follow.create!(user: user.id, follows: followed_user.id)
   end
 end
 
-200.times do
+
+600.times do
   user_id = User.pluck(:id).sample
   title, graph = graphsAndTitles.sample
 
   Fmodel.create!(
     created_by: user_id,
     graph: graph,
-    public: [true, false].sample,
+    visibility: ["global", "unlisted", "followers"].sample,
     title: title
   )
 end

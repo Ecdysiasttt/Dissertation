@@ -11,7 +11,7 @@
           <th scope="col" rowspan="2">ID:</th>
           <th scope="col" rowspan="2">Username:</th>
           <th scope="col" rowspan="2">Email:</th>
-          <th scope="col" colspan="2" class="text-center">Models:</th>
+          <th scope="col" colspan="3" class="text-center">Models:</th>
           <th scope="col" colspan="2" class="text-center">Social:</th>
           <th scope="col" rowspan="2">Joined:</th>
           <th scope="col" rowspan="2">Updated:</th>
@@ -20,6 +20,7 @@
         <tr>
           <th scope="col"># Public</th>
           <th scope="col"># Private</th>
+          <th scope="col"># Followers</th>
           <th scope="col"># Following:</th>
           <th scope="col"># Followers:</th>
         </tr>
@@ -32,6 +33,7 @@
             <td><%= user.email %></td>
             <td><%= getPublicModelsForUser(user).count %></td>
             <td><%= getPrivateModelsForUser(user).count %></td>
+            <td><%= getFollowingModelsForUser(user).count %></td>
             <td><%= getFollowingForUser(user).count %></td>
             <td><%= getFollowersForUser(user).count %></td>
             <td><%= formatTime(user.created_at) %></td>

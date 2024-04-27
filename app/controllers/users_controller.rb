@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   helper_method :getPublicModelsForUser,
                 :getPrivateModelsForUser,
+                :getFollowingModelsForUser,
                 :getFollowingForUser,
                 :getFollowersForUser
 
@@ -32,7 +33,7 @@ class UsersController < ApplicationController
     if helpers.admin || @viewingSelf
       @fmodels = Fmodel.where(created_by: @user.id).order(:created_at).page params[:models_page]
     else
-      @fmodels = Fmodel.where(created_by: @user.id, public: 1).order(:created_at).page params[:models_page]
+      @fmodels = Fmodel.where(created_by: @user.id, visibility: :global).order(:created_at).page params[:models_page]
     end
 
     @following = Follow.where(user: @user.id).page params[:following_page]
@@ -52,11 +53,15 @@ class UsersController < ApplicationController
   protected
 
   def getPublicModelsForUser(user)
-    @models = Fmodel.where(created_by: user.id, public: 1)
+    @models = Fmodel.where(created_by: user.id, visibility: :global)
   end
 
   def getPrivateModelsForUser(user)
-    @models = Fmodel.where(created_by: user.id, public: 0)
+    @models = Fmodel.where(created_by: user.id, visibility: :unlisted)
+  end
+
+  def getFollowingModelsForUser(user)
+    @models = Fmodel.where(created_by: user.id, visibility: :followers)
   end
 
   def getFollowingForUser(user)

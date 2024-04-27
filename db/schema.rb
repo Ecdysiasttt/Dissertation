@@ -10,15 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_27_155302) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_27_160225) do
   create_table "fmodels", force: :cascade do |t|
     t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "graph"
     t.integer "created_by"
-    t.boolean "public"
     t.string "notes"
+    t.integer "visibility", default: 0
   end
 
   create_table "follows", force: :cascade do |t|

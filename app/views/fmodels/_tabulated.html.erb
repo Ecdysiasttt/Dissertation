@@ -5,7 +5,7 @@
       <td>No feature models found. Make one and add to the database!</td>
     <% else %>
         <td>
-          <%= @user.id == @current_user.id ? "You haven't " : "#{@user.username} hasn't "%>
+          <%= @current_user.present? && (@user.id == @current_user.id) ? "You haven't " : "#{@user.username} hasn't "%>
           made any feature models yet.  
         </td>
     <% end %>
@@ -36,7 +36,7 @@
           <td><%= formatTime(fmodel.created_at) %></td>
           <td><%= formatTime(fmodel.updated_at) %></td>
           <% if editable %>
-            <td><%= fmodel.visibility %></td>
+            <td><%= fmodel.getVisibility %></td>
           <% end %>
           <td colspan="<%= editable ? 1 : 3 %>" class="text-end">
             <%= link_to "Show", fmodel, class: "btn btn-success btn-sm" %></td>
