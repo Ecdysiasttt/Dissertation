@@ -106,64 +106,42 @@ class FmodelsController < ApplicationController
     puts "Current user: #{current_user}"
     @fmodel.created_by = current_user.present? ? current_user.id : ""
 
-    # parse for errors
-    @features = Array.new
-    links = Array.new
-    ctcs = Array.new
-
-    Fmodel.parseJson(@fmodel.graph, @features, links, ctcs)
-
-    puts "model parsed. Verifying..."
-
-    # reject fmodel if:
-    # has only one feature
-    # has no links
-    # has any disconnected links
-    # has any disconnected features
+    message = validateModel(@fmodel)
 
     respond_to do |format|
-      if @features.size < 2
-        format.html { redirect_back fallback_location: root_path, alert: "#{ @features.size == 0 ? "No" : "Only #{@features.size}"} feature#{@features.size == 1 ? "" : "s"} found. Please increase the size of your model." and return }
-      elsif links.size == 0
-        format.html { redirect_back fallback_location: root_path, alert: "No links found. Please connect your features." and return }
+      if message != ""
+        format.html { redirect_back fallback_location: root_path, alert: message and return }
+        format.json { render json: { error: message }, status: :unprocessable_entity and return }
       else
-        # check for disconnected features
-        @features.each do |f|
-          if (f.children.size == 0 && f.parent.nil?)
-            format.html { redirect_back fallback_location: root_path, alert: "Feature #{f.name} is not connected." and return }
-          end
+        if @fmodel.save
+          format.html { redirect_to '/fmodels', notice: "#{@fmodel.title} saved!" }
+          format.json { render :show, status: :created, location: @fmodel }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: @fmodel.errors, status: :unprocessable_entity }
         end
-        # check for disconnected links
-        links.each do |l|
-          if (l.from == -1 && l.to == -1)
-            format.html { redirect_back fallback_location: root_path, alert: "Link is disconnected." and return }
-          elsif (l.from == -1)
-            format.html { redirect_back fallback_location: root_path, alert: "Link is not connected at its origin" and return }
-          elsif (l.to == -1)
-            format.html { redirect_back fallback_location: root_path, alert: "Link is not connected at its destination" and return }
-          end
-        end
-      end
-
-      if @fmodel.save
-        format.html { redirect_to '/fmodels', notice: "#{@fmodel.title} saved!" }
-        format.json { render :show, status: :created, location: @fmodel }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @fmodel.errors, status: :unprocessable_entity }
       end
     end
   end
 
   # PATCH/PUT /fmodels/1 or /fmodels/1.json
   def update
+    @fmodel = Fmodel.new(fmodel_params)
+
+    message = validateModel(@fmodel)
+
     respond_to do |format|
-      if @fmodel.update(fmodel_params)
-        format.html { redirect_to fmodel_url(@fmodel), notice: "#{@fmodel.title} updated!" }
-        format.json { render :show, status: :ok, location: @fmodel }
+      if message != ""
+        format.html { redirect_back fallback_location: root_path, alert: message and return }
+        format.json { render json: { error: message }, status: :unprocessable_entity and return }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @fmodel.errors, status: :unprocessable_entity }
+        if @fmodel.update(fmodel_params)
+          format.html { redirect_to fmodel_url(@fmodel), notice: "#{@fmodel.title} updated!" }
+          format.json { render :show, status: :ok, location: @fmodel }
+        else
+          format.html { render :edit, status: :unprocessable_entity }
+          format.json { render json: @fmodel.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -180,6 +158,43 @@ class FmodelsController < ApplicationController
   end
 
   private
+    def validateModel(fmodel)
+      # parse for errors
+      @features = Array.new
+      links = Array.new
+      ctcs = Array.new
+
+      errors = Fmodel.parseJson(@fmodel.graph, @features, links, ctcs)
+
+      puts "model parsed. Verifying..."
+
+      # reject fmodel if:
+      # has only one feature
+      # has no links
+      # has any disconnected links
+      # has any disconnected features
+      message = ""
+
+      if @features.size < 2
+        message = "#{ @features.size == 0 ? "No" : "Only #{@features.size}"} feature#{@features.size == 1 ? "" : "s"} found. Please increase the size of your model."
+      elsif links.size == 0
+        message = "No links found. Please connect your features."
+      else
+        if !errors.empty?
+          # errors found during parsing
+          puts "Error found in parsing. Origin: #{errors.values[0]}"
+          message = errors.values[1]
+        end
+        # check for disconnected features
+        @features.each do |f|
+          if (f.children.size == 0 && f.parent.nil?)
+            message = "Feature #{f.name} is not connected."
+          end
+        end
+      end
+      message
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_fmodel
       @fmodel = Fmodel.find(params[:id])
@@ -202,7 +217,8 @@ class FmodelsController < ApplicationController
       links = Array.new
       ctcs = Array.new
 
-      Fmodel.parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
+      consistent = Fmodel.parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
+      puts "consistent: #{consistent}"
 
       # define feature model metrics
       @numFeatures = @features.size - 1    # remove -1?
@@ -242,7 +258,7 @@ class FmodelsController < ApplicationController
       # format configurations for display in table
       #   - trim 
       
-      # printFeatures(@features)
+      Fmodel.printFeatures(@features)
       
       # puts "\nleaves:"
       # @leaves.each do |l|
@@ -570,28 +586,6 @@ class FmodelsController < ApplicationController
         depth += 1
       end
       return depth - 1  # remove 1 to stop root feature being included
-    end
-
-    def printFeatures(features)
-      features.each do |f|
-        puts "\n#{f.name}:"
-        puts "  ID:     #{f.id}"
-        puts "  Name:   #{f.name}"
-        puts "  Status: #{f.status}"
-        if (f.parent.nil?)
-          puts "  Parent: None"
-        else
-          puts "  Parent: #{Fmodel.findFeatureFromKey(@features, f.parent).name}"
-        end
-        puts "  Children:"
-        f.children.each do |c|
-          puts "    #{Fmodel.findFeatureFromKey(@features, c).name}"
-        end
-        puts "  Siblings:"
-        f.siblings.each do |s|
-          puts "    #{Fmodel.findFeatureFromKey(@features, s).name}"
-        end
-      end
     end
 end
 

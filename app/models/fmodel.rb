@@ -103,6 +103,22 @@ class Fmodel < ApplicationRecord
   def self.parseFeatures(features, links)
     features.each do |f|
       links.each do |l|
+        if (l.from == -1 && l.to == -1)
+          return {
+            error: "floatingLink",
+            message: "Link is disconnected."
+          }
+        elsif (l.from == -1)
+          return {
+            error: "floatingLink",
+            message: "Link is not connected at its origin."
+          }
+        elsif (l.to == -1)
+          return {
+            error: "floatingLink",
+            message: "Link is not connected at its destination."
+          }
+        end
         # if the current link originates from the current feature
         # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{features.first()}"
         # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{l.to}"
@@ -172,8 +188,38 @@ class Fmodel < ApplicationRecord
               sibling = findFeatureFromKey(features, s)
               sibling.status = newStatus
             end
+          else
+            puts "Error: Inconsistent requirement selection in feature model."
+            # return name of parent feature
+            return {
+              error: "groupRequirementInconsistent",
+              message: "Please ensure the requirements for links pointing towards #{findFeatureFromKey(features, f.parent).name} are consistent."
+            }
           end
         end 
+      end
+    end
+    return { }
+  end
+
+  def self.printFeatures(features)
+    features.each do |f|
+      puts "\n#{f.name}:"
+      puts "  ID:     #{f.id}"
+      puts "  Name:   #{f.name}"
+      puts "  Status: #{f.status}"
+      if (f.parent.nil?)
+        puts "  Parent: None"
+      else
+        puts "  Parent: #{Fmodel.findFeatureFromKey(features, f.parent).name}"
+      end
+      puts "  Children:"
+      f.children.each do |c|
+        puts "    #{Fmodel.findFeatureFromKey(features, c).name}"
+      end
+      puts "  Siblings:"
+      f.siblings.each do |s|
+        puts "    #{Fmodel.findFeatureFromKey(features, s).name}"
       end
     end
   end
