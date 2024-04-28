@@ -69,7 +69,7 @@
           <div id="edit-info">
             <p class="mb-1"><strong>Title:</strong> <%= @fmodel.title %></p>
             <% if @fmodel.canModify %>
-              <p class="mb-1"><strong>Visibility:</strong> <%= @fmodel.visibility %></p>
+              <p class="mb-1"><strong>Visibility:</strong> <%= @fmodel.getVisibility %></p>
             <% end %>
             <p class="mb-1"><strong>Author:</strong> <%= @fmodel.getCreator %></p>
             <p class="mb-1"><strong>Created:</strong> <%= formatTime(@fmodel.created_at) %></p>
@@ -141,23 +141,29 @@
         <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border restrict-height overflow-auto">
           <table class="table table-sm table-border border-dark overflow-auto">
             <thead id="header" class="sticky-top">
-              <% for i in 0..@depth-1 do %>
+              <% if @validConfigs.size == 0 %>
                 <tr>
-                  <% @tableHeaders.each do |h| %>
-                    <th class="text-center" id="<%= h[i].name %>-<%= i %>"><%= h[i].name %></th>
-                  <% end %>
-                </tr>
+                  <th class="text-center">No valid configurations for this model.</th>
+                </tr> 
+              <% else %>
+                <% for i in 0..@depth-1 do %>
+                  <tr>
+                    <% @tableHeaders.each do |h| %>
+                      <th class="text-center" id="<%= h[i].name %>-<%= i %>"><%= h[i].name %></th>
+                    <% end %>
+                  </tr>
+                <% end %>
+              </thead>
+              <tbody>
+                <% @configsTableFormat.each do |c| %>
+                  <tr>
+                    <% c.each do |selected|%>
+                      <td class="text-center"><%= (selected == 1) ? "\&#10004".html_safe : "" %></td>
+                    <% end %>
+                  </tr>
+                <% end %>
+              </tbody>
               <% end %>
-            </thead>
-            <tbody>
-              <% @configsTableFormat.each do |c| %>
-                <tr>
-                  <% c.each do |selected|%>
-                    <td class="text-center"><%= (selected == 1) ? "\&#10004".html_safe : "" %></td>
-                  <% end %>
-                </tr>
-              <% end %>
-            </tbody>
             <script> fixTable() </script>
           </table>
         </div>

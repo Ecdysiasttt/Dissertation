@@ -292,10 +292,10 @@ class FmodelsController < ApplicationController
       #   end
       # end
       # puts "\n"
-      # ctcs.each do |c|
-      #   x = c.requires ? "requires" : "excludes"
-      #   puts "#{Fmodel.findFeatureFromKey(@features, c.from).name} #{x} #{Fmodel.findFeatureFromKey(@features, c.to).name}"
-      # end
+      ctcs.each do |c|
+        x = c.requires ? "requires" : "excludes"
+        puts "#{Fmodel.findFeatureFromKey(@features, c.from).name} #{x} #{Fmodel.findFeatureFromKey(@features, c.to).name}"
+      end
     end
 
     def getConfigsForPrinting()
@@ -478,16 +478,20 @@ class FmodelsController < ApplicationController
       @features.each do |f|
         isCore = true
         isVoid = true
-        @validConfigs.each do |config|
-          # if feature is selected in a config, not void
-          # if feature is not selected in a config, not core
-          isFeatureSelected = config.find_index([f, 0]).nil? # true if feature is selected
-          if (!isFeatureSelected || f.status == "Root")
-            isCore = false
-          end
+        if @validConfigs.size == 0
+          isCore = false
+        else
+          @validConfigs.each do |config|
+            # if feature is selected in a config, not void
+            # if feature is not selected in a config, not core
+            isFeatureSelected = config.find_index([f, 0]).nil? # true if feature is selected
+            if (!isFeatureSelected || f.status == "Root")
+              isCore = false
+            end
 
-          if (isFeatureSelected || f.status == "Root")
-            isVoid = false
+            if (isFeatureSelected || f.status == "Root")
+              isVoid = false
+            end
           end
         end
         @coreFeatures << f if isCore
