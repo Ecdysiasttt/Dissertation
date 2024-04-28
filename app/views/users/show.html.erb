@@ -22,9 +22,7 @@
       <div class="d-flex flex-column pl-2 ml-2 w-50 border-start border-black">
         <div class="d-flex justify-content-between align-items-baseline">
           <h5 class="mt-1"><%= @viewingSelf ? "My" : "#{@user.username}'s"%> models:</h5>
-          <% if @fmodels.size != 0 %>
-            <h6><%=@fmodels.size %> in total.</h6>
-          <% end %>
+          <p class="mb-1 pb-1 pl-3">Viewing <%= @currentlyViewing %>.</p>
         </div>
 
         <%= render "fmodels/tabulated", origin: "user", user: @user, editable: @editable %>

@@ -80,10 +80,17 @@ class UsersController < ApplicationController
     end
 
     if helpers.admin || @viewingSelf
-      @fmodels = Fmodel.where(created_by: @user.id).order(:created_at).page params[:models_page]
+      @fmodels = Fmodel.where(created_by: @user.id).order(:created_at)
     else
-      @fmodels = Fmodel.where(created_by: @user.id, visibility: :global).order(:created_at).page params[:models_page]
+      @fmodels = Fmodel.where(created_by: @user.id, visibility: :global).order(:created_at)
     end
+
+    totalFmodels = @fmodels.size
+
+    @fmodels = Kaminari.paginate_array(@fmodels).page(params[:models_page])
+
+    current_page_range = (@fmodels.offset_value + 1)..(@fmodels.offset_value + @fmodels.length)
+    @currentlyViewing = "#{current_page_range.first}-#{current_page_range.last} of #{totalFmodels}"
 
     @following = Follow.where(user: @user.id).page params[:following_page]
     @followers = Follow.where(follows: @user.id).page params[:followers_page]
