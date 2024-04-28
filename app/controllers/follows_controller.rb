@@ -16,7 +16,7 @@ class FollowsController < ApplicationController
     else
       @follow = Follow.new(user: current_user.id, follows: targetUser.id)
       if @follow.save
-        redirect_back fallback_location: root_path, notice: "Following #{@follow.getUsername}!" and return
+        redirect_back fallback_location: root_path, notice: "Following #{@follow.getUsernameTarget}!" and return
       else
         redirect_back fallback_location: root_path, alert: "Error. Could not follow user." and return
       end

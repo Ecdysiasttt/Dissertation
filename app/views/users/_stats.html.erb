@@ -15,15 +15,19 @@
         <% if (Time.now - @isUserFollowingTarget.created_at) >= 2.days %>
           on
         <% end %>
-        <%= formatTime(@isUserFollowingTarget.created_at) %>.
+        <%= formatTime(@isUserFollowingTarget.created_at).downcase %>.
       </p>
     <% else %>
-      <p>You aren't following <%= @user.username %>.</p>
-        <%# <% if !@viewingSelf && !@isUserFollowingTarget && current_user.present? %>
-      <%= button_to "Follow", follows_path, method: :post, params: { id: @user.id }, class: "btn btn-primary btn-sm" %>
-          <%# <% end %>
+      <div class="d-flex align-items-center">
+        <%= button_to(follows_path,
+            method: :post,
+            params: { id: @user.id },
+            class: "btn btn-primary btn-sm mr-2") do%>
+          <i class="bi bi-person-plus-fill"></i>
+        <% end %>
+        <p class="mb-0">Follow <%= @user.username %></p>
+      </div>
     <% end %>
-
     <% if @isTargetFollowingUser %>
       <p><%= @user.username %> follows you<%= @isUserFollowingTarget ? " back" : ""%>!</p>
     <% end %>

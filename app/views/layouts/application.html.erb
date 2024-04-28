@@ -108,6 +108,9 @@
                     <% end %>
                   </div>
                 <% end %>
+                <% if @hasAnalysisButton %>
+                  <button onclick="swapPanel()" id="button" class="btn btn-primary mb-3 h-75">Show Analysis</button>
+                <% end %>
                 <% if @hasReturn %>
                   <div>
                     <%= link_to 'Back', 'javascript:history.back()', class: "btn btn-dark mb-3 ml-4" %>

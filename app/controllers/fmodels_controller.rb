@@ -8,7 +8,7 @@ class FmodelsController < ApplicationController
     if helpers.admin
       @fmodels = Fmodel.all # all
     else
-      @fmodels = Fmodel.where(visibility: "global").order(:created_at) # all public
+      @fmodels = Fmodel.where(visibility: "global") # all public
     end
 
     if params[:search].present? && params[:search] != ""
@@ -69,6 +69,8 @@ class FmodelsController < ApplicationController
     @creator = @fmodel.getCreator
 
     @hasReturn = true
+
+    @hasAnalysisButton = true
 
     analysis(@fmodel)
   end

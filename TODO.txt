@@ -10,11 +10,10 @@ Things to do:
     errors to user using toast popups
   - NEXT fix issue with Void Test (links back to mor rigid fm verification)
   - add more analysis? if possible
-  - NEXT user verification (prevent guests and non-admins seeing pages)
   - MAYBE? password reset feature
   - explore changing design if have time (probably won't)
   - time doesn't account for time zones :/
-  - make toast messages nice
+  - WIP make toast messages nice
 
 Things completed:
   - DONE admin pages (view all users)
@@ -41,3 +40,4 @@ Things completed:
   - DONE on view all fmodels:
     - DONE make table headers sortable?
   - DONE searching would be nice (for users and models)
+  - DONE user verification (prevent guests and non-admins seeing pages)
