@@ -47,7 +47,135 @@ class Fmodel < ApplicationRecord
     end
   end
 
-  # def editable
-  #   current_user.id == self.created_by || admin
-  # end
+  def self.findFeatureFromKey(features, key)
+    return (features.select { |feat| feat.id == key}).first
+  end
+
+  # parse JSON
+  # middle-man function that handles passing data to the right functions
+  def self.parseJson(json, features, links, ctcs)
+    json = JSON.parse(json)
+
+    createFeatures(json, features)    # create feature objects
+    createLinks(json, links, ctcs)          # create link objects
+
+    parseFeatures(features, links)    # link objects and links together
+  end
+
+  # iterates through features in the JSON to convert to objects
+  def self.createFeatures(json, features)
+    json["nodeDataArray"].each do |feature|        
+      # create new feature, supplying the key as the id and the text as the name
+      feature = Feature.new((feature['key'].to_i.abs - 1), feature['text'])
+
+      # puts "created #{feature.name} with id #{feature.id}"
+
+      # add newly created feature to features array
+      features << feature
+    end
+  end
+
+  # iterates through links in the JSON to convert to objects
+  def self.createLinks(json, links, ctcs)
+    json["linkDataArray"].each do |link|
+      if (link['arrowShape'] == "Standard") #ctc
+        requires = !(link['fromArrowShape'] == "Backward")
+
+        ctc = Ctc.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requires)
+
+        ctcs << ctc
+      else
+        # set requirement status according to arrowhead fill
+        requirement = (link['arrowheadFill'] == "white") ? "Optional" : "Mandatory"
+
+        # create new link with 'to'/'from' matching IDs in features[] and requirement status
+        link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
+
+        puts "created link from #{link.from} to #{link.to} with requirement #{link.requirement}"
+          
+        # add newly created link to links array
+        links << link
+      end
+    end
+  end
+
+  # associate links with features in order to finalise programmatic representation
+  def self.parseFeatures(features, links)
+    features.each do |f|
+      links.each do |l|
+        # if the current link originates from the current feature
+        # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{features.first()}"
+        # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{l.to}"
+        # puts "#{(features.select { |feat| feat.id == l.to}).first.name}"
+        if (f.id == l.from)
+          targetFeature = findFeatureFromKey(features, l.to)
+          # puts "#{findFeatureFromKey(features, features, l.to).name}"
+          # puts "Link from #{f.name} to #{targetFeature.name}"
+          if (targetFeature.parent.nil?)           # if link is pointing to something WITHOUT a parent:
+            targetFeature.status = l.requirement   #   - set requirement status of target feature
+            targetFeature.parent = f.id            #   - set target feature's parent to current feature
+            f.children << l.to                      #   - add target feature as a child of current feature
+          else                                      # if link is pointing to something WITH a parent:
+            f.status = l.requirement                #   - set requirement status of current feature
+            f.parent = l.to                         #   - set current feature's parent as target feature
+            targetFeature.children << f.id         #   - add current feature as a child of target feature
+          end
+        end
+      end
+    end
+
+    # after initial traversal, repeat to:
+    #   - obtain siblings
+    #   - set status of root feature
+    #   - verify consistency of siblings wrt alternative/or selections
+    features.each do |f|          
+      # if feature has a parent and parent has more than one child
+      parent = findFeatureFromKey(features, f.parent)
+      if (!f.parent.nil? && parent.children.size > 1)
+        parent.children.each do |sibling|
+          if (sibling != f.id && !f.siblings.include?(sibling))
+            f.siblings << sibling
+          end
+        end
+      end
+
+      # if feature has no parent and no status, must be root feature:
+      if (f.parent.nil? && f.status.nil?)
+        f.status = "Root"
+      end          
+    end
+
+    # traverse once more to collect features and their siblings that point to their parents,
+    # i.e. in the case of an alternative/or situation.
+    # check for consistency with requirement selection.
+    features.each do |f|
+      matchingSiblings = Array.new
+      links.each do |l|
+        # if a link from a feature is pointing to its parent
+        if (f.id == l.from && f.parent == l.to)
+          # if status of sibling matches, add to array
+          f.siblings.each do |s|
+            sibling = findFeatureFromKey(features, s)
+            if (sibling.status == f.status)
+              matchingSiblings << s
+            end
+          end
+          
+          # !! if this check fails, there's an issue in the diagram's creation
+          if (matchingSiblings.size == f.siblings.size)
+            # replace status to match the standard terminology for feature models
+            newStatus = (f.status == "Mandatory" || f.status == "Or") ? "Or" : "Alternative"
+                      
+            # apply new status to all siblings
+            f.status = newStatus
+            matchingSiblings.each do |s|
+              sibling = findFeatureFromKey(features, s)
+              sibling.status = newStatus
+            end
+          end
+        end 
+      end
+    end
+  end
+
 end

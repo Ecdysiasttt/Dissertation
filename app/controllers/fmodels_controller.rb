@@ -104,18 +104,47 @@ class FmodelsController < ApplicationController
     @fmodel = Fmodel.new(fmodel_params)
 
     puts "Current user: #{current_user}"
-
     @fmodel.created_by = current_user.present? ? current_user.id : ""
 
-    # puts "===================================="
-    # puts @fmodel.title
-    # puts @fmodel.graph
-    # puts "params:"
-    # puts params[:title]
-    # puts params[:graph]
-    # puts "===================================="
+    # parse for errors
+    @features = Array.new
+    links = Array.new
+    ctcs = Array.new
+
+    Fmodel.parseJson(@fmodel.graph, @features, links, ctcs)
+
+    puts "model parsed. Verifying..."
+
+    # reject fmodel if:
+    # has only one feature
+    # has no links
+    # has any disconnected links
+    # has any disconnected features
 
     respond_to do |format|
+      if @features.size < 2
+        format.html { redirect_back fallback_location: root_path, alert: "#{ @features.size == 0 ? "No" : "Only #{@features.size}"} feature#{@features.size == 1 ? "" : "s"} found. Please increase the size of your model." and return }
+      elsif links.size == 0
+        format.html { redirect_back fallback_location: root_path, alert: "No links found. Please connect your features." and return }
+      else
+        # check for disconnected features
+        @features.each do |f|
+          if (f.children.size == 0 && f.parent.nil?)
+            format.html { redirect_back fallback_location: root_path, alert: "Feature #{f.name} is not connected." and return }
+          end
+        end
+        # check for disconnected links
+        links.each do |l|
+          if (l.from == -1 && l.to == -1)
+            format.html { redirect_back fallback_location: root_path, alert: "Link is disconnected." and return }
+          elsif (l.from == -1)
+            format.html { redirect_back fallback_location: root_path, alert: "Link is not connected at its origin" and return }
+          elsif (l.to == -1)
+            format.html { redirect_back fallback_location: root_path, alert: "Link is not connected at its destination" and return }
+          end
+        end
+      end
+
       if @fmodel.save
         format.html { redirect_to '/fmodels', notice: "#{@fmodel.title} saved!" }
         format.json { render :show, status: :created, location: @fmodel }
@@ -173,7 +202,7 @@ class FmodelsController < ApplicationController
       links = Array.new
       ctcs = Array.new
 
-      parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
+      Fmodel.parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
 
       # define feature model metrics
       @numFeatures = @features.size - 1    # remove -1?
@@ -239,7 +268,7 @@ class FmodelsController < ApplicationController
       # puts "\n"
       # ctcs.each do |c|
       #   x = c.requires ? "requires" : "excludes"
-      #   puts "#{findFeatureFromKey(c.from).name} #{x} #{findFeatureFromKey(c.to).name}"
+      #   puts "#{Fmodel.findFeatureFromKey(@features, c.from).name} #{x} #{Fmodel.findFeatureFromKey(@features, c.to).name}"
       # end
     end
 
@@ -301,7 +330,7 @@ class FmodelsController < ApplicationController
 
             if ((feature.status == "Alternative" || feature.status == "Or") && selection == 1)
               # check if parent hasn't been selected
-              parent = findFeatureFromKey(feature.parent)
+              parent = Fmodel.findFeatureFromKey(@features, feature.parent)
               # puts "Checking if #{feature.name}'s parent: #{parent.name} (status : #{parent.status}) is also selected"
               # puts "  Checking if #{feature.name}'s (selected: #{selection}) parent: #{parent.name} (status : #{parent.status}) is also selected "
               isParentSelected = c.find_index([parent, 0]).nil? # will return true if parent is not unselected
@@ -323,7 +352,7 @@ class FmodelsController < ApplicationController
                 # if feature is selected, and ctc required another feature:
                 #   if targeted feature is also selected, valid
                 #   if targeted feature is not selected, invalid
-                isConstraintTargetSelected = c.find_index([findFeatureFromKey(constraint.to), selection])
+                isConstraintTargetSelected = c.find_index([Fmodel.findFeatureFromKey(@features, constraint.to), selection])
                 if ((constraint.requires && selection == 1) && !isConstraintTargetSelected)
                   validConfig = false
                 elsif ((!constraint.requires && selection == 1) && isConstraintTargetSelected)
@@ -376,7 +405,7 @@ class FmodelsController < ApplicationController
       oppositeSelection = ((selection == 1) ? 0 : 1)
 
       feature.siblings.each do |siblingKey|
-        siblingObject = findFeatureFromKey(siblingKey)
+        siblingObject = Fmodel.findFeatureFromKey(@features, siblingKey)
 
         doesSiblingHaveSameSelection = config.find_index([siblingObject, oppositeSelection]).nil? #true if not found
 
@@ -404,7 +433,7 @@ class FmodelsController < ApplicationController
           if (siblingsWithDifferentSelection == 0)
             # check for if parent is also not selected.
             # in this case, the selection is not invalid.
-            parent = findFeatureFromKey(feature.parent)
+            parent = Fmodel.findFeatureFromKey(@features, feature.parent)
             isParentSelected = config.find_index([parent, 0]).nil? # true if parent is selected
 
             if (isParentSelected)
@@ -491,9 +520,9 @@ class FmodelsController < ApplicationController
     def getAllParents(node, tree, parents)
       if (node.parent != nil)
         if (node.id != @rootFeature.id)
-          parents << findFeatureFromKey(node.parent)
+          parents << Fmodel.findFeatureFromKey(@features, node.parent)
         end
-        getAllParents(findFeatureFromKey(node.parent), tree, parents)
+        getAllParents(Fmodel.findFeatureFromKey(@features, node.parent), tree, parents)
         # getAllParents(tree[node.parent], tree, parents)
       end
       return parents
@@ -519,139 +548,7 @@ class FmodelsController < ApplicationController
         @numLeaves += 1
       else
         children.each do |c|
-          leavesDfs(findFeatureFromKey(c), tree)
-        end
-      end
-    end
-
-    # middle-man function that handles passing data to the right functions
-    def parseJson(json, features, links, ctcs)
-      json = JSON.parse(json)
-
-      createFeatures(json, features)    # create feature objects
-      createLinks(json, links, ctcs)          # create link objects
-
-      parseFeatures(features, links)    # link objects and links together
-    end
-
-    # iterates through features in the JSON to convert to objects
-    def createFeatures(json, features)
-      json["nodeDataArray"].each do |feature|        
-        # create new feature, supplying the key as the id and the text as the name
-        feature = Feature.new((feature['key'].to_i.abs - 1), feature['text'])
-
-        # puts "created #{feature.name} with id #{feature.id}"
-
-        # add newly created feature to features array
-        features << feature
-      end
-    end
-
-    # iterates through links in the JSON to convert to objects
-    def createLinks(json, links, ctcs)
-      json["linkDataArray"].each do |link|
-        if (link['arrowShape'] == "Standard") #ctc
-          requires = !(link['fromArrowShape'] == "Backward")
-
-          ctc = Ctc.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requires)
-
-          ctcs << ctc
-        else
-          # set requirement status according to arrowhead fill
-          requirement = (link['arrowheadFill'] == "white") ? "Optional" : "Mandatory"
-
-          # create new link with 'to'/'from' matching IDs in features[] and requirement status
-          link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
-            
-          # add newly created link to links array
-          links << link
-        end
-      end
-    end
-
-    def findFeatureFromKey(key)
-      return (@features.select { |feat| feat.id == key}).first
-    end
-
-    # associate links with features in order to finalise programmatic representation
-    def parseFeatures(features, links)
-      features.each do |f|
-        links.each do |l|
-          # if the current link originates from the current feature
-          # TODO fix this because when a feature gets deleted, the keys aren't updated.
-          # this means features.size is less than the value of the highest key, making this index
-          # method fail.
-          # TODO another todo is figure out why mobile is returning 0 valid configurations
-          # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{features.first()}"
-          # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{l.to}"
-          # puts "#{(features.select { |feat| feat.id == l.to}).first.name}"
-          if (f.id == l.from)
-            targetFeature = findFeatureFromKey(l.to)
-            # puts "#{findFeatureFromKey(features, l.to).name}"
-            # puts "Link from #{f.name} to #{targetFeature.name}"
-            if (targetFeature.parent.nil?)           # if link is pointing to something WITHOUT a parent:
-              targetFeature.status = l.requirement   #   - set requirement status of target feature
-              targetFeature.parent = f.id            #   - set target feature's parent to current feature
-              f.children << l.to                      #   - add target feature as a child of current feature
-            else                                      # if link is pointing to something WITH a parent:
-              f.status = l.requirement                #   - set requirement status of current feature
-              f.parent = l.to                         #   - set current feature's parent as target feature
-              targetFeature.children << f.id         #   - add current feature as a child of target feature
-            end
-          end
-        end
-      end
-
-      # after initial traversal, repeat to:
-      #   - obtain siblings
-      #   - set status of root feature
-      #   - verify consistency of siblings wrt alternative/or selections
-      features.each do |f|          
-        # if feature has a parent and parent has more than one child
-        parent = findFeatureFromKey(f.parent)
-        if (!f.parent.nil? && parent.children.size > 1)
-          parent.children.each do |sibling|
-            if (sibling != f.id && !f.siblings.include?(sibling))
-              f.siblings << sibling
-            end
-          end
-        end
-
-        # if feature has no parent and no status, must be root feature:
-        if (f.parent.nil? && f.status.nil?)
-          f.status = "Root"
-        end          
-      end
-
-      # traverse once more to collect features and their siblings that point to their parents,
-      # i.e. in the case of an alternative/or situation.
-      # check for consistency with requirement selection.
-      features.each do |f|
-        matchingSiblings = Array.new
-        links.each do |l|
-          # if a link from a feature is pointing to its parent
-          if (f.id == l.from && f.parent == l.to)
-            # if status of sibling matches, add to array
-            f.siblings.each do |s|
-              sibling = findFeatureFromKey(s)
-              if (sibling.status == f.status)
-                matchingSiblings << s
-              end
-            end
-            
-            # !! if this check fails, there's an issue in the diagram's creation
-            if (matchingSiblings.size == f.siblings.size)
-              # replace status to match the standard terminology for feature models
-              newStatus = (f.status == "Mandatory" || f.status == "Or") ? "Or" : "Alternative"
-                        
-              # apply new status to all siblings
-              f.status = newStatus
-              matchingSiblings.each do |s|
-                sibling = findFeatureFromKey(s)
-                sibling.status = newStatus
-              end
-            end
-          end 
+          leavesDfs(Fmodel.findFeatureFromKey(@features, c), tree)
         end
       end
     end
@@ -667,7 +564,7 @@ class FmodelsController < ApplicationController
           node = queue.shift
           children = node.children.compact
           children.each do |c|
-            queue.push(findFeatureFromKey(c))
+            queue.push(Fmodel.findFeatureFromKey(@features, c))
           end
         end
         depth += 1
@@ -684,15 +581,15 @@ class FmodelsController < ApplicationController
         if (f.parent.nil?)
           puts "  Parent: None"
         else
-          puts "  Parent: #{findFeatureFromKey(f.parent).name}"
+          puts "  Parent: #{Fmodel.findFeatureFromKey(@features, f.parent).name}"
         end
         puts "  Children:"
         f.children.each do |c|
-          puts "    #{findFeatureFromKey(c).name}"
+          puts "    #{Fmodel.findFeatureFromKey(@features, c).name}"
         end
         puts "  Siblings:"
         f.siblings.each do |s|
-          puts "    #{findFeatureFromKey(s).name}"
+          puts "    #{Fmodel.findFeatureFromKey(@features, s).name}"
         end
       end
     end
