@@ -110,7 +110,12 @@ class FmodelsController < ApplicationController
 
     respond_to do |format|
       if message != ""
-        format.html { redirect_back fallback_location: root_path, alert: message and return }
+        flash[:graph_data] = @fmodel.graph
+        flash[:title] = @fmodel.title
+        flash[:notes] = @fmodel.notes
+        flash[:visibility] = @fmodel.visibility
+        format.html {
+          redirect_back fallback_location: root_path, alert: message and return }
         format.json { render json: { error: message }, status: :unprocessable_entity and return }
       else
         if @fmodel.save
@@ -132,7 +137,12 @@ class FmodelsController < ApplicationController
 
     respond_to do |format|
       if message != ""
-        format.html { redirect_back fallback_location: root_path, alert: message and return }
+        flash[:graph_data] = @fmodel.graph
+        flash[:title] = @fmodel.title
+        flash[:notes] = @fmodel.notes
+        flash[:visibility] = @fmodel.visibility
+        format.html {
+          redirect_back fallback_location: root_path, alert: message and return }
         format.json { render json: { error: message }, status: :unprocessable_entity and return }
       else
         if @fmodel.update(fmodel_params)

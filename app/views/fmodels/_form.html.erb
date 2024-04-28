@@ -1,34 +1,41 @@
 <%= form_with(model: fmodel, html: {id: "form", class: "d-flex"}) do |form| %>
-  <% if fmodel.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(fmodel.errors.count, "error") %> prohibited this fmodel from being saved:</h2>
-
-      <ul>
-        <% fmodel.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
 
   <div id="left-panel" class="w-25 mw-25">
     
     <%# title text field %>
     <div class="field form-floating" >
-      <%= form.text_field :title, :required => true, :placeholder => "Feature model title...", class: "form-control mb-2" %>
+      <%= form.text_field :title,
+        :required => true,
+        :placeholder => "Feature model title...",
+        value: (flash[:title].present? ? flash[:title] : (fmodel.title if fmodel.title.present?)),
+        class: "form-control mb-2"
+      %>
       <%= form.label :title %>
     </div>
 
     <%# notes text field %>
     <div class="field form-floating">
-      <%= form.text_area :notes, :placeholder => "Feature model notes...", class: "form-control mb-2", style: "resize: none; height: 100%;"  %>
+      <%= form.text_area :notes,
+        :placeholder => "Feature model notes...",
+        value: (flash[:notes].present? ? flash[:notes] : (fmodel.notes if fmodel.notes.present?)),
+        class: "form-control mb-2",
+        style: "resize: none; height: 100%;"
+      %>
       <%= form.label :notes %>
     </div>
 
     <%# make model visibility dropdown - !! invisible and set to public for guests !! %>
     <div class="field <%= "d-none" if !current_user.present? %>">
       <%= form.label :visibility, "Model Visibility" %>
-      <%= form.select :visibility, { "Public" => "global", "Private" => "unlisted", "Followers" => "followers" }, { include_blank: false }, { class: "form-select mb-2", disabled: !current_user.present?, selected: !current_user.present? ? "global" : nil } %>
+      <%= form.select :visibility, {
+        "Public" => "global",
+        "Private" => "unlisted", 
+        "Followers" => "followers"
+        },
+        { include_blank: false, selected: flash[:visibility].presence || @fmodel&.visibility.presence || "global" },
+        class: "form-select mb-2",
+        disabled: !current_user.present?
+        %>
     </div>
 
     <%# hidden graph json text field %>

@@ -3,6 +3,8 @@
 <% id = fmodel&.id.nil? ? "blank" : fmodel.id %>
 <% graphJSON = fmodel&.graph.nil? ? "\"blank\"" : fmodel.graph %>
 
+<% graphJSON = flash[:graph_data] if flash[:graph_data].present? %>
+
 <div id="" class="d-inline-flex w-100">
   <div id="myPaletteDiv-<%= id %>"style="width: 20%; height: 500px;"></div>
   <div id="graphHolder-<%= id %>" style="width: 80%; height: 500px; background-color: #DAE4E4;"></div>
@@ -320,7 +322,7 @@
   var showPalette = true;
 
   //  if model exists, we're on edit or show pages
-  <% if id != "blank" %>
+  <% if graphJSON != "\"blank\"" %>
     console.log("Model exists. ID: <%= id %>");
 
     // load existing model
