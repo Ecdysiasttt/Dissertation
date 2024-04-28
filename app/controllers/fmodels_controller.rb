@@ -139,10 +139,11 @@ class FmodelsController < ApplicationController
 
   # DELETE /fmodels/1 or /fmodels/1.json
   def destroy
+    title = @fmodel.title
     @fmodel.destroy!
 
     respond_to do |format|
-      format.html { redirect_to fmodels_url, notice: "Fmodel was successfully destroyed." }
+      format.html { redirect_back(fallback_location: root_path, notice: "#{title} deleted!") }
       format.json { head :no_content }
     end
   end

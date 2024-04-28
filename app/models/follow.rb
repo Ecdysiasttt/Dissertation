@@ -13,6 +13,10 @@ class Follow < ApplicationRecord
 
   # @following = Follow.where(user: @user.id)
 
+  # user is the origin, follows is the target. e.g.:
+  # harry scutt (id: 1) follows claire herbert (id: 2):
+  # user: 1, follows: 2
+
   def getUsernameTarget
     # puts "========================================"
     # puts "#{User.find_by_id(self.follows).email}"
@@ -22,4 +26,13 @@ class Follow < ApplicationRecord
   def getUsernameOrigin
     User.find_by_id(self.user).username
   end
+  
+  # def isFollowingCurrentUser
+  #   User.current.present? && User.current.id == self.follows
+  # end
+
+  # def isCurrentUserFollowing
+  #   User.current.present? && User.current.id == self.user
+  # end
+
 end

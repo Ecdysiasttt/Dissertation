@@ -10,15 +10,20 @@
   <% else %>
     <% users.each do |f| %>
       <tr>
-        <td><%= (tab == "following") ? f.getUsernameTarget : f.getUsernameOrigin %></td>
+        <td>
+          <%= (tab == "following") ? f.getUsernameTarget : f.getUsernameOrigin %>
+        </td>
         <td class="text-end d-flex justify-content-end">
-          <%= button_to "Profile", 
-            user_path((tab == "following") ? f.follows : f.user),
-            method: :get, class: "btn btn-primary btn-sm" %>
+          <%= button_to(user_path((tab == "following") ? f.follows : f.user),
+              method: :get, class: "btn btn-primary btn-sm") do %>
+            <i class="bi bi-person-fill"></i>
+          <% end %>
           <% if @user.canModify %>
-            <%= button_to (tab == "following") ? "Unfollow" : "Remove",
-              "/follows/#{(tab == "following") ? f.follows : f.user}",
-              method: :delete, class: "btn btn-danger btn-sm ml-2" %>
+            <%= button_to("/follows/#{(tab == "following") ? f.follows : f.user}",
+                method: :delete,
+                class: "btn btn-danger btn-sm ml-2") do %>
+              <i class="bi bi-x-lg"></i>
+            <% end %>
           <% end %>
         </td>
       </tr>
