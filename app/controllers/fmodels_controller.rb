@@ -137,7 +137,7 @@ class FmodelsController < ApplicationController
 
     respond_to do |format|
       if message != ""
-        session[:graph_data] = @fmodel.graph
+        Rails.cache.write("graph_data", @fmodel.graph)
         session[:title] = @fmodel.title
         session[:notes] = @fmodel.notes
         session[:visibility] = @fmodel.visibility

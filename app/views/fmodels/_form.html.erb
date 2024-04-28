@@ -42,7 +42,7 @@
     <% session.delete(:title) %>
     <% session.delete(:notes) %>
     <% session.delete(:visibility) %>
-    <% session.delete(:graph_data) %>
+    <% Rails.cache.delete('graph_data') %>
 
     <%# hidden graph json text field %>
     <div>

@@ -3,7 +3,7 @@
 <% id = fmodel&.id.nil? ? "blank" : fmodel.id %>
 <% graphJSON = fmodel&.graph.nil? ? "\"blank\"" : fmodel.graph %>
 
-<% graphJSON = flash[:graph_data] if flash[:graph_data].present? %>
+<% graphJSON = Rails.cache.read("graph_data") if Rails.cache.exist?("graph_data") %>
 
 <div id="" class="d-inline-flex w-100">
   <div id="myPaletteDiv-<%= id %>"style="width: 20%; height: 500px;"></div>
