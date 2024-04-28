@@ -7,7 +7,7 @@
       <%= form.text_field :title,
         :required => true,
         :placeholder => "Feature model title...",
-        value: (flash[:title].present? ? flash[:title] : (fmodel.title if fmodel.title.present?)),
+        value: (session[:title].present? ? session[:title] : (fmodel.title if fmodel.title.present?)),
         class: "form-control mb-2"
       %>
       <%= form.label :title %>
@@ -17,7 +17,7 @@
     <div class="field form-floating">
       <%= form.text_area :notes,
         :placeholder => "Feature model notes...",
-        value: (flash[:notes].present? ? flash[:notes] : (fmodel.notes if fmodel.notes.present?)),
+        value: (session[:notes].present? ? session[:notes] : (fmodel.notes if fmodel.notes.present?)),
         class: "form-control mb-2",
         style: "resize: none; height: 100%;"
       %>
@@ -32,11 +32,17 @@
         "Private" => "unlisted", 
         "Followers" => "followers"
         },
-        { include_blank: false, selected: flash[:visibility].presence || @fmodel&.visibility.presence || "global" },
+        { include_blank: false, selected: session[:visibility].presence || @fmodel&.visibility.presence || "global" },
         class: "form-select mb-2",
         disabled: !current_user.present?
         %>
     </div>
+
+    <%# clean variables from session %>
+    <% session.delete(:title) %>
+    <% session.delete(:notes) %>
+    <% session.delete(:visibility) %>
+    <% session.delete(:graph_data) %>
 
     <%# hidden graph json text field %>
     <div>

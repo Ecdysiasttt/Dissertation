@@ -137,10 +137,10 @@ class FmodelsController < ApplicationController
 
     respond_to do |format|
       if message != ""
-        flash[:graph_data] = @fmodel.graph
-        flash[:title] = @fmodel.title
-        flash[:notes] = @fmodel.notes
-        flash[:visibility] = @fmodel.visibility
+        session[:graph_data] = @fmodel.graph
+        session[:title] = @fmodel.title
+        session[:notes] = @fmodel.notes
+        session[:visibility] = @fmodel.visibility
         format.html {
           redirect_back fallback_location: root_path, alert: message and return }
         format.json { render json: { error: message }, status: :unprocessable_entity and return }
