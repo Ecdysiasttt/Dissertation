@@ -78,20 +78,57 @@
               <p class="mb-1"><strong>Notes:</strong></p>
               <p class="mb-1"><%= @fmodel.notes %></p>
             <% end %>
-            <% if @fmodel.canModify %>
-              <%# edit or delete %>
-              <div class="d-flex justify-content-between mt-3">
-                <%# edit %>
-                <div>
-                  <%= button_to "Edit", edit_fmodel_path(@fmodel), method: :get, class: "btn btn-warning" %>
+            <div class="d-flex justify-content-between mt-3">
+              <div class="d-flex">
+
+                <div class="dropdown mr-2">
+                  <button class="btn btn-success dropdown-toggle" type="button" title="Save options"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-download"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <button type="button"  onclick="saveSvg()" id="save-image"
+                        class="dropdown-item btn btn-success">
+                        <i class="bi bi-filetype-svg"></i> SVG
+                      </button>
+                    </li>
+                    <li>
+                      <button type="button"  onclick="saveJpeg()" id="save-jpeg"
+                        class="dropdown-item btn btn-success">
+                        <i class="bi bi-image"></i> JPEG
+                      </button>
+                    </li> 
+                    <li>
+                      <button type="button"  onclick="saveJson()" id="save-json"
+                        class="dropdown-item btn btn-success">
+                        <i class="bi bi-braces"></i> JSON
+                      </button>
+                    </li>                
+                  </ul>
                 </div>
 
-                <%# delete %>
-                <div>
-                  <%= button_to "Delete", @fmodel, method: :delete, class: "btn btn-danger" %>
-                </div>
+                <%# save as image button %>
+                <%# <button type="button"  onclick="saveImage()" id="save-image"
+                  class="btn btn-success btn-small mr-2" title="Save as image">
+                  <i class="bi bi-image"></i>
+                </button> %>
+                <% if @fmodel.canModify %>
+                <%= button_to(edit_fmodel_path(@fmodel), method: :get,
+                      class: "btn btn-warning btn-small", title: "Edit") do %>
+                    <i class="bi bi-pencil"></i>
+                  <% end %>
+                <% end %>
               </div>
-            <% end %>
+              <% if @fmodel.canModify %>
+                <div>
+                  <%= button_to(@fmodel, method: :delete,
+                      class: "btn btn-danger btn-small", title: "Delete") do %>
+                    <i class="bi bi-x-lg"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
 
@@ -197,6 +234,55 @@
         analysisPanel.style.display = "block";
         button.innerHTML = "Show Info";
       }
+    }
+
+    function saveSvg() {
+      var svg = diagram.makeSvg({ scale: 1, background: "white"});
+      var svsstr = new XMLSerializer().serializeToString(svg);
+      var blob = new Blob([svsstr], {type: "image/svg+xml"});
+      var filename = '<%= @fmodel.title %>.svg';
+      downloadCallback(blob, filename);
+      console.log("SVG saved!");
+    }
+
+    function downloadCallback(blob, filename) {
+      var url = window.URL.createObjectURL(blob);
+
+      var a = document.createElement('a');
+      a.style = 'display: none';
+      a.href = url;
+      a.download = filename;
+
+      // IE 11
+      if (window.navigator.msSaveBlob !== undefined) {
+        window.navigator.msSaveBlob(blob, filename);
+        return;
+      }
+
+      document.body.appendChild(a);
+      requestAnimationFrame(() => {
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      });
+    }
+
+    function saveJpeg() {
+      var filename = '<%= @fmodel.title %>.jpeg';
+      var blob = diagram.makeImageData({
+        scale: 1,
+        background: "white",
+        returnType: "blob",
+        callback: function(blob) {
+          downloadCallback(blob, filename);
+        }
+      });
+      
+    }
+
+    function saveJson() {
+      navigator.clipboard.writeText(diagram.model.toJson());
+      alert("Copied model to clipboard!");
     }
   </script>
 </div>

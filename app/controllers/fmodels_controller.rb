@@ -480,6 +480,9 @@ class FmodelsController < ApplicationController
         isVoid = true
         if @validConfigs.size == 0
           isCore = false
+          if f.status == "Root"
+            isVoid = false
+          end
         else
           @validConfigs.each do |config|
             # if feature is selected in a config, not void

@@ -25,17 +25,21 @@
     </div>
 
     <%# make model visibility dropdown - !! invisible and set to public for guests !! %>
-    <div class="field <%= "d-none" if !current_user.present? %>">
-      <%= form.label :visibility, "Model Visibility" %>
-      <%= form.select :visibility, {
-        "Public" => "global",
-        "Private" => "unlisted", 
-        "Followers" => "followers"
-        },
-        { include_blank: false, selected: session[:visibility].presence || @fmodel&.visibility.presence || "global" },
-        class: "form-select mb-2",
-        disabled: !current_user.present?
-        %>
+    <div class="field row g-2 align-items-baseline d-flex <%= "d-none" if !current_user.present? %>">
+      <div class="col-auto ml-3">
+        <%= form.label :visibility, "Model Visibility", class: "col-form-label" %>
+      </div>
+      <div class="col-auto flex-grow-1 mr-3">
+        <%= form.select :visibility, {
+          "Public" => "global",
+          "Private" => "unlisted", 
+          "Followers" => "followers"
+          },
+          { include_blank: false, selected: session[:visibility].presence || @fmodel&.visibility.presence || "global" },
+          class: "form-select mb-2",
+          disabled: !current_user.present?
+          %>
+      </div>
     </div>
 
     <%# clean variables from session %>
@@ -61,12 +65,16 @@
       <div class="d-flex">
         <%# import %>
         <div>
-          <button onclick="importModel()" type="button" class="btn btn-primary mr-2">Import</button>
+          <button onclick="importModel()" type="button" title="Import model as JSON"
+            class="btn btn-primary mr-2"><i class="bi bi-upload"></i></button>
+          
         </div>
 
         <%# export %>
         <div>
-          <button onclick="exportModel()" type="button" class="btn btn-primary">Export</button>
+          <button onclick="exportModel()" type="button" title="Export diagram as JSON"
+            class="btn btn-primary"><i class="bi bi-download"></i></button>
+          
         </div>
       </div>
 
@@ -109,7 +117,6 @@
 
     function exportModel() {
       navigator.clipboard.writeText(diagram.model.toJson());
-
       alert("Copied model to clipboard!");
     }
 

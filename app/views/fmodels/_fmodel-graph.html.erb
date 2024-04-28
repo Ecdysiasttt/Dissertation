@@ -67,36 +67,6 @@
     }, "toggled ctc requirement ");
   }
 
-  // function makeExcludes(e, obj) {
-  //   console.log("makeExcludes clicked");
-  //   diagram.commit(d => {
-  //   // get the context menu that holds the button that was clicked
-  //     var contextMenu = obj.part;
-  //     // get the link data to which the Node is data bound
-  //     var linkData = contextMenu.data;
-
-  //     // d.model.set(linkData, "arrowShape", "Standard");
-  //     // d.model.set(linkData, "dashed", [5,5]);
-  //     d.model.set(linkData, "fromArrowShape", "Backward");
-  //     // d.model.set(linkData, "arrowheadFill", "black");
-  //   }, "changed to excludes");
-  // }
-
-  // function makeRequires(e, obj) {
-  //   console.log("makeRequires clicked");
-  //   diagram.commit(d => {
-  //   // get the context menu that holds the button that was clicked
-  //     var contextMenu = obj.part;
-  //     // get the link data to which the Node is data bound
-  //     var linkData = contextMenu.data;
-
-  //     // d.model.set(linkData, "arrowShape", "Standard");
-  //     // d.model.set(linkData, "dashed", [5,5]);
-  //     d.model.set(linkData, "fromArrowShape", "");
-  //     // d.model.set(linkData, "arrowheadFill", "black");
-  //   }, "changed to requires ");
-  // }
-
   function makeParental(e, obj) {
     console.log("Make mandatory clicked");
     diagram.commit(d => {
@@ -192,7 +162,6 @@
         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         $(go.Shape, "Rectangle",  // default figure
           {
-            portId: "", // the default port: if no spot on link data, use closest side
             fromLinkable: true, toLinkable: true, cursor: "pointer",
             fromLinkableDuplicates: false, toLinkableDuplicates: false,
             fill: "white",  // default color
@@ -234,7 +203,7 @@
     $(go.Adornment, "Link",
       $(go.Shape,
         // isPanelMain declares that this Shape shares the Link.geometry
-        { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 })  // use selection object's strokeWidth
+        { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 2 })  // use selection object's strokeWidth
     );
 
   
@@ -250,6 +219,7 @@
         toShortLength: 4
       },
       new go.Binding("points").makeTwoWay(),
+      $(go.Shape, { isPanelMain: true, stroke: "transparent", strokeWidth: 8 }), // thick undrawn path
       $(go.Shape,  // the link path shape
         { isPanelMain: true, strokeWidth: 2, strokeDashArray: [0,0]},
         new go.Binding("strokeDashArray", "dashed")),
@@ -288,7 +258,12 @@
             //   new go.Binding("visible", "", (data) => data.arrowShape === "Standard"))
             // more ContextMenuButtons would go here
           )  // end Adornment
+      }, {
+        // a mouse-over highlights the link by changing the first main path shape's stroke:
+        mouseEnter: (e, link) => link.elt(0).stroke = "rgba(0,90,156,0.3)",
+        mouseLeave: (e, link) => link.elt(0).stroke = "transparent"
       }
+
   );  
 
   // also define a context menu for the diagram's background
@@ -337,10 +312,13 @@
     <% if current_page?(fmodel_path(id)) %>
       console.log("On show path");
 
-      showPalette = false;
+      showPalette = false;      
 
       var graphHolder = document.getElementById("graphHolder-<%= id %>");
       var paletteHolder = document.getElementById("myPaletteDiv-<%= id %>");
+      
+      // make pointer events none
+      graphHolder.style["pointer-events"] = "none";
       
       if (graph) {
         console.log("loading <%= @fmodel.title %> from db...");

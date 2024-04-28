@@ -59,6 +59,7 @@ gem 'kaminari'
 gem 'bootstrap5-kaminari-views'
 
 gem 'devise'  # user accounts
+gem 'popper_js', '~> 1.9', '>= 1.9.9' # dropdowns
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
