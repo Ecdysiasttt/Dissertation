@@ -75,7 +75,12 @@
         <div class="centre-box p-3">
           <div>
             <div class="bottom-border mb-2 d-flex justify-content-between">
-              <h2 class="pb-1"><%= @header %></h2>
+              <div class="d-flex align-items-center">
+                <h2 class="pb-1"><%= @header %></h2>
+                <% if (controller.controller_name == "users" || controller.controller_name == "fmodels") && controller.action_name == "index" %>
+                  <p class="mb-1 pb-1 pl-3">Viewing <%= @currentlyViewing %>.</p>
+                <% end %>
+              </div>
               <div class="d-flex mr-3">
                 <% if @hasSearch %>
                   <div class="mr-4">

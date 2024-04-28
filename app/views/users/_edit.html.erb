@@ -1,4 +1,4 @@
-<%= form_for(resource, as: resource_name, url: user_path(resource), html: { method: :delete }) do |f| %>
+<%= form_for(resource, as: resource_name, url: user_registration_path(resource), html: { method: :put }) do |f| %>
   <div class="field form-floating mb-3">
     <%= f.email_field :email, class: "form-control", autocomplete: "email", placeholder: "example@email.com", disabled: true %>
     <%= f.label :email, id: "user_email_label" %>

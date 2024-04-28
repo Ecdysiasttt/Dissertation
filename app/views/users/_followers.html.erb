@@ -23,6 +23,11 @@
         </td>
       </tr>
     <% end %>
+    <% if users.size < 10 %>
+      <% (10-users.size).times do %>
+        <tr class="borderless-cell" style="visibility: hidden;"><td class="borderless-cell" style="visibility: hidden;">blank</td></tr>
+      <% end %>
+    <% end %>
   <% end %>
 </table>
 <div class="flex-grow-1"></div>

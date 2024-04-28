@@ -38,13 +38,18 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # PUT /resource
   def update
     super do |resource|
+      if resource.id != current_user.id || !current_user.isAdmin
+        flash[:notice] =  "You do not have permission to edit this user."
+        redirect_back fallback_location: root_path and return
+      end
+
       if !resource.errors.empty?
         puts "failed to save user \n\n\n"
         flash[:notice] = flash[:notice].to_a.concat resource.errors.full_messages
         redirect_back fallback_location: root_path and return        
-      # else
-      #   flash[:notice] = flash[:notice].to_a.concat resource.errors.full_messages
-      #   redirect_back fallback_location: root_path and return  
+      else
+        flash[:notice] = "#{resource.username}'s profile was successfully updated."
+        redirect_back fallback_location: root_path and return
       end
     end
   end
@@ -70,7 +75,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
   #   devise_parameter_sanitizer.permit(:sign_up, keys: [:username])
   #   # devise_parameter_sanitizer.for(:sign_up) { |u| u.permit(:username, :email, :password, :password_confirmation, :remember_me) }
   # end
-
   
 
   # If you have extra params to permit, append them to the sanitizer.

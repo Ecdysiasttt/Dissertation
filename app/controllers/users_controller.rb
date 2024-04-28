@@ -34,7 +34,11 @@ class UsersController < ApplicationController
       @users = @users.order(:created_at)
     end
 
+    @totalUsers = @users.count
     @users = Kaminari.paginate_array(@users).page(params[:page])
+    
+    current_page_range = (@users.offset_value + 1)..(@users.offset_value + @users.length)
+    @currentlyViewing = "#{current_page_range.first}-#{current_page_range.last} of #{@totalUsers}"
 
     @title = "All users"
     @header = "Users"
@@ -91,7 +95,7 @@ class UsersController < ApplicationController
 
     @hasReturn = true
 
-    @title = "My Profile"
+    @title = @viewingSelf ? "My Profile" : "#{@user.username}'s Profile"
     @header = @user.username
   end
 

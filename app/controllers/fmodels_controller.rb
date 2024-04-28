@@ -32,10 +32,17 @@ class FmodelsController < ApplicationController
       end
     end
 
+    totalFmodels = @fmodels.size
+
     @fmodels = Kaminari.paginate_array(@fmodels).page(params[:page])
 
+    current_page_range = (@fmodels.offset_value + 1)..(@fmodels.offset_value + @fmodels.length)
+    @currentlyViewing = "#{current_page_range.first}-#{current_page_range.last} of #{totalFmodels}"
+
     @title = "Feature Model Database"
-    @header = "Viewing All Feature Models"
+    @header = "Feature Models"
+
+    @hasReturn = true
 
     @hasSearch = true
     @searchObject = "Feature Models"
@@ -79,11 +86,15 @@ class FmodelsController < ApplicationController
 
   # GET /fmodels/1/edit
   def edit
-    @title = "Editing: " + @fmodel.title
-    @header = "Editing: " + @fmodel.title
+    if current_user.present? && @fmodel.canModify
+      @title = "Editing: " + @fmodel.title
+      @header = "Editing: " + @fmodel.title
 
-    @instructions = true
-    @hasReturn = true
+      @instructions = true
+      @hasReturn = true
+    else
+      redirect_back fallback_location: root_path, flash: { alert: "You do not have permission to edit this feature model." } and return
+    end
   end
 
   # POST /fmodels or /fmodels.json

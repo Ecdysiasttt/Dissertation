@@ -39,5 +39,4 @@ class User < ApplicationRecord
   def canModify
     User.current.present? && (User.current.id == self.id || User.current.isAdmin)
   end
-
 end

@@ -6,15 +6,15 @@
 #       - also need to prevent guests from accessing all this stuff
 
 Things to do:
-  - verify feature models before saving, and return more detailed
+  - NEXT verify feature models before saving, and return more detailed
     errors to user using toast popups
-  - fix issue with Void Test (links back to mor rigid fm verification)
+  - NEXT fix issue with Void Test (links back to mor rigid fm verification)
   - add more analysis? if possible
   - NEXT user verification (prevent guests and non-admins seeing pages)
+  - MAYBE? password reset feature
   - explore changing design if have time (probably won't)
   - time doesn't account for time zones :/
   - make toast messages nice
-  - NEXT searching would be nice (for users and models)
 
 Things completed:
   - DONE admin pages (view all users)
@@ -40,3 +40,4 @@ Things completed:
   - DONE handle user deletion correctly (i.e. follows & names on fmodels)
   - DONE on view all fmodels:
     - DONE make table headers sortable?
+  - DONE searching would be nice (for users and models)
