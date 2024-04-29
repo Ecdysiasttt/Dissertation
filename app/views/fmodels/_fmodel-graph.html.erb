@@ -46,7 +46,7 @@
       d.model.set(linkData, "arrowShape", "Standard");
       d.model.set(linkData, "dashed", [5,5]);
       d.model.set(linkData, "arrowheadFill", "black");
-      d.model.set(linkData, "routing", go.Routing.Orthogonal);
+      d.model.set(linkData, "routing", go.Routing.AvoidsNodes);
     }, "changed to CTC ");
   }
 
@@ -115,11 +115,11 @@
   // control whether the user can draw links from or to the port.
   function makePort(name, spot, output, input) {
     // the port is basically just a small transparent circle
-    return $(go.Shape, "Circle",
+    return $(go.Shape, "Square",
       {
         fill: null,  // not seen, by default; set to a translucent gray by showSmallPorts, defined below
         stroke: null,
-        desiredSize: new go.Size(7, 7),
+        desiredSize: new go.Size(12, 12),
         alignment: spot,  // align the port on the main Shape
         alignmentFocus: spot,  // just inside the Shape
         portId: name,  // declare this object to be a "port"
@@ -293,10 +293,8 @@
   model.linkToPortIdProperty = "toPort";
   diagram.model = model;
 
-  var model = new go.GraphLinksModel();
-  model.linkFromPortIdProperty = "fromPort";
-  model.linkToPortIdProperty = "toPort";
-  diagram.model = model;
+  diagram.toolManager.dragSelectingTool.isPartialInclusion = true;
+  // diagram.toolManager.dragSelectingTool.box =
 
   // also define a context menu for the diagram's background
   diagram.contextMenu =
@@ -461,7 +459,7 @@
                 arrowShape: "Standard",
                 arrowheadFill: "Black",
                 dashed: [5,5],
-                routing: go.Routing.Orthogonal,
+                routing: go.Routing.AvoidsNodes,
                 points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
               },
               { 
@@ -471,7 +469,7 @@
                 arrowheadFill: "Black",
                 dashed: [5,5],
                 fromArrowShape: "Backward",
-                routing: go.Routing.Orthogonal,
+                routing: go.Routing.AvoidsNodes,
                 points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
               }
             ])

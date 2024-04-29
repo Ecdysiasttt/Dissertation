@@ -242,6 +242,7 @@ class FmodelsController < ApplicationController
       ctcs = Array.new
 
       consistent = Fmodel.parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
+      Fmodel.printFeatures(@features)
       puts "consistent: #{consistent}"
 
       # define feature model metrics
@@ -268,12 +269,17 @@ class FmodelsController < ApplicationController
         end
       end
 
-      
+      puts "getting depth..."
       @depth = treeDepth(@rootFeature, @features)   # bfs to find tree depth
+      puts "depth: #{@depth}"
+      puts "getting leaves..."
       @leaves = getLeaves(@rootFeature, @features)  # dfs to find leaves
-      
+      puts "leaves gotten!"
+
       getTableHeaders()
+      puts "headers gotten!"
       @validConfigs = getValidConfiguations(ctcs)
+      puts "valid configs gotten!"
       
       @coreFeatures = Array.new
       @voidFeatures = Array.new
@@ -282,7 +288,6 @@ class FmodelsController < ApplicationController
       # format configurations for display in table
       #   - trim 
       
-      Fmodel.printFeatures(@features)
       
       # puts "\nleaves:"
       # @leaves.each do |l|
@@ -291,8 +296,10 @@ class FmodelsController < ApplicationController
       # puts "\n"
 
       getConfigsForPrinting()
+      puts "got everything ready"
 
       getCoreAndVoid()
+      puts "got core and void. finishing..."
       # getVoidFeatures()
 
       # puts "\n\ntable headers:"
@@ -336,12 +343,15 @@ class FmodelsController < ApplicationController
 
     # will obtain all valid configurations given a particular feature model diagram
     def getValidConfiguations(ctcs)
-      configs = getAllConfigs() # all configurations
+      puts "getting all valid configs..."
+      configsCount = 0
+      # puts "got all configs. Checking validity..."
 
       validConfigs = []
 
       # go through all configs to check validity
-      configs.each do |c|
+      eachConfig do |c|
+        configsCount += 1
         validConfig = true
         catch :nextConfig do  # allows us to jump ahead to next combination if an error is found
           # puts "========= new config ========="
@@ -518,25 +528,23 @@ class FmodelsController < ApplicationController
 
     # obtain all possible configurations for a given feature model.
     # this gets very very big.
-    def getAllConfigs()
-      configs = []
-
-      # range from 0-2^(numFeatures - 1). Represents all possible
+    def eachConfig
+      # Range from 0-2^(numFeatures - 1). Represents all possible
       # combinations of bits.
       (0..(2**@numFeatures - 1)).each do |i|
         config = []
-        # iterate for as many features there are
+        # Iterate for as many features there are
         @numFeatures.times do |j|
-          feature = @features.drop(1)[j]    # drop the 1st element (root feature)
-          value = (i >> j) & 1              # assign 0/1 using bitwise operations
-          config << [feature, value]   # add feature selection to current config
+          feature = @features.drop(1)[j]    # Drop the 1st element (root feature)
+          value = (i >> j) & 1              # Assign 0/1 using bitwise operations
+          config << [feature, value]        # Add feature selection to current config
         end
-        configs << config         # finally add current config to list of total configs
+        # Check if i is a multiple of 1,000,000
+        if i % 10_000_000 == 0
+          puts "Iteration #{i}"
+        end
+        yield config  # Yield the current config
       end
-
-      puts "#{configs.size} possible configurations for this model"
-
-      configs
     end
 
     # finds all headers for a tabulated representation of the fmodel

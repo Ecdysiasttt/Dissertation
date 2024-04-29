@@ -91,7 +91,7 @@ class Fmodel < ApplicationRecord
         # create new link with 'to'/'from' matching IDs in features[] and requirement status
         link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
 
-        puts "created link from #{link.from} to #{link.to} with requirement #{link.requirement}"
+        # puts "created link from #{link.from} to #{link.to} with requirement #{link.requirement}"
           
         # add newly created link to links array
         links << link
