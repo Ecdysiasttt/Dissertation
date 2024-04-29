@@ -80,7 +80,7 @@
       d.model.set(linkData, "arrowShape", "Circle");
       d.model.set(linkData, "fromArrowShape", "");
       d.model.set(linkData, "dashed", [0,0]);
-      d.model.set(linkData, "routing", go.Link.Normal);
+      d.model.set(linkData, "routing", go.routing.Normal);
     }, "changed to parental ");
   }
 
@@ -286,7 +286,12 @@
         mouseLeave: (e, link) => link.elt(0).stroke = "transparent"
       }
 
-  );  
+  );
+
+  var model = new go.GraphLinksModel();
+  model.linkFromPortIdProperty = "fromPort";
+  model.linkToPortIdProperty = "toPort";
+  diagram.model = model;
 
   var model = new go.GraphLinksModel();
   model.linkFromPortIdProperty = "fromPort";
@@ -381,9 +386,13 @@
           nodeTemplateMap: diagram.nodeTemplateMap,  // share the templates used by diagram
           linkTemplate: // simplify the link template, just in this Palette
             $(go.Link,  // the whole link panel
-              { locationSpot: go.Spot.Center, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
-              { relinkableFrom: true, relinkableTo: true, reshapable: true },
-              {
+              { 
+                locationSpot: go.Spot.Center,
+                selectionAdornmentTemplate: linkSelectionAdornmentTemplate
+              }, { relinkableFrom: true,
+                   relinkableTo: true,
+                   reshapable: true
+              }, {
                 // routing: go.Link.AvoidsNodes,
                 // curve: go.Link.JumpOver,
                 // corner: 5,
@@ -429,26 +438,40 @@
           model: new go.GraphLinksModel(
             // specify the contents of the Palette
             [ { text: "Feature", "size":"120 45"} ],
-            [{ // the Palette also has a disconnected Link, which the user can drag-and-drop
+            [{
+              linkFromPortIdProperty: "fromPort",
+              linkToPortIdProperty: "toPort"
+            },
+              { // the Palette also has a disconnected Link, which the user can drag-and-drop
+                fromPort: "",
+                toPort: "",
                 arrowShape: "Circle",
                 arrowheadFill: "black",
                 points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
               }, { 
+                fromPort: "",
+                toPort: "",
                 arrowShape: "Circle",
                 arrowheadFill: "white",
                 points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
               },
                { 
+                fromPort: "",
+                toPort: "",
                 arrowShape: "Standard",
                 arrowheadFill: "Black",
                 dashed: [5,5],
+                routing: go.Routing.Orthogonal,
                 points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
               },
               { 
+                fromPort: "",
+                toPort: "",
                 arrowShape: "Standard",
                 arrowheadFill: "Black",
                 dashed: [5,5],
                 fromArrowShape: "Backward",
+                routing: go.Routing.Orthogonal,
                 points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(80, 0)])
               }
             ])
