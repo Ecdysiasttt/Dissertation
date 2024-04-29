@@ -3,6 +3,7 @@
   // iterating through, checking for duplicates. adjusts
   // rowspan/colspan accordingly.
   function fixTable() {
+    console.log("Fixing table...");
     var tableHeader = document.getElementById('header');
 
     var uniqueHeaders = [];
@@ -49,6 +50,11 @@
 
       h.colSpan = colspan;
       h.rowSpan = rowspan;
+
+     // centre if colspan is greater than 1
+      if (colspan > 1) {
+        h.style.textAlign = "center";
+      }
     }
 
     // finally remove all duplicate headers
@@ -145,63 +151,30 @@
           <hr>
           <h5>Analysis:</h5>
           <ul>
-            <li><%= @numFeatures %> features:
+            <li id="numFeatures">
               <ul>
-                <li><%= @numOptional%> optional</li>
-                <li><%= @numMandatory%> mandatory</li>
-                <li><%= @numAlternative%> alternative</li>
-                <li><%= @numOr%> or</li>
-                <li><%= @numConstraints %> constraints</li>
+                <li id="numOptional"></li>
+                <li id="numMandatory"></li>
+                <li id="numAlternative"></li>
+                <li id="numOr"></li>
+                <li id="numConstraints"></li>
               </ul>
             </li>
-            <li>Depth: <%= @depth %></li>
-            <li><%= @validConfigs.size %> valid configurations</li>
-            <li><%= @coreFeatures.size %> core features<% if @coreFeatures.size != 0 %>:
-              <ul>
-                <% @coreFeatures.each do |c| %>
-                <li><%= c.name %></li>
-                <% end %>
-              </ul>
-              <% end %>
-            </li>
-            <li><%= @voidFeatures.size %> void features<% if @voidFeatures.size != 0 %>:
-              <ul>
-                <% @voidFeatures.each do |c| %>
-                <li><%= c.name %></li>
-                <% end %>
-              </ul>
-              <% end %>
-            </li>
+            <li id="depth">Depth:</li>
+            <li id="validConfigs"> valid configurations</li>
+            <li id="coreFeatures"> Core features:</li>
+            <li id="voidFeatures"> Dead features:</li>
           </ul>
         </div>
 
         <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border restrict-height overflow-auto">
           <table class="table table-sm table-border border-dark overflow-auto">
             <thead id="header" class="sticky-top">
-              <% if @validConfigs.size == 0 %>
-                <tr>
-                  <th class="text-center">No valid configurations for this model.</th>
-                </tr> 
-              <% else %>
-                <% for i in 0..@depth-1 do %>
-                  <tr>
-                    <% @tableHeaders.each do |h| %>
-                      <th class="text-center" id="<%= h[i].name %>-<%= i %>"><%= h[i].name %></th>
-                    <% end %>
-                  </tr>
-                <% end %>
-              </thead>
-              <tbody>
-                <% @configsTableFormat.each do |c| %>
-                  <tr>
-                    <% c.each do |selected|%>
-                      <td class="text-center"><%= (selected == 1) ? "\&#10004".html_safe : "" %></td>
-                    <% end %>
-                  </tr>
-                <% end %>
-              </tbody>
-              <% end %>
-            <script> fixTable() </script>
+              <tr id="headerRow">
+              </tr>
+            </thead>
+            <tbody id="body">
+            </tbody>
           </table>
         </div>
       </div>
@@ -209,10 +182,131 @@
   </div>
 
   <script>
+    // Function to make AJAX request to fetch analysis results
+    function fetchAnalysisResults() {
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.analysis_complete) {
+              // Update the frontend with analysis results
+              updateAnalysisUI(response);
+            } else {
+              // If analysis is not complete, continue polling
+              setTimeout(fetchAnalysisResults, 1000); // Poll again after 1 second
+            }
+          } else {
+            console.error('Error:', xhr.statusText); // Handle error response
+          }
+        }
+      };
+
+      // Replace :id with the actual ID of the Fmodel
+      const fmodelId = 1; // Assuming Fmodel ID is known
+      xhr.open('GET', `/fmodels/<%= @fmodel.id %>/analysis`);
+      console.log("sending AJAX request to /fmodels/<%= @fmodel.id %>/analysis")
+      xhr.send();
+    }
+
+    fetchAnalysisResults();
+
+    // Function to update the frontend with analysis results
+    function updateAnalysisUI(response) {
+      // Update features
+      const numFeatures = document.getElementById('numFeatures');
+      numFeatures.firstChild.textContent = response.num_features + ' features:';
+      document.getElementById('numOptional').textContent = response.num_optional + ' optional';
+      document.getElementById('numMandatory').textContent = response.num_mandatory + ' mandatory';
+      document.getElementById('numAlternative').textContent = response.num_alternative + ' alternative';
+      document.getElementById('numOr').textContent = response.num_or + ' or';
+      document.getElementById('numConstraints').textContent = response.num_constraints + ' constraints';
+      
+      // Update depth
+      document.getElementById('depth').textContent = 'Depth: ' + response.depth;
+      
+      // Update valid configurations
+      document.getElementById('validConfigs').textContent = response.valid_configs_size + ' valid configurations';
+
+      // Update core features
+      const coreFeaturesList = document.getElementById('coreFeatures');
+      if (response.core_features.length > 0) {
+        const child = document.createElement('ul');
+        coreFeaturesList.appendChild(child);
+        response.core_features.forEach(feature => {
+          const listItem = document.createElement('li');
+          listItem.textContent = feature.name; // Access the 'name' attribute
+          child.appendChild(listItem);
+        });
+      } else {
+        coreFeaturesList.textContent = '0 core features.';
+      }
+
+      // Update void features
+      const voidFeaturesList = document.getElementById('voidFeatures');
+      if (response.void_features.length > 0) {
+        // add a li element under the header to append void children to
+        const child = document.createElement('ul');
+        voidFeaturesList.appendChild(child);
+        response.void_features.forEach(feature => {
+          const listItem = document.createElement('li');
+          listItem.textContent = feature.name; // Access the 'name' attribute
+          child.appendChild(listItem);
+        });
+      } else {
+        voidFeaturesList.textContent = '0 dead features.';
+      }
+
+      // Update table headers
+      const headerTable = document.getElementById('header');
+      headerTable.innerHTML = ''; // Clear existing content
+
+      if (response.table_headers.length === 0) {
+        // If there are no valid configurations, display a message
+        const noConfigTh = document.createElement('th');
+        noConfigTh.classList.add('text-center');
+        noConfigTh.textContent = 'No valid configurations for this model.';
+        const noConfigTr = document.createElement('tr');
+        noConfigTr.appendChild(noConfigTh);
+        headerTable.appendChild(noConfigTr);
+      } else {
+        for (var i = 0; i < response.depth; i++) {
+          var tr = document.createElement('tr');
+          for (var j = 0; j < response.table_headers.length; j++) {
+            feature = response.table_headers[j][i];
+            var th = document.createElement('th');
+            th.id = feature.name + "&" + feature.id + "-" + i;
+            th.textContent = feature.name;
+            tr.appendChild(th);
+          }
+          headerTable.appendChild(tr);
+        }
+      }
+
+      fixTable();
+
+      // Update table body
+      const body = document.getElementById('body');
+      body.innerHTML = '';
+      response.configs.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(selected => {
+          const td = document.createElement('td');
+          td.textContent = selected === 1 ? '✓' : '';
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+
+      var button = document.getElementById('analysis-button');
+      button.innerHTML = "Show Analysis";
+      button.disabled = false;
+    }
+
     function swapPanel() {
       var infoPanel = document.getElementById('info');
       var analysisPanel = document.getElementById('analysis');
-      var button = document.getElementById('button');
+      var button = document.getElementById('analysis-button');
       console.log(button);
 
       if (infoPanel.style.display == "block") {

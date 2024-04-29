@@ -23,4 +23,6 @@ Rails.application.routes.draw do
   match '/follows/:id', to: 'follows#create', via: 'post'
   match '/follows/:id', to: 'follows#destroy', via: 'delete'
 
+  get 'fmodels/:id/analysis', to: 'fmodels#analysis', as: 'analysis_results'
+
 end

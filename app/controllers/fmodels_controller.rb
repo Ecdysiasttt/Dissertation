@@ -1,5 +1,5 @@
 class FmodelsController < ApplicationController
-  before_action :set_fmodel, only: %i[ show edit update destroy ]
+  before_action :set_fmodel, only: %i[ show edit update destroy analysis ]
   helper_method :getTableHeaders
   # before_action :set_title
 
@@ -72,7 +72,7 @@ class FmodelsController < ApplicationController
 
     @hasAnalysisButton = true
 
-    analysis(@fmodel)
+    # analysis(@fmodel)
     flash[:origin] = request.referer
   end
 
@@ -181,6 +181,107 @@ class FmodelsController < ApplicationController
     end
   end
 
+  # perform analysis for display to the user
+  def analysis
+    @features = Array.new
+    links = Array.new
+    ctcs = Array.new
+
+    consistent = Fmodel.parseJson(@fmodel.graph, @features, links, ctcs)  # create programmatic representation of fmodel
+    Fmodel.printFeatures(@features)
+    puts "consistent: #{consistent}"
+
+    # define feature model metrics
+    @numFeatures = @features.size - 1    # remove -1?
+    @numOptional = 0
+    @numMandatory = 0
+    @numAlternative = 0
+    @numOr = 0
+    @rootFeature = nil
+    @numConstraints = ctcs.size
+
+    # iterate through all features and increment above metrics accordingly
+    @features.each do |f|
+      if (f.status == "Optional")
+        @numOptional += 1
+      elsif (f.status == "Mandatory")
+        @numMandatory += 1
+      elsif (f.status == "Alternative")
+        @numAlternative += 1
+      elsif (f.status == "Or")
+        @numOr += 1
+      elsif (f.status == "Root")  # obtain root feature
+        @rootFeature = f
+      end
+    end
+
+    puts "getting depth..."
+    @depth = treeDepth(@rootFeature, @features)   # bfs to find tree depth
+    puts "depth: #{@depth}"
+    puts "getting leaves..."
+    @leaves = getLeaves(@rootFeature, @features)  # dfs to find leaves
+    puts "leaves gotten!"
+
+    getTableHeaders()
+    puts "headers gotten!"
+    @validConfigs = getValidConfiguations(ctcs)
+    puts "valid configs gotten!"
+    
+    @coreFeatures = Array.new
+    @voidFeatures = Array.new
+
+    
+    # format configurations for display in table
+    #   - trim 
+    
+    
+    # puts "\nleaves:"
+    # @leaves.each do |l|
+    #   print "#{l.name}  "
+    # end
+    # puts "\n"
+
+    getConfigsForPrinting()
+    puts "got everything ready"
+
+    getCoreAndVoid()
+    puts "got core and void. finishing..."
+    # getVoidFeatures()
+
+    # puts "\n\ntable headers:"
+    # # puts "depth: #{@depth-1}"
+    # @tableHeaders.each do |t| 
+    #   # puts "\n"
+    #   t.each_with_index do |r, index|
+    #     if (index == @depth - 1)
+    #       print "#{r.name} "
+    #     end
+    #   end
+    # end
+    # puts "\n"
+    ctcs.each do |c|
+      x = c.requires ? "requires" : "excludes"
+      puts "#{Fmodel.findFeatureFromKey(@features, c.from).name} #{x} #{Fmodel.findFeatureFromKey(@features, c.to).name}"
+    end
+
+    render json: {
+      analysis_complete: true,
+      num_features: @numFeatures,
+      num_optional: @numOptional,
+      num_mandatory: @numMandatory,
+      num_alternative: @numAlternative,
+      num_or: @numOr,
+      num_constraints: @numConstraints,
+      depth: @depth,
+      valid_configs_size: @validConfigs.size,
+      core_features: @coreFeatures,
+      void_features: @voidFeatures,
+      leaves: @leaves,
+      table_headers: @tableHeaders,
+      configs: @configsTableFormat,
+    }
+  end
+
   private
     def validateModel(fmodel)
       # parse for errors
@@ -233,90 +334,6 @@ class FmodelsController < ApplicationController
         :visibility,
         :notes
       )
-    end
-
-    # perform analysis for display to the user
-    def analysis(model)
-      @features = Array.new
-      links = Array.new
-      ctcs = Array.new
-
-      consistent = Fmodel.parseJson(model.graph, @features, links, ctcs)  # create programmatic representation of fmodel
-      Fmodel.printFeatures(@features)
-      puts "consistent: #{consistent}"
-
-      # define feature model metrics
-      @numFeatures = @features.size - 1    # remove -1?
-      @numOptional = 0
-      @numMandatory = 0
-      @numAlternative = 0
-      @numOr = 0
-      @rootFeature = nil
-      @numConstraints = ctcs.size
-
-      # iterate through all features and increment above metrics accordingly
-      @features.each do |f|
-        if (f.status == "Optional")
-          @numOptional += 1
-        elsif (f.status == "Mandatory")
-          @numMandatory += 1
-        elsif (f.status == "Alternative")
-          @numAlternative += 1
-        elsif (f.status == "Or")
-          @numOr += 1
-        elsif (f.status == "Root")  # obtain root feature
-          @rootFeature = f
-        end
-      end
-
-      puts "getting depth..."
-      @depth = treeDepth(@rootFeature, @features)   # bfs to find tree depth
-      puts "depth: #{@depth}"
-      puts "getting leaves..."
-      @leaves = getLeaves(@rootFeature, @features)  # dfs to find leaves
-      puts "leaves gotten!"
-
-      getTableHeaders()
-      puts "headers gotten!"
-      @validConfigs = getValidConfiguations(ctcs)
-      puts "valid configs gotten!"
-      
-      @coreFeatures = Array.new
-      @voidFeatures = Array.new
-
-      
-      # format configurations for display in table
-      #   - trim 
-      
-      
-      # puts "\nleaves:"
-      # @leaves.each do |l|
-      #   print "#{l.name}  "
-      # end
-      # puts "\n"
-
-      getConfigsForPrinting()
-      puts "got everything ready"
-
-      getCoreAndVoid()
-      puts "got core and void. finishing..."
-      # getVoidFeatures()
-
-      # puts "\n\ntable headers:"
-      # # puts "depth: #{@depth-1}"
-      # @tableHeaders.each do |t| 
-      #   # puts "\n"
-      #   t.each_with_index do |r, index|
-      #     if (index == @depth - 1)
-      #       print "#{r.name} "
-      #     end
-      #   end
-      # end
-      # puts "\n"
-      ctcs.each do |c|
-        x = c.requires ? "requires" : "excludes"
-        puts "#{Fmodel.findFeatureFromKey(@features, c.from).name} #{x} #{Fmodel.findFeatureFromKey(@features, c.to).name}"
-      end
     end
 
     def getConfigsForPrinting()
