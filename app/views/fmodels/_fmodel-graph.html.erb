@@ -46,6 +46,7 @@
       d.model.set(linkData, "arrowShape", "Standard");
       d.model.set(linkData, "dashed", [5,5]);
       d.model.set(linkData, "arrowheadFill", "black");
+      d.model.set(linkData, "routing", go.Routing.Orthogonal);
     }, "changed to CTC ");
   }
 
@@ -79,6 +80,7 @@
       d.model.set(linkData, "arrowShape", "Circle");
       d.model.set(linkData, "fromArrowShape", "");
       d.model.set(linkData, "dashed", [0,0]);
+      d.model.set(linkData, "routing", go.Link.Normal);
     }, "changed to parental ");
   }
 
@@ -93,9 +95,9 @@
         ),
         "draggingTool.dragsLink": true,
         "draggingTool.isGridSnapEnabled": true,
-        "linkingTool.isEnabled": false,
-        // "linkingTool.isUnconnectedLinkValid": true,
-        // "linkingTool.portGravity": 20,
+        "linkingTool.isEnabled": true,
+        "linkingTool.isUnconnectedLinkValid": true,
+        "linkingTool.portGravity": 20,
         "relinkingTool.isUnconnectedLinkValid": true,
         "relinkingTool.portGravity": 20,
         "relinkingTool.fromHandleArchetype":
@@ -162,7 +164,7 @@
         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
         $(go.Shape, "Rectangle",  // default figure
           {
-            fromLinkable: true, toLinkable: true, cursor: "pointer",
+            fromLinkable: true, toLinkable: true, cursor: "normal",
             fromLinkableDuplicates: false, toLinkableDuplicates: false,
             fill: "white",  // default color
             strokeWidth: 2
@@ -173,6 +175,7 @@
         $(go.TextBlock,
           {
             font: "bold 10pt Helvetica, Arial, sans-serif",
+            cursor: "text",
             margin: 8,
             maxSize: new go.Size(160, NaN),
             wrap: go.TextBlock.WrapFit,
@@ -206,31 +209,31 @@
         { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 2 })  // use selection object's strokeWidth
     );
 
-  
+  //
+  diagram.addDiagramListener("LinkDrawn", function(event) {
+    var link = event.subject;
+    //
+    diagram.commit(d => {
+      //
+      var linkData = link.data;
+      addContextMenu(link);
+      d.model.set(linkData, "arrowShape", "Circle");
+      d.model.set(linkData, "arrowheadFill", "black");
+    }, "added link");
+  });
 
-  diagram.linkTemplate =
-    $(go.Link,  // the whole link panel
-      { selectable: true, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
-      { relinkableFrom: true, relinkableTo: true, reshapable: true },
-      {
-        // routing: go.Link.AvoidsNodes,
-        // curve: go.Link.JumpOver,
-        // corner: 5,
-        toShortLength: 4
-      },
-      new go.Binding("points").makeTwoWay(),
-      $(go.Shape, { isPanelMain: true, stroke: "transparent", strokeWidth: 8 }), // thick undrawn path
-      $(go.Shape,  // the link path shape
-        { isPanelMain: true, strokeWidth: 2, strokeDashArray: [0,0]},
-        new go.Binding("strokeDashArray", "dashed")),
-      $(go.Shape, { toArrow: "Circle", fill: "black"},
-        new go.Binding("fill", "arrowheadFill"),
-        new go.Binding("toArrow", "arrowShape")),
-      $(go.Shape, { fromArrow: "", fill: ""},
-        new go.Binding("fromArrow", "fromArrowShape")),
-      {
-        contextMenu:     // define a context menu for each node
-          $("ContextMenu",  // that has one button
+  diagram.toolManager.linkingTool.temporaryLink =
+    $(go.Link, {
+      layerName: "Tool"
+    },
+      $(go.Shape, { stroke: "black", strokeWidth: 2}),
+      $(go.Shape, { toArrow: "Circle", stroke: "black" })
+    );
+
+
+  //
+  function addContextMenu() {
+    return $("ContextMenu",  // that has one button
             $("ContextMenuButton",
               {"ButtonBorder.fill": "white", "_buttonFillOver": "skyblue"},
               $(go.TextBlock, "Toggle requirement status"),
@@ -250,14 +253,33 @@
               { "ButtonBorder.fill": "white", "_buttonFillOver": "skyblue" },
               $(go.TextBlock, "Make parental relationship"),
               { click: makeParental },
-              new go.Binding("visible", "", (data) => data.arrowShape === "Standard")),
-            // $("ContextMenuButton",
-            //   { "ButtonBorder.fill": "white", "_buttonFillOver": "skyblue" },
-            //   $(go.TextBlock, "Make requires"),
-            //   { click: makeRequires },
-            //   new go.Binding("visible", "", (data) => data.arrowShape === "Standard"))
-            // more ContextMenuButtons would go here
-          )  // end Adornment
+              new go.Binding("visible", "", (data) => data.arrowShape === "Standard"))
+          );
+  }  
+
+  diagram.linkTemplate =
+    $(go.Link,  // the whole link panel
+      { selectable: true, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
+      { relinkableFrom: true, relinkableTo: true, reshapable: true },
+      {
+        // routing: go.Link.AvoidsNodes,
+        // curve: go.Link.JumpOver,
+        // corner: 5,
+        toShortLength: 4
+      },
+      new go.Binding("routing", "routing"),
+      new go.Binding("points").makeTwoWay(),
+      $(go.Shape, { isPanelMain: true, stroke: "transparent", strokeWidth: 8 }), // thick undrawn path
+      $(go.Shape,  // the link path shape
+        { isPanelMain: true, strokeWidth: 2, strokeDashArray: [0,0]},
+        new go.Binding("strokeDashArray", "dashed")),
+      $(go.Shape, { toArrow: "Circle", fill: "black"},
+        new go.Binding("fill", "arrowheadFill"),
+        new go.Binding("toArrow", "arrowShape")),
+      $(go.Shape, { fromArrow: "", fill: ""},
+        new go.Binding("fromArrow", "fromArrowShape")),
+      {
+        contextMenu: addContextMenu()   // define a context menu for each node
       }, {
         // a mouse-over highlights the link by changing the first main path shape's stroke:
         mouseEnter: (e, link) => link.elt(0).stroke = "rgba(0,90,156,0.3)",
@@ -265,6 +287,11 @@
       }
 
   );  
+
+  var model = new go.GraphLinksModel();
+  model.linkFromPortIdProperty = "fromPort";
+  model.linkToPortIdProperty = "toPort";
+  diagram.model = model;
 
   // also define a context menu for the diagram's background
   diagram.contextMenu =
