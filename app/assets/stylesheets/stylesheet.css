@@ -12,13 +12,14 @@
 main {
   height: calc(100vh - 76.8px);
   align-content: center;
+  width: 100%;
 }
 
 .centre-box {
   border: solid var(--border) 1px;
   border-radius: 10px;
   min-height: 50vh;
-  max-height: 65vh;
+  max-height: 90vh;
 }
 
 a {
