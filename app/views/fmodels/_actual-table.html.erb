@@ -1,0 +1,90 @@
+<table class="w-100 table table-sm table-hover"></table>
+  <% if fmodels.size == 0 %>
+    <tr>
+    <% if origin == "index" %>
+      <td>No feature models found. Make one and add to the database!</td>
+    <% else %>
+        <td>
+          <%= @current_user.present? && (@user.id == @current_user.id) ? "You haven't " : "#{@user.username} hasn't "%>
+          made any feature models yet.  
+        </td>
+    <% end %>
+    </tr>
+  <% else %>
+    <thead class="table-light">
+      <th scope="col">Title:</th>
+      <% if origin != "user" %>
+        <th scope="col">Created by:</th>
+      <% end %>
+      <th scope="col">Created:</th>
+      <th scope="col">Updated:</th>
+      <% if editable %>
+        <th scope="col">Visibility:</th>
+      <% end %>
+      <th scope="col" colspan="3"
+        class="text-end">Actions:</th>
+      <%# <th scope="col"></th>
+      <th scope="col"></th> %>
+    </thead>
+    <tbody>
+      <% fmodels.each do |fmodel| %>
+        <tr class="pb-2">
+          <td scope="row"><%= fmodel.title %></td>
+          <% if origin != "user" %>            
+            <td><%= fmodel.getCreator %></td>
+          <% end %>  
+          <td><%= formatTime(fmodel.created_at) %></td>
+          <td><%= formatTime(fmodel.updated_at) %></td>
+          <% if editable %>
+            <td><%= fmodel.getVisibility %></td>
+          <% end %>
+          <td colspan="1" class="text-end">
+            <%= link_to fmodel, class: "btn btn-success btn-sm" do %>
+              <i class="bi bi-search"></i>
+            <% end %>  
+
+            <% if editable %>
+              <%= link_to edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" do %>
+                <i class="bi bi-pencil"></i>
+              <% end %>
+
+              <form class="delete-form" action="<%= fmodel_path(fmodel) %>" method="post" style="display: none;">
+                <input type="hidden" name="_method" value="delete">
+                <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              </form>
+
+              <button type="button" class="btn btn-danger btn-sm delete-button">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      <% if fmodels.size < 10 %>
+          <% (10-fmodels.size).times do %>
+            <tr class="borderless-cell" style="visibility: hidden;"><td class="borderless-cell" style="visibility: hidden;">blank</td></tr>
+          <% end %>
+      <% end %>
+    </tbody> 
+  <% end %>
+</table>
+<div class="flex-grow-1"></div>
+<div class="d-flex justify-content-center">
+  <%= paginate fmodels,
+        param_name: (origin == "user" ? pager : :page),
+        theme: 'bootstrap-5',
+        pagination_class: "pagination-sm flex-wrap justify-content-center",
+        nav_class: "d-inline-block"
+  %>
+</div>
+
+<script>
+  document.querySelectorAll('.delete-button').forEach(button => {
+    button.addEventListener('click', function() {
+      if (confirm("Are you sure?")) {
+        const form = this.previousElementSibling;
+        form.submit();
+      }
+    });
+  });
+</script>

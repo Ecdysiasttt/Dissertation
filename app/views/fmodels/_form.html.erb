@@ -111,12 +111,23 @@
         alert("No input detected, please try again.");
       } else {
         diagram.model = go.Model.fromJson(importedJson);
+        loadDiagramProperties();
       }
     }
 
     function exportModel() {
+      saveDiagramProperties();
       navigator.clipboard.writeText(diagram.model.toJson());
       alert("Copied model to clipboard!");
+    }
+
+    function saveDiagramProperties() {
+      diagram.model.modelData.position = go.Point.stringify(diagram.position);
+    }
+
+    function loadDiagramProperties(e) {
+      var pos = diagram.model.modelData.position;
+      if (pos) diagram.position = go.Point.parse(pos);
     }
 
     var form = document.getElementById('form');
