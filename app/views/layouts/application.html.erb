@@ -95,7 +95,7 @@
                 <% end %>
                 <% if @hasReturn %>
                   <div>
-                    <%= link_to 'Back', 'javascript:history.back()', class: "btn btn-dark mb-3 ml-4" %>
+                    <%= link_to 'Back', "javascript: if (document.referrer == '#{request.original_url}'){history.go(-2);} else {history.go(-1);}", class: "btn btn-dark mb-3 ml-4" %>
                   </div>
                 <% end %>
               </div>

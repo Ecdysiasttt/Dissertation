@@ -73,6 +73,7 @@ class FmodelsController < ApplicationController
     @hasAnalysisButton = true
 
     analysis(@fmodel)
+    flash[:origin] = request.referer
   end
 
   # GET /fmodels/new
@@ -110,10 +111,12 @@ class FmodelsController < ApplicationController
 
     respond_to do |format|
       if message != ""
-        flash[:graph_data] = @fmodel.graph
-        flash[:title] = @fmodel.title
-        flash[:notes] = @fmodel.notes
-        flash[:visibility] = @fmodel.visibility
+        Rails.cache.write("graph_data", @fmodel.graph)
+        # print graph data from cache
+        puts "Graph data from cache: #{Rails.cache.read("graph_data")}"
+        session[:title] = @fmodel.title
+        session[:notes] = @fmodel.notes
+        session[:visibility] = @fmodel.visibility
         format.html {
           redirect_back fallback_location: root_path, alert: message and return }
         format.json { render json: { error: message }, status: :unprocessable_entity and return }
@@ -138,6 +141,8 @@ class FmodelsController < ApplicationController
     respond_to do |format|
       if message != ""
         Rails.cache.write("graph_data", @fmodel.graph)
+        # print graph data from cache
+        puts "Graph data from cache: #{Rails.cache.read("graph_data")}"
         session[:title] = @fmodel.title
         session[:notes] = @fmodel.notes
         session[:visibility] = @fmodel.visibility
@@ -162,7 +167,16 @@ class FmodelsController < ApplicationController
     @fmodel.destroy!
 
     respond_to do |format|
-      format.html { redirect_back(fallback_location: root_path, notice: "#{title} deleted!") }
+      format.html {
+        if request.referer && request.referer.include?("fmodels/#{params[:id]}")
+          puts "redirecting from model show page, redirecting to #{flash[:origin]}"
+          redirect_to flash[:origin], notice: "#{title} deleted!"
+          # redirect_back(fallback_location: root_path, notice: "#{title} deleted!", allow_other_host: false)
+        else
+          puts "redirecting from elsewhere"
+          redirect_back(fallback_location: root_path, notice: "#{title} deleted!")
+        end
+      }
       format.json { head :no_content }
     end
   end
