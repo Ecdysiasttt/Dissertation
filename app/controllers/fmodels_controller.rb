@@ -134,18 +134,19 @@ class FmodelsController < ApplicationController
 
   # PATCH/PUT /fmodels/1 or /fmodels/1.json
   def update
-    @fmodel = Fmodel.new(fmodel_params)
+    @fmodel = Fmodel.find(params[:id])
+    @newFmodel = Fmodel.new(fmodel_params)
 
-    message = validateModel(@fmodel)
+    message = validateModel(@newFmodel)
 
     respond_to do |format|
       if message != ""
-        Rails.cache.write("graph_data", @fmodel.graph)
+        Rails.cache.write("graph_data", @newFmodel.graph)
         # print graph data from cache
         puts "Graph data from cache: #{Rails.cache.read("graph_data")}"
-        session[:title] = @fmodel.title
-        session[:notes] = @fmodel.notes
-        session[:visibility] = @fmodel.visibility
+        session[:title] = @newFmodel.title
+        session[:notes] = @newFmodel.notes
+        session[:visibility] = @newFmodel.visibility
         format.html {
           redirect_back fallback_location: root_path, alert: message and return }
         format.json { render json: { error: message }, status: :unprocessable_entity and return }
