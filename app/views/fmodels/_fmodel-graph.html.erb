@@ -309,7 +309,7 @@
         new go.Binding("visible", "", o => o.diagram.commandHandler.canRedo()).ofObject()),
       // no binding, always visible button:
       $("ContextMenuButton",
-        $(go.TextBlock, "New Node"),
+        $(go.TextBlock, "New Feature"),
         { click: (e, obj) => {
           e.diagram.commit(d => {
             var data = { text: "Feature", "size":"120 45"};

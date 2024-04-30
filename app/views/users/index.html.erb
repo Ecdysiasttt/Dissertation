@@ -54,7 +54,10 @@
               <td><%= formatTime(user.updated_at) %></td>
             <% end %>
             <td class="text-end">
-              <%= link_to "Show", user, class: "btn btn-success btn-sm" %></td>
+              <%= link_to user, class: "btn btn-success btn-sm" do %>
+                <i class="bi bi-person-fill"></i>
+              <% end %>  
+            </td>
           </tr>
         <% end %>
         <% if @users.size < 10 %>
