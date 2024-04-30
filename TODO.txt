@@ -12,6 +12,27 @@ Things to do:
   - time doesn't account for time zones :/
   - WIP make toast messages nice
   - TODO make table headers use keys as well to distinguish between features with the same name
+  - dead feature extension broken:
+  { "class": "GraphLinksModel",
+  "linkFromPortIdProperty": "fromPort",
+  "linkToPortIdProperty": "toPort",
+  "modelData": {"position":"-578 -249"},
+  "nodeDataArray": [
+{"text":"Root Feature","size":"120 45","key":-1,"loc":"-130 -130"},
+{"text":"Mandatory","size":"120 45","key":-2,"loc":"-260 10"},
+{"text":"Also Mandatory","size":"120 45","key":-3,"loc":"-10 10"},
+{"text":"Will be dead","size":"120 45","key":-4,"loc":"-340 110"},
+{"text":"Must be chosen","size":"120 45","key":-5,"loc":"-180 110"},
+{"text":"Also dead","size":"120 45","key":-6,"loc":"-340 220"}
+],
+  "linkDataArray": [
+{"from":-1,"to":-2,"fromPort":"B","toPort":"T","arrowShape":"Circle","arrowheadFill":"black","points":[-130,-107.5,-130,-97.5,-260,-22.5,-260,-12.5]},
+{"from":-1,"to":-3,"fromPort":"B","toPort":"T","arrowShape":"Circle","arrowheadFill":"black","points":[-130,-107.5,-130,-97.5,-10,-22.5,-10,-12.5]},
+{"from":-4,"to":-2,"fromPort":"T","toPort":"B","arrowShape":"Circle","arrowheadFill":"white","points":[-340,87.5,-340,77.5,-260,42.5,-260,32.5]},
+{"from":-5,"to":-2,"fromPort":"T","toPort":"B","arrowShape":"Circle","arrowheadFill":"white","points":[-180,87.5,-180,77.5,-260,42.5,-260,32.5]},
+{"from":-3,"to":-5,"fromPort":"B","toPort":"R","arrowShape":"Standard","arrowheadFill":"black","points":[-10,32.5,-10,42.5,-10,110,-60,110,-110,110,-120,110],"dashed":[5,5],"routing":2},
+{"from":-4,"to":-6,"fromPort":"B","toPort":"T","arrowShape":"Circle","arrowheadFill":"black","points":[-340,132.5,-340,142.5,-340,187.5,-340,197.5]}
+]}
 
 Things completed:
   - DONE admin pages (view all users)

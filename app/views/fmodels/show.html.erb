@@ -18,12 +18,14 @@
       for (var th of allHeaders) {
         // if header already present in table, add to duplicates and hide
         // else add to unique
-        if (uniqueHeaderText.includes(th.innerHTML)) {
+        // use ids to allow for distinct features that have the same text
+        nameWithID = th.id.split("-")[0];
+        if (uniqueHeaderText.includes(nameWithID)) {
           duplicateHeaders.push(th);
           th.style.display = "none";
         } else {
           uniqueHeaders.push(th);
-          uniqueHeaderText.push(th.innerHTML);
+          uniqueHeaderText.push(nameWithID);
         }
       }
     }
@@ -82,7 +84,7 @@
             <p class="mb-1"><strong>Last updated:</strong> <%= formatTime(@fmodel.updated_at) %></p>
             <% if @fmodel.notes.present? %>
               <p class="mb-1"><strong>Notes:</strong></p>
-              <p class="mb-1"><%= @fmodel.notes %></p>
+              <p class="mb-1 text-break"><%= @fmodel.notes %></p>
             <% end %>
             <div class="d-flex justify-content-between mt-3">
               <div class="d-flex">
