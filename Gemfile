@@ -61,6 +61,8 @@ gem 'bootstrap5-kaminari-views'
 gem 'devise'  # user accounts
 gem 'popper_js', '~> 1.9', '>= 1.9.9' # dropdowns
 
+# gem "sidekiq"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]

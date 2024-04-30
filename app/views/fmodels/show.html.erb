@@ -168,12 +168,12 @@
         </div>
 
         <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border restrict-height overflow-auto">
-          <table class="table table-sm table-border border-dark overflow-auto">
+          <table class="table table-sm table-bordered border-warning overflow-auto">
             <thead id="header" class="sticky-top">
               <tr id="headerRow">
               </tr>
             </thead>
-            <tbody id="body">
+            <tbody id="body" class="table-group-divider">
             </tbody>
           </table>
         </div>
@@ -182,34 +182,83 @@
   </div>
 
   <script>
+
+    var analysisButton = document.getElementById('analysis-button');
+    analysisButton.addEventListener('click', function handleFirstClick() {
+      var button = document.getElementById('analysis-button');
+      button.innerHTML = "Analysis in progress...";
+      button.disabled = true;
+      fetchAnalysisResults();
+
+      analysisButton.removeEventListener('click', handleFirstClick);
+    });
+    
     // Function to make AJAX request to fetch analysis results
     function fetchAnalysisResults() {
-      const xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.analysis_complete) {
-              // Update the frontend with analysis results
-              updateAnalysisUI(response);
-            } else {
-              // If analysis is not complete, continue polling
-              setTimeout(fetchAnalysisResults, 1000); // Poll again after 1 second
-            }
+      let controller<%= @fmodel.id %> = new AbortController();
+      let signal<%= @fmodel.id %> = controller<%= @fmodel.id %>.signal;
+      let xhr = new XMLHttpRequest();
+
+      // Timer for prompting user after 60 seconds
+      function promptUser() {
+          let shouldContinue = confirm("The analysis is taking longer than expected. Do you want to continue waiting?");
+          if (!shouldContinue) {
+              xhr.abort(); // Abort the AJAX request if user chooses not to continue
+              controller<%= @fmodel.id %>.abort();
+              controller<%= @fmodel.id %> = null;
+              signal = null;
+
+              var button = document.getElementById('analysis-button');
+              button.innerHTML = "Analysis aborted...";
           } else {
-            console.error('Error:', xhr.statusText); // Handle error response
+              // Continue waiting by recursively calling the prompt function
+              timerId = setTimeout(promptUser, 60000); // 60 seconds
           }
-        }
+      }
+
+      // Start the timer
+      let timerId = setTimeout(promptUser, 60000); // 60 seconds
+
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+              clearTimeout(timerId); // Clear the timer when response is received
+              if (xhr.status === 200) {
+                  const response = JSON.parse(xhr.responseText);
+                  if (response.analysis_complete) {
+                      // Update the frontend with analysis results
+                      xhr.abort(); // Abort the AJAX request if user chooses not to continue
+                      controller<%= @fmodel.id %>.abort();
+                      controller<%= @fmodel.id %> = null;
+                      signal = null;
+
+                      updateAnalysisUI(response);
+                  } else {
+                      // If analysis is not complete, continue polling
+                      setTimeout(fetchAnalysisResults, 1000); // Poll again after 1 second
+                  }
+              } else {
+                  console.error('Error:', xhr.statusText); // Handle error response
+              }
+          }
       };
 
       // Replace :id with the actual ID of the Fmodel
-      const fmodelId = 1; // Assuming Fmodel ID is known
       xhr.open('GET', `/fmodels/<%= @fmodel.id %>/analysis`);
       console.log("sending AJAX request to /fmodels/<%= @fmodel.id %>/analysis")
+      xhr.signal = signal<%= @fmodel.id %>;
       xhr.send();
+
+      return controller<%= @fmodel.id %>;
     }
 
-    fetchAnalysisResults();
+    // Function to abort the analysis if the user navigates away from the page
+    window.addEventListener('beforeunload', () => {
+      controller<%= @fmodel.id %>.abort();
+      console.log("Aborted analysis via redirect");
+    });
+
+    // Call the fetchAnalysisResults function to start fetching analysis results
+    // fetchAnalysisResults();
 
     // Function to update the frontend with analysis results
     function updateAnalysisUI(response) {
@@ -230,6 +279,9 @@
 
       // Update core features
       const coreFeaturesList = document.getElementById('coreFeatures');
+      while (coreFeaturesList.children.length > 1) {
+        coreFeaturesList.removeChild(coreFeaturesList.firstChild);
+      }
       if (response.core_features.length > 0) {
         const child = document.createElement('ul');
         coreFeaturesList.appendChild(child);
@@ -244,6 +296,11 @@
 
       // Update void features
       const voidFeaturesList = document.getElementById('voidFeatures');
+      // remove all children
+      while (voidFeaturesList.children.length > 1) {
+        voidFeaturesList.removeChild(voidFeaturesList.firstChild);
+      }
+      
       if (response.void_features.length > 0) {
         // add a li element under the header to append void children to
         const child = document.createElement('ul');
@@ -301,6 +358,7 @@
       var button = document.getElementById('analysis-button');
       button.innerHTML = "Show Analysis";
       button.disabled = false;
+      button.addEventListener('click', swapPanel);
     }
 
     function swapPanel() {

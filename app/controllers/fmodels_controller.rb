@@ -183,6 +183,7 @@ class FmodelsController < ApplicationController
 
   # perform analysis for display to the user
   def analysis
+    $interrupt_flag = false
     @features = Array.new
     links = Array.new
     ctcs = Array.new
@@ -224,6 +225,8 @@ class FmodelsController < ApplicationController
 
     getTableHeaders()
     puts "headers gotten!"
+    # perform configurations job
+    # @validConfigs = ValidConfigsJob.perform_async(@features, @leaves, @depth, ctcs, @rootFeature)
     @validConfigs = getValidConfiguations(ctcs)
     puts "valid configs gotten!"
     
@@ -360,6 +363,7 @@ class FmodelsController < ApplicationController
 
     # will obtain all valid configurations given a particular feature model diagram
     def getValidConfiguations(ctcs)
+
       puts "getting all valid configs..."
       configsCount = 0
       # puts "got all configs. Checking validity..."
@@ -370,6 +374,9 @@ class FmodelsController < ApplicationController
       eachConfig do |c|
         configsCount += 1
         validConfig = true
+        # puts "============================="
+        # puts "Configuration: #{c}"
+        # puts "============================="
         catch :nextConfig do  # allows us to jump ahead to next combination if an error is found
           # puts "========= new config ========="
           c.each do |combination|
