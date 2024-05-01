@@ -63,7 +63,12 @@
     for (var th of duplicateHeaders) {
       th.remove();
     }
+
+    // add click event listeners to the lowest-level headers
+    // to toggle the visibility of the corresponding column
+
   }
+
 
 </script>
 
@@ -170,7 +175,7 @@
         </div>
 
         <div id="right-panel-analysis" class="w-75 ml-2 pl-3 left-border restrict-height overflow-auto">
-          <table class="table table-sm table-bordered border-warning overflow-auto">
+          <table class="table table-sm table-bordered border-warning overflow-auto" id="table">
             <thead id="header" class="sticky-top">
               <tr id="headerRow">
               </tr>
