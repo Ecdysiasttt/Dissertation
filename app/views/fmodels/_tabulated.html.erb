@@ -39,12 +39,14 @@
             <td><%= fmodel.getVisibility %></td>
           <% end %>
           <td colspan="1" class="text-end">
-            <%= link_to fmodel, class: "btn btn-success btn-sm" do %>
+            <%= link_to fmodel, class: "btn btn-success btn-sm",
+                'aria-label' => "View #{fmodel.title}"  do %>
               <i class="bi bi-search"></i>
             <% end %>  
 
             <% if editable %>
-              <%= link_to edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm" do %>
+              <%= link_to edit_fmodel_path(fmodel), class: "btn btn-warning btn-sm",
+                'aria-label' => "Edit #{fmodel.title}" do %>
                 <i class="bi bi-pencil"></i>
               <% end %>
 
@@ -53,7 +55,8 @@
                 <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
               </form>
 
-              <button type="button" class="btn btn-danger btn-sm delete-button">
+              <button type="button" class="btn btn-danger btn-sm delete-button"
+                aria-label="Delete <%= fmodel.title %>">
                 <i class="bi bi-x-lg"></i>
               </button>
             <% end %>

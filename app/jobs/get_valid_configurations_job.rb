@@ -114,7 +114,7 @@ class GetValidConfigurationsJob < ApplicationJob
       validConfigs << c if validConfig
     end
     
-    puts "#{validConfigs.size} valid configurations for this model"
+    puts "#{validConfigs.size} valid configurations found out of #{configsCount} possible configurations."
     
     # # keep for debugging when rendering in table
     # validConfigs.each do |c|
@@ -139,10 +139,7 @@ class GetValidConfigurationsJob < ApplicationJob
         value = (i >> j) & 1              # Assign 0/1 using bitwise operations
         config << [feature, value]        # Add feature selection to current config
       end
-      # Check if i is a multiple of 1,000,000
-      if i % 10_000_000 == 0
-        puts "Iteration #{i}"
-      end
+      
       yield config  # Yield the current config
     end
   end

@@ -373,6 +373,9 @@ class FmodelsController < ApplicationController
 
       # go through all configs to check validity
       eachConfig do |c|
+        # puts "Configuration:"
+        # puts c
+        # puts "============================="
         configsCount += 1
         validConfig = true
         # puts "============================="
@@ -384,10 +387,13 @@ class FmodelsController < ApplicationController
             # combination looks like: [Feature(as object), 1/0]
             feature = combination[0]      # separate combination into parts for readability
             selection = combination[1]
+            
+            parent = Fmodel.findFeatureFromKey(@features, feature.parent)
+            isParentSelected = c.find_index([parent, 0]).nil? # will return true if parent is not unselected
             # if a feature is mandatory and not selected, throw config away
             #   will eliminate a huge chunk of invalid configs, reserving the
             #   more in-depth checking for a smaller number of configs
-            if (feature.status == "Mandatory" && selection == 0)
+            if (feature.status == "Mandatory" && selection == 0 && isParentSelected)
               # puts "  Mandatory feature #{feature.name} not selected. Invalid."
               validConfig = false
               throw :nextConfig   # jump to next configuration
@@ -405,10 +411,8 @@ class FmodelsController < ApplicationController
 
             if ((feature.status == "Alternative" || feature.status == "Or") && selection == 1)
               # check if parent hasn't been selected
-              parent = Fmodel.findFeatureFromKey(@features, feature.parent)
               # puts "Checking if #{feature.name}'s parent: #{parent.name} (status : #{parent.status}) is also selected"
               # puts "  Checking if #{feature.name}'s (selected: #{selection}) parent: #{parent.name} (status : #{parent.status}) is also selected "
-              isParentSelected = c.find_index([parent, 0]).nil? # will return true if parent is not unselected
               if (!isParentSelected)
                 # puts "    #{feature.name}'s parent: #{parent.name} isn't selected"
                 validConfig = false
@@ -420,14 +424,15 @@ class FmodelsController < ApplicationController
 
             ctcs.each do |constraint|
               if (constraint.from == feature.id) # constraint present for this feature
-                # puts "  Constraint found between #{feature.name} and #{@features[constraint.to].name}"
                 # if feature is selected, and ctc excludes another feature:
                 #   if targeted feature is also selected, invalid
-                #   if targeted feature not selected, valid
                 # if feature is selected, and ctc required another feature:
-                #   if targeted feature is also selected, valid
                 #   if targeted feature is not selected, invalid
-                isConstraintTargetSelected = c.find_index([Fmodel.findFeatureFromKey(@features, constraint.to), selection])
+                isConstraintTargetSelected =
+                  c.find_index(
+                    [Fmodel.findFeatureFromKey(@features, constraint.to),
+                    selection]).nil?
+                # true if constraint's target matches current feature's selection
                 if ((constraint.requires && selection == 1) && !isConstraintTargetSelected)
                   validConfig = false
                 elsif ((!constraint.requires && selection == 1) && isConstraintTargetSelected)
@@ -450,7 +455,7 @@ class FmodelsController < ApplicationController
         validConfigs << c if validConfig
       end
       
-      puts "#{validConfigs.size} valid configurations for this model"
+      puts "#{validConfigs.size} valid configurations found out of #{configsCount} total."
       
       # # keep for debugging when rendering in table
       # validConfigs.each do |c|
@@ -490,6 +495,16 @@ class FmodelsController < ApplicationController
           siblingsWithDifferentSelection += 1
         end
       end
+
+      if (selection == 0)
+        # check for if parent is also not selected.
+        # in this case, the selection is not invalid.
+        parent = Fmodel.findFeatureFromKey(@features, feature.parent)
+        isParentSelected = config.find_index([parent, 0]).nil? # true if parent is selected
+        if !isParentSelected
+          return true
+        end
+      end 
 
       if (feature.status == "Alternative")
         if (selection == 1)

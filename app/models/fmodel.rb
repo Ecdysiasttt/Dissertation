@@ -68,8 +68,6 @@ class Fmodel < ApplicationRecord
       # create new feature, supplying the key as the id and the text as the name
       feature = Feature.new((feature['key'].to_i.abs - 1), feature['text'])
 
-      # puts "created #{feature.name} with id #{feature.id}"
-
       # add newly created feature to features array
       features << feature
     end
@@ -90,8 +88,6 @@ class Fmodel < ApplicationRecord
 
         # create new link with 'to'/'from' matching IDs in features[] and requirement status
         link = Link.new(link['to'].to_i.abs-1, link['from'].to_i.abs-1, requirement)
-
-        # puts "created link from #{link.from} to #{link.to} with requirement #{link.requirement}"
           
         # add newly created link to links array
         links << link
@@ -120,13 +116,8 @@ class Fmodel < ApplicationRecord
           }
         end
         # if the current link originates from the current feature
-        # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{features.first()}"
-        # puts "Feature: #{f.name} linking from #{features[l.from].name} to #{l.to}"
-        # puts "#{(features.select { |feat| feat.id == l.to}).first.name}"
         if (f.id == l.from)
           targetFeature = findFeatureFromKey(features, l.to)
-          # puts "#{findFeatureFromKey(features, features, l.to).name}"
-          # puts "Link from #{f.name} to #{targetFeature.name}"
           if (targetFeature.parent.nil?)           # if link is pointing to something WITHOUT a parent:
             targetFeature.status = l.requirement   #   - set requirement status of target feature
             targetFeature.parent = f.id            #   - set target feature's parent to current feature

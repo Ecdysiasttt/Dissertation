@@ -54,7 +54,8 @@
               <td><%= formatTime(user.updated_at) %></td>
             <% end %>
             <td class="text-end">
-              <%= link_to user, class: "btn btn-success btn-sm" do %>
+              <%= link_to user, class: "btn btn-success btn-sm",
+                'aria-label' => "Visit #{user.username}'s profile" do %>
                 <i class="bi bi-person-fill"></i>
               <% end %>  
             </td>

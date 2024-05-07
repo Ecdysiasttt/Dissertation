@@ -15,13 +15,17 @@
         </td>
         <td class="text-end d-flex justify-content-end">
           <%= button_to(user_path((tab == "following") ? f.follows : f.user),
-              method: :get, class: "btn btn-primary btn-sm") do %>
+              method: :get, class: "btn btn-primary btn-sm",
+              'aria-label' => "View #{(tab == "following") ? f.getUsernameTarget : f.getUsernameOrigin}'s profile",
+              ) do %>
             <i class="bi bi-person-fill"></i>
           <% end %>
           <% if @user.canModify %>
             <%= button_to("/follows/#{(tab == "following") ? f.follows : f.user}",
                 method: :delete,
-                class: "btn btn-danger btn-sm ml-2") do %>
+                class: "btn btn-danger btn-sm ml-2",
+                'aria-label' => (tab == "following") ? "Unfollow #{f.getUsernameTarget}" : "Remove #{f.getUsernameOrigin} as a follower",
+                ) do %>
               <i class="bi bi-x-lg"></i>
             <% end %>
           <% end %>
